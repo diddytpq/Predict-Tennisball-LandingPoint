@@ -4,5 +4,5 @@ PROJECT_PKG_CONFIG_INCLUDE_DIRS = "".split(';') if "" != "" else []
 PROJECT_CATKIN_DEPENDS = "".replace(';', ' ')
 PKG_CONFIG_LIBRARIES_WITH_PREFIX = "".split(';') if "" != "" else []
 PROJECT_NAME = "mecanum_right"
-PROJECT_SPACE_DIR = "/home/drcl_yang/ros/tennis_trajectroy/install"
+PROJECT_SPACE_DIR = "/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/install"
 PROJECT_VERSION = "1.0.0"

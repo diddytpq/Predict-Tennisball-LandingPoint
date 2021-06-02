@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/drcl_yang/ros/tennis_trajectroy/src
+CMAKE_SOURCE_DIR = /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/drcl_yang/ros/tennis_trajectroy/build
+CMAKE_BINARY_DIR = /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build
 
 # Utility rule file for geometry_msgs_generate_messages_py.
 
@@ -63,10 +63,10 @@ ball_trajectory/CMakeFiles/geometry_msgs_generate_messages_py.dir/build: geometr
 .PHONY : ball_trajectory/CMakeFiles/geometry_msgs_generate_messages_py.dir/build
 
 ball_trajectory/CMakeFiles/geometry_msgs_generate_messages_py.dir/clean:
-	cd /home/drcl_yang/ros/tennis_trajectroy/build/ball_trajectory && $(CMAKE_COMMAND) -P CMakeFiles/geometry_msgs_generate_messages_py.dir/cmake_clean.cmake
+	cd /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/ball_trajectory && $(CMAKE_COMMAND) -P CMakeFiles/geometry_msgs_generate_messages_py.dir/cmake_clean.cmake
 .PHONY : ball_trajectory/CMakeFiles/geometry_msgs_generate_messages_py.dir/clean
 
 ball_trajectory/CMakeFiles/geometry_msgs_generate_messages_py.dir/depend:
-	cd /home/drcl_yang/ros/tennis_trajectroy/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/drcl_yang/ros/tennis_trajectroy/src /home/drcl_yang/ros/tennis_trajectroy/src/ball_trajectory /home/drcl_yang/ros/tennis_trajectroy/build /home/drcl_yang/ros/tennis_trajectroy/build/ball_trajectory /home/drcl_yang/ros/tennis_trajectroy/build/ball_trajectory/CMakeFiles/geometry_msgs_generate_messages_py.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/src /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/src/ball_trajectory /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/ball_trajectory /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/ball_trajectory/CMakeFiles/geometry_msgs_generate_messages_py.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : ball_trajectory/CMakeFiles/geometry_msgs_generate_messages_py.dir/depend
 

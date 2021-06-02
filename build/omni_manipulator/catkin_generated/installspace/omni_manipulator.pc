@@ -1,8 +1,0 @@
-prefix=/home/drcl_yang/ros/tennis_trajectroy/install
-
-Name: omni_manipulator
-Description: Description of omni_manipulator
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 

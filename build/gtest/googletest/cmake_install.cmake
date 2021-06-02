@@ -2,7 +2,7 @@
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/drcl_yang/ros/tennis_trajectroy/install")
+  set(CMAKE_INSTALL_PREFIX "/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

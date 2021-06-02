@@ -1,4 +1,4 @@
-prefix=/home/drcl_yang/ros/tennis_trajectroy/install
+prefix=/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/install
 
 Name: mecanum_right
 Description: Description of mecanum_right

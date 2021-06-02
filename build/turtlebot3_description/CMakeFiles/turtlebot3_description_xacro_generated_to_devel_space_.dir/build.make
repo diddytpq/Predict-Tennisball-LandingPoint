@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/drcl_yang/ros/tennis_trajectroy/src
+CMAKE_SOURCE_DIR = /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/drcl_yang/ros/tennis_trajectroy/build
+CMAKE_BINARY_DIR = /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build
 
 # Utility rule file for turtlebot3_description_xacro_generated_to_devel_space_.
 
@@ -63,10 +63,10 @@ turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_deve
 .PHONY : turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/build
 
 turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/clean:
-	cd /home/drcl_yang/ros/tennis_trajectroy/build/turtlebot3_description && $(CMAKE_COMMAND) -P CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/cmake_clean.cmake
+	cd /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_description && $(CMAKE_COMMAND) -P CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/cmake_clean.cmake
 .PHONY : turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/clean
 
 turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/depend:
-	cd /home/drcl_yang/ros/tennis_trajectroy/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/drcl_yang/ros/tennis_trajectroy/src /home/drcl_yang/ros/tennis_trajectroy/src/turtlebot3_description /home/drcl_yang/ros/tennis_trajectroy/build /home/drcl_yang/ros/tennis_trajectroy/build/turtlebot3_description /home/drcl_yang/ros/tennis_trajectroy/build/turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/src /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/src/turtlebot3_description /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_description /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/depend
 
