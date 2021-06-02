@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<robot name="ball_1">
+
+    <link name="base_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <sphere radius=".065"/>
+            </geometry>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <sphere radius=".065"/>
+            </geometry>
+            <surface>    
+                <restitution_coefficient> 0.5 </restitution_coefficient>
+                <threshold>0</threshold>
+            </surface>
+        </collision>
+
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.057"/>`
+            <inertia ixx="0.002" ixy="0.002" ixz="0.002"
+                                 iyy="0.002" iyz="0.002"
+                                 izz="0.002" />
+        </inertial>
+    </link>
+    <gazebo reference="base_link">
+        <material>Gazebo/Green</material>
+        <mu1>0.5</mu1>
+        <mu2>0.5</mu2>
+        <kp>1500</kp>
+        <kd>-1</kd>
+        <minDepth>0</minDepth>
+        <maxVel>5000</maxVel>
+    </gazebo>
+</robot>

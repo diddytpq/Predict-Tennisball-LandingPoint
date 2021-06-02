@@ -1,0 +1,19 @@
+rosservice call gazebo/apply_body_wrench '{body_name: "ball::base_link" , reference_frame: "ball::base_link" ,reference_point: {x: -2.4, y: -1.8, z: 0.19 } , wrench: { force: { x: 0.3, y: 0, z: 0.7 } , torque: { x: 0, y: 0 , z: 0.0 } }, start_time: 10000000000, duration: 1000000000 }'
+
+rosservice call gazebo/apply_body_wrench '{body_name: "ball::base_link" , wrench: { force: { x: 0.6, y: 0, z: 0.7 } , torque: { x: 0, y: 0 , z: 0.0 } }, start_time: 10000000000, duration: 1000000000 }'
+
+rosservice call gazebo/apply_body_wrench '{body_name: "ball_2::base_link" , wrench: { force: { x: 0.3, y: 0, z: 0.7 } , torque: { x: 0, y: 90 , z: 0.0 } }, start_time: 10000000000, duration: 1000000000 }'
+
+rosservice call gazebo/apply_body_wrench '{body_name: "ball_3::base_link" , wrench: { force: { x: 0.3, y: 0, z: 0.7 } , torque: { x: 0, y: 110 , z: 0.0 } }, start_time: 10000000000, duration: 1000000000 }'
+
+
+rosservice call gazebo/apply_body_wrench '{body_name: "ball::base_link" , wrench: { force: { x: 0, y: 0, z: 1 } , torque: { x: 0, y: 0 , z: 0.0 } }, start_time: 10000000000, duration: 1000000000 }'
+
+
+
+
+
+-10.55
+
+
+rosservice call gazebo/apply_body_wrench '{body_name: "ball::base_link" , wrench: { force: { x: 0, y: 0, z: 1 } , torque: { x: 0, y: 0 , z: 0.0 } }, start_time: 1, duration: 1 }'

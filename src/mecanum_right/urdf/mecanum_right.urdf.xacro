@@ -1,0 +1,2826 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+    Commit Version: 1.6.0-1-g15f4949  Build Version: 1.6.7594.29634
+    For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="mecanum_right">
+    <xacro:macro name = "mecanum_wheel_right" params = "prefix parent *origin reflect">
+
+        <joint name="${prefix}_R_wheel_joint" type="continuous">
+          <parent link="${parent}"/>
+          <child link="${prefix}_R_wheel"/>
+          <xacro:insert_block name="origin" />
+          <xacro:if value="${reflect}">
+            <axis xyz="0 0 1" rpy="0 0 0" />
+          </xacro:if>
+          <xacro:unless value="${reflect}">
+            <axis xyz="0 0 -1" rpy="0 0 0" />
+          </xacro:unless>
+          <limit effort="100" velocity="1000"/>
+          <joint_properties damping="0.0" friction="1.0"/>
+        </joint>
+
+        <link
+          name="${prefix}_R_wheel">
+          <inertial>
+            <origin
+              xyz="-1.48317175754146E-08 -5.26418500313811E-08 0.00816239668824666"
+              rpy="0 0 0" />
+            <mass
+              value="0.0932319830483376" />
+            <inertia
+              ixx="9.02527751083902E-05"
+              ixy="-7.01082731740573E-10"
+              ixz="-2.36958240870123E-11"
+              iyy="9.02509075500237E-05"
+              iyz="7.80359396795165E-12"
+              izz="0.000174529940633911" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_wheel.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.917647058823529 0.917647058823529 0.917647058823529 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_wheel.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <link
+          name="${prefix}_R_roller_guide_1">
+          <inertial>
+            <origin
+              xyz="-0.00342180218811789 -0.0148935708484475 -9.99611997837616E-08"
+              rpy="0 0 0" />
+            <mass
+              value="0.00548592520159961" />
+            <inertia
+              ixx="4.75778964640026E-07"
+              ixy="-2.99534735678515E-08"
+              ixz="-1.08793561547224E-08"
+              iyy="3.52303702515227E-07"
+              iyz="2.49721398647229E-09"
+              izz="5.92619795292707E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_1.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.92156862745098 0.92156862745098 0.92156862745098 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_1.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_guide_joint_1"
+          type="fixed">
+          <origin
+            xyz="0.021724 0.066532 0.0080608"
+            rpy="0.22029 0.76032 0" />
+          <parent
+            link="${prefix}_R_wheel" />
+          <child
+            link="${prefix}_R_roller_guide_1" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_pin_1">
+          <inertial>
+            <origin
+              xyz="8.50014503228635E-17 -1.38777878078145E-17 2.92387641875891E-15"
+              rpy="0 0 0" />
+            <mass
+              value="0.00969526908824346" />
+            <inertia
+              ixx="3.09307788698156E-06"
+              ixy="0"
+              ixz="-1.94246823245827E-20"
+              iyy="3.09307788698156E-06"
+              iyz="8.60474632208287E-22"
+              izz="3.02977159007612E-08" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_1.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.745098039215686 0.737254901960784 0.729411764705882 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_1.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_pin_joint_1"
+          type="fixed">
+          <origin
+            xyz="-0.0017313 -0.0075354 0"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_roller_guide_1" />
+          <child
+            link="${prefix}_R_pin_1" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_1">
+          <inertial>
+            <origin
+              xyz="-1.12757025938492E-16 6.24500451351651E-17 -0.000228119247512211"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521241" />
+            <inertia
+              ixx="1.02352821766454E-06"
+              ixy="-5.29395592033938E-23"
+              ixz="-1.34995875968654E-21"
+              iyy="1.02352821766454E-06"
+              iyz="4.56603698129271E-21"
+              izz="7.96937026000539E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_1.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_1.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_1"
+          type="continuous">
+          <origin
+            xyz="0 0 -0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_1" />
+          <child
+            link="${prefix}_R_roller_1" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_2">
+          <inertial>
+            <origin
+              xyz="-6.07153216591882E-17 -2.08166817117217E-17 0.000228119247517429"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521242" />
+            <inertia
+              ixx="1.02352821766558E-06"
+              ixy="1.32348898008484E-22"
+              ixz="-3.17637355220363E-22"
+              iyy="1.02352821766558E-06"
+              iyz="5.34027803464235E-21"
+              izz="7.96937026002156E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_2.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_2.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_2"
+          type="continuous">
+          <origin
+            xyz="0 0 0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_1" />
+          <child
+            link="${prefix}_R_roller_2" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_guide_2">
+          <inertial>
+            <origin
+              xyz="0.00342186181927153 -0.0148935525173834 -9.08997759545976E-08"
+              rpy="0 0 0" />
+            <mass
+              value="0.00548592548678133" />
+            <inertia
+              ixx="4.75781915102192E-07"
+              ixy="2.99475121972126E-08"
+              ixz="-1.08781021799698E-08"
+              iyy="3.52300984370672E-07"
+              iyz="-2.50146577009546E-09"
+              izz="5.92619648790579E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_2.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.92156862745098 0.92156862745098 0.92156862745098 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_2.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_guide_joint_2"
+          type="fixed">
+          <origin
+            xyz="-0.021531 0.066595 0.0080608"
+            rpy="-0.22029 0.76032 0" />
+          <parent
+            link="${prefix}_R_wheel" />
+          <child
+            link="${prefix}_R_roller_guide_2" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_pin_2">
+          <inertial>
+            <origin
+              xyz="3.88578058618805E-16 1.17961196366423E-16 2.68882138776405E-17"
+              rpy="0 0 0" />
+            <mass
+              value="0.00969526908824346" />
+            <inertia
+              ixx="3.09307788698156E-06"
+              ixy="-2.64697796016969E-23"
+              ixz="2.23338765389317E-23"
+              iyy="3.09307788698156E-06"
+              iyz="6.47682419629021E-22"
+              izz="3.02977159007609E-08" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_2.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.745098039215686 0.737254901960784 0.729411764705882 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_2.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_pin_joint_2"
+          type="fixed">
+          <origin
+            xyz="0.0017313 -0.0075354 0"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_roller_guide_2" />
+          <child
+            link="${prefix}_R_pin_2" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_3">
+          <inertial>
+            <origin
+              xyz="3.64291929955129E-16 1.2490009027033E-16 -0.000228119247514565"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521241" />
+            <inertia
+              ixx="1.02352821766474E-06"
+              ixy="-1.32348898008484E-23"
+              ixz="-2.91167575618666E-22"
+              iyy="1.02352821766474E-06"
+              iyz="-4.92337900591562E-21"
+              izz="7.96937026000538E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_3.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_3.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_3"
+          type="continuous">
+          <origin
+            xyz="0 0 -0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_2" />
+          <child
+            link="${prefix}_R_roller_3" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_4">
+          <inertial>
+            <origin
+              xyz="3.81639164714898E-16 1.04083408558608E-16 0.000228119247514633"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521241" />
+            <inertia
+              ixx="1.02352821766474E-06"
+              ixy="-7.27918939046664E-23"
+              ixz="-5.55865371635635E-22"
+              iyy="1.02352821766474E-06"
+              iyz="-4.79103010790714E-21"
+              izz="7.96937026000539E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_4.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_4.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_4"
+          type="continuous">
+          <origin
+            xyz="0 0 0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_2" />
+          <child
+            link="${prefix}_R_roller_4" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_guide_3">
+          <inertial>
+            <origin
+              xyz="0.010658272714687 -0.0109511804774282 -9.62746396051053E-08"
+              rpy="0 0 0" />
+            <mass
+              value="0.00548592624497298" />
+            <inertia
+              ixx="4.15904879219345E-07"
+              ixy="6.85949249227141E-08"
+              ixz="-7.99755966189254E-09"
+              iyy="4.12177911777924E-07"
+              iyz="-7.78673905451306E-09"
+              izz="5.92619783746576E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_3.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.92156862745098 0.92156862745098 0.92156862745098 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_3.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_guide_joint_3"
+          type="fixed">
+          <origin
+            xyz="-0.056682 0.041056 0.0080608"
+            rpy="-0.60902 0.53139 0" />
+          <parent
+            link="${prefix}_R_wheel" />
+          <child
+            link="${prefix}_R_roller_guide_3" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_pin_3">
+          <inertial>
+            <origin
+              xyz="2.4980018054066E-16 2.63677968348475E-16 1.38777878078145E-17"
+              rpy="0 0 0" />
+            <mass
+              value="0.00969526908824346" />
+            <inertia
+              ixx="3.09307788698156E-06"
+              ixy="-1.58818677610181E-22"
+              ixz="-5.20296605295854E-22"
+              iyy="3.09307788698156E-06"
+              iyz="3.82157442999499E-22"
+              izz="3.02977159007611E-08" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_3.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.745098039215686 0.737254901960784 0.729411764705882 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_3.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_pin_joint_3"
+          type="fixed">
+          <origin
+            xyz="0.0053926 -0.0055408 0"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_roller_guide_3" />
+          <child
+            link="${prefix}_R_pin_3" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_5">
+          <inertial>
+            <origin
+              xyz="2.42861286636753E-16 2.70616862252382E-16 -0.000228119247514201"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521244" />
+            <inertia
+              ixx="1.02352821767446E-06"
+              ixy="-5.29395592033938E-23"
+              ixz="-2.35581038455102E-21"
+              iyy="1.02352821767446E-06"
+              iyz="-2.64697796016969E-22"
+              izz="7.96937026018707E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_5.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_5.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_5"
+          type="continuous">
+          <origin
+            xyz="0 0 -0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_3" />
+          <child
+            link="${prefix}_R_roller_5" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_6">
+          <inertial>
+            <origin
+              xyz="2.22044604925031E-16 2.4980018054066E-16 0.000228119247514619"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521241" />
+            <inertia
+              ixx="1.02352821766471E-06"
+              ixy="-1.58818677610181E-22"
+              ixz="-3.20284333180532E-21"
+              iyy="1.02352821766471E-06"
+              iyz="-4.76456032830544E-22"
+              izz="7.96937026000477E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_6.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_6.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_6"
+          type="continuous">
+          <origin
+            xyz="0 0 0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_3" />
+          <child
+            link="${prefix}_R_roller_6" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_guide_4">
+          <inertial>
+            <origin
+              xyz="0.0152815940191845 3.05691273657163E-08 -9.66366450749767E-08"
+              rpy="0 0 0" />
+            <mass
+              value="0.00548592343663474" />
+            <inertia
+              ixx="3.45420967168064E-07"
+              ixy="3.36021019979058E-12"
+              ixz="2.21898872853095E-12"
+              iyy="4.82661712878631E-07"
+              iyz="-1.11621579313117E-08"
+              izz="5.92619617404984E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_4.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.92156862745098 0.92156862745098 0.92156862745098 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_4.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_guide_jont_4"
+          type="fixed">
+          <origin
+            xyz="-0.069989 -0.0001016 0.0080608"
+            rpy="-0.7854 0 0" />
+          <parent
+            link="${prefix}_R_wheel" />
+          <child
+            link="${prefix}_R_roller_guide_4" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_pin_4">
+          <inertial>
+            <origin
+              xyz="-4.16333634234434E-17 2.99239799605999E-16 0"
+              rpy="0 0 0" />
+            <mass
+              value="0.00969526908824346" />
+            <inertia
+              ixx="3.09307788698156E-06"
+              ixy="2.63240160088096E-25"
+              ixz="1.45550216912586E-22"
+              iyy="3.09307788698156E-06"
+              iyz="1.04224757181681E-22"
+              izz="3.02977159007607E-08" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_4.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.745098039215686 0.737254901960784 0.729411764705882 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_4.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_pin_joint_4"
+          type="fixed">
+          <origin
+            xyz="0.0077317 0 0"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_roller_guide_4" />
+          <child
+            link="${prefix}_R_pin_4" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_7">
+          <inertial>
+            <origin
+              xyz="-1.38777878078145E-17 1.30104260698261E-17 -0.000228119247514614"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521241" />
+            <inertia
+              ixx="1.02352821766475E-06"
+              ixy="-8.03718692378886E-23"
+              ixz="5.02158243341074E-23"
+              iyy="1.02352821766475E-06"
+              iyz="0"
+              izz="7.96937026000574E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_7.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_7.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_7"
+          type="continuous">
+          <origin
+            xyz="0 0 -0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_4" />
+          <child
+            link="${prefix}_R_roller_7" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_8">
+          <inertial>
+            <origin
+              xyz="-1.38777878078145E-17 1.12757025938492E-17 0.000228119247514237"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521244" />
+            <inertia
+              ixx="1.02352821767402E-06"
+              ixy="5.05029095165577E-23"
+              ixz="-3.80117229354856E-23"
+              iyy="1.02352821767402E-06"
+              iyz="1.85288457211878E-22"
+              izz="7.96937026018971E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_8.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_8.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_8"
+          type="continuous">
+          <origin
+            xyz="0 0 0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_4" />
+          <child
+            link="${prefix}_R_roller_8" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_guide_5">
+          <inertial>
+            <origin
+              xyz="0.0106582727146872 0.010951180477428 9.62746395886255E-08"
+              rpy="0 0 0" />
+            <mass
+              value="0.00548592624497297" />
+            <inertia
+              ixx="4.15904879219341E-07"
+              ixy="-6.8594924922714E-08"
+              ixz="7.99755966189233E-09"
+              iyy="4.12177911777927E-07"
+              iyz="-7.7867390545131E-09"
+              izz="5.92619783746575E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_5.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.92156862745098 0.92156862745098 0.92156862745098 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_5.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_guide_joint_5"
+          type="fixed">
+          <origin
+            xyz="-0.056562 -0.04122 0.0080608"
+            rpy="-0.60902 -0.53139 0" />
+          <parent
+            link="${prefix}_R_wheel" />
+          <child
+            link="${prefix}_R_roller_guide_5" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_pin_5">
+          <inertial>
+            <origin
+              xyz="-1.87350135405495E-16 1.45716771982052E-16 -3.64291929955129E-17"
+              rpy="0 0 0" />
+            <mass
+              value="0.00969526908824346" />
+            <inertia
+              ixx="3.09307788698156E-06"
+              ixy="5.29395592033938E-23"
+              ixz="1.92733082724855E-22"
+              iyy="3.09307788698156E-06"
+              iyz="6.89868630869225E-22"
+              izz="3.02977159007607E-08" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_5.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.745098039215686 0.737254901960784 0.729411764705882 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_5.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_pin_joint_5"
+          type="fixed">
+          <origin
+            xyz="0.0053926 0.0055408 0"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_roller_guide_5" />
+          <child
+            link="${prefix}_R_pin_5" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_9">
+          <inertial>
+            <origin
+              xyz="-1.38777878078145E-17 0 -0.000228119247515458"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521239" />
+            <inertia
+              ixx="1.02352821766348E-06"
+              ixy="-5.29395592033938E-23"
+              ixz="2.40874994375442E-21"
+              iyy="1.02352821766348E-06"
+              iyz="-1.58818677610181E-22"
+              izz="7.96937025998479E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_9.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_9.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_9"
+          type="continuous">
+          <origin
+            xyz="0 0 -0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_5" />
+          <child
+            link="${prefix}_R_roller_9" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_10">
+          <inertial>
+            <origin
+              xyz="-2.08166817117217E-17 -6.93889390390723E-18 0.000228119247515448"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521239" />
+            <inertia
+              ixx="1.02352821766348E-06"
+              ixy="0"
+              ixz="2.14405214773745E-21"
+              iyy="1.02352821766348E-06"
+              iyz="-1.58818677610181E-22"
+              izz="7.96937025998479E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_10.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_10.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_10"
+          type="continuous">
+          <origin
+            xyz="0 0 0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_5" />
+          <child
+            link="${prefix}_R_roller_10" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_guide_6">
+          <inertial>
+            <origin
+              xyz="0.00342186181927157 0.0148935525173834 9.08997759511282E-08"
+              rpy="0 0 0" />
+            <mass
+              value="0.00548592548678132" />
+            <inertia
+              ixx="4.75781915102191E-07"
+              ixy="-2.99475121972135E-08"
+              ixz="1.08781021799699E-08"
+              iyy="3.52300984370672E-07"
+              iyz="-2.50146577009551E-09"
+              izz="5.92619648790578E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_6.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.92156862745098 0.92156862745098 0.92156862745098 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_6.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_guide_joint_6"
+          type="fixed">
+          <origin
+            xyz="-0.021531 -0.066595 0.0080608"
+            rpy="-0.22029 -0.76032 0" />
+          <parent
+            link="${prefix}_R_wheel" />
+          <child
+            link="${prefix}_R_roller_guide_6" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_pin_6">
+          <inertial>
+            <origin
+              xyz="-1.49186218934005E-16 6.93889390390723E-18 -9.54097911787244E-18"
+              rpy="0 0 0" />
+            <mass
+              value="0.00969526908824347" />
+            <inertia
+              ixx="3.09307788698156E-06"
+              ixy="2.64697796016969E-23"
+              ixz="6.40237794116043E-22"
+              iyy="3.09307788698156E-06"
+              iyz="1.05196694401431E-21"
+              izz="3.02977159007601E-08" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_6.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.745098039215686 0.737254901960784 0.729411764705882 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_6.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_pin_joint_6"
+          type="fixed">
+          <origin
+            xyz="0.0017313 0.0075354 0"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_roller_guide_6" />
+          <child
+            link="${prefix}_R_pin_6" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_11">
+          <inertial>
+            <origin
+              xyz="-1.61329283265843E-16 1.38777878078145E-17 -0.000228119247514445"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521242" />
+            <inertia
+              ixx="1.02352821766558E-06"
+              ixy="-3.30872245021211E-23"
+              ixz="2.64697796016969E-22"
+              iyy="1.02352821766558E-06"
+              iyz="-5.3535129244432E-21"
+              izz="7.96937026002156E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_11.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_11.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_11"
+          type="continuous">
+          <origin
+            xyz="0 0 -0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_6" />
+          <child
+            link="${prefix}_R_roller_11" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_12">
+          <inertial>
+            <origin
+              xyz="1.31838984174237E-16 -4.85722573273506E-17 0.000228119247515226"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521241" />
+            <inertia
+              ixx="1.02352821766454E-06"
+              ixy="-1.45583787809333E-22"
+              ixz="6.35274710440725E-22"
+              iyy="1.02352821766454E-06"
+              iyz="4.24839962607235E-21"
+              izz="7.96937026000539E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_12.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_12.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_12"
+          type="continuous">
+          <origin
+            xyz="0 0 0.01562"
+            rpy="0 0 -2.9367" />
+          <parent
+            link="${prefix}_R_pin_6" />
+          <child
+            link="${prefix}_R_roller_12" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_guide_7">
+          <inertial>
+            <origin
+              xyz="-0.00342180218811786 0.0148935708484475 9.99611997551386E-08"
+              rpy="0 0 0" />
+            <mass
+              value="0.00548592520159961" />
+            <inertia
+              ixx="4.75778964640027E-07"
+              ixy="2.99534735678517E-08"
+              ixz="1.08793561547236E-08"
+              iyy="3.52303702515227E-07"
+              iyz="2.49721398647168E-09"
+              izz="5.92619795292707E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_7.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.92156862745098 0.92156862745098 0.92156862745098 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_7.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_guide_joint_7"
+          type="fixed">
+          <origin
+            xyz="0.021724 -0.066532 0.0080608"
+            rpy="0.22029 -0.76032 0" />
+          <parent
+            link="${prefix}_R_wheel" />
+          <child
+            link="${prefix}_R_roller_guide_7" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_pin_7">
+          <inertial>
+            <origin
+              xyz="5.20417042793042E-17 1.52655665885959E-16 1.04083408558608E-16"
+              rpy="0 0 0" />
+            <mass
+              value="0.00969526908824346" />
+            <inertia
+              ixx="3.09307788698156E-06"
+              ixy="1.32348898008484E-22"
+              ixz="6.48509600241574E-22"
+              iyy="3.09307788698156E-06"
+              iyz="6.23280591558706E-22"
+              izz="3.02977159007612E-08" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_7.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.745098039215686 0.737254901960784 0.729411764705882 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_7.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_pin_joint_7"
+          type="fixed">
+          <origin
+            xyz="-0.0017313 0.0075354 0"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_roller_guide_7" />
+          <child
+            link="${prefix}_R_pin_7" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_13">
+          <inertial>
+            <origin
+              xyz="6.59194920871187E-17 1.38777878078145E-16 -0.000228119247514492"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521241" />
+            <inertia
+              ixx="1.02352821766474E-06"
+              ixy="5.9557004103818E-23"
+              ixz="1.85288457211878E-22"
+              iyy="1.02352821766474E-06"
+              iyz="4.81088244260841E-21"
+              izz="7.96937026000539E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_13.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_13.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_13"
+          type="continuous">
+          <origin
+            xyz="0 0 -0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_7" />
+          <child
+            link="${prefix}_R_roller_13" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_14">
+          <inertial>
+            <origin
+              xyz="7.28583859910259E-17 1.66533453693773E-16 0.000228119247514699"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521241" />
+            <inertia
+              ixx="1.02352821766474E-06"
+              ixy="-2.64697796016969E-23"
+              ixz="5.29395592033938E-22"
+              iyy="1.02352821766474E-06"
+              iyz="4.91014411611477E-21"
+              izz="7.96937026000539E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_14.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_14.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_14"
+          type="continuous">
+          <origin
+            xyz="0 0 0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_7" />
+          <child
+            link="${prefix}_R_roller_14" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_guide_8">
+          <inertial>
+            <origin
+              xyz="-0.0106582265036104 0.0109512234545013 9.3273779427569E-08"
+              rpy="0 0 0" />
+            <mass
+              value="0.00548592639634297" />
+            <inertia
+              ixx="4.15898396563854E-07"
+              ixy="6.85950843566803E-08"
+              ixz="8.00057928461108E-09"
+              iyy="4.12184476952516E-07"
+              iyz="7.78350717730002E-09"
+              izz="5.92619739249946E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_8.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.92156862745098 0.92156862745098 0.92156862745098 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_8.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_guide_joint_8"
+          type="fixed">
+          <origin
+            xyz="0.056682 -0.041056 0.0080608"
+            rpy="0.60902 -0.53139 0" />
+          <parent
+            link="${prefix}_R_wheel" />
+          <child
+            link="${prefix}_R_roller_guide_8" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_pin_8">
+          <inertial>
+            <origin
+              xyz="1.66533453693773E-16 1.38777878078145E-16 -2.25514051876985E-17"
+              rpy="0 0 0" />
+            <mass
+              value="0.00969526908824346" />
+            <inertia
+              ixx="3.09307788698156E-06"
+              ixy="2.64697796016969E-22"
+              ixz="-1.70688719400317E-20"
+              iyy="3.09307788698156E-06"
+              iyz="4.2070405954447E-21"
+              izz="3.02977159007607E-08" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_8.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.745098039215686 0.737254901960784 0.729411764705882 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_8.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_pin_joint_8"
+          type="fixed">
+          <origin
+            xyz="-0.0053926 0.0055408 0"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_roller_guide_8" />
+          <child
+            link="${prefix}_R_pin_8" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_15">
+          <inertial>
+            <origin
+              xyz="1.59594559789866E-16 1.38777878078145E-16 -0.000228119247514426"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521242" />
+            <inertia
+              ixx="1.02352821766548E-06"
+              ixy="-1.32348898008484E-22"
+              ixz="1.95876369052557E-21"
+              iyy="1.02352821766548E-06"
+              iyz="6.35274710440725E-22"
+              izz="7.96937026001951E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_15.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_15.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_15"
+          type="continuous">
+          <origin
+            xyz="0 0 -0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_8" />
+          <child
+            link="${prefix}_R_roller_15" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_16">
+          <inertial>
+            <origin
+              xyz="4.85722573273506E-17 -6.93889390390723E-18 0.000228119247514508"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521241" />
+            <inertia
+              ixx="1.02352821766501E-06"
+              ixy="1.58818677610181E-22"
+              ixz="1.95876369052557E-21"
+              iyy="1.02352821766501E-06"
+              iyz="6.35274710440725E-22"
+              izz="7.96937026002284E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_16.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_16.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_16"
+          type="continuous">
+          <origin
+            xyz="0 0 0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_8" />
+          <child
+            link="${prefix}_R_roller_16" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_guide_9">
+          <inertial>
+            <origin
+              xyz="-0.015281594019188 3.05691270656092E-08 9.66366455251375E-08"
+              rpy="0 0 0" />
+            <mass
+              value="0.00548592343663473" />
+            <inertia
+              ixx="3.45420967168064E-07"
+              ixy="-3.36021019746269E-12"
+              ixz="2.21898872863427E-12"
+              iyy="4.8266171287863E-07"
+              iyz="1.11621579313117E-08"
+              izz="5.92619617404983E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_9.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.92156862745098 0.92156862745098 0.92156862745098 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_9.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_guide_joint_9"
+          type="fixed">
+          <origin
+            xyz="0.069989 0.0001016 0.0080608"
+            rpy="0.7854 0 0" />
+          <parent
+            link="${prefix}_R_wheel" />
+          <child
+            link="${prefix}_R_roller_guide_9" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_pin_9">
+          <inertial>
+            <origin
+              xyz="-1.51961776495568E-15 -6.48786580015326E-16 7.21644966006352E-16"
+              rpy="0 0 0" />
+            <mass
+              value="0.00969526908824346" />
+            <inertia
+              ixx="3.09307788698156E-06"
+              ixy="9.82015317073728E-25"
+              ixz="-2.96022228761687E-23"
+              iyy="3.09307788698156E-06"
+              iyz="1.31521717395931E-21"
+              izz="3.02977159007612E-08" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_9.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.745098039215686 0.737254901960784 0.729411764705882 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_9.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_pin_joint_9"
+          type="fixed">
+          <origin
+            xyz="-0.0077317 0 0"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_roller_guide_9" />
+          <child
+            link="${prefix}_R_pin_9" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_17">
+          <inertial>
+            <origin
+              xyz="-1.54737334057131E-15 -6.94756752128711E-16 -0.000228119247513829"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521241" />
+            <inertia
+              ixx="1.02352821766475E-06"
+              ixy="2.25348644557919E-23"
+              ixz="-1.70132502558685E-23"
+              iyy="1.02352821766475E-06"
+              iyz="4.49986253228847E-22"
+              izz="7.96937026000575E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_17.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_17.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_17"
+          type="continuous">
+          <origin
+            xyz="0 0 -0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_9" />
+          <child
+            link="${prefix}_R_roller_17" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_18">
+          <inertial>
+            <origin
+              xyz="-1.49186218934005E-15 -6.93889390390723E-16 0.000228119247515368"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521241" />
+            <inertia
+              ixx="1.02352821766512E-06"
+              ixy="2.09234756442455E-24"
+              ixz="6.031968120748E-23"
+              iyy="1.02352821766512E-06"
+              iyz="-2.64697796016969E-23"
+              izz="7.96937026002513E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_18.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_18.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_18"
+          type="continuous">
+          <origin
+            xyz="0 0 0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_9" />
+          <child
+            link="${prefix}_R_roller_18" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_guide_10">
+          <inertial>
+            <origin
+              xyz="-0.0106582265036106 -0.0109512234545011 -9.32737793815988E-08"
+              rpy="0 0 0" />
+            <mass
+              value="0.00548592639634297" />
+            <inertia
+              ixx="4.15898396563853E-07"
+              ixy="-6.85950843566804E-08"
+              ixz="-8.00057928460998E-09"
+              iyy="4.12184476952518E-07"
+              iyz="7.7835071773008E-09"
+              izz="5.92619739249947E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_10.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.92156862745098 0.92156862745098 0.92156862745098 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_guide_10.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_guide_joint_10"
+          type="fixed">
+          <origin
+            xyz="0.056682 0.041056 0.0080608"
+            rpy="0.60902 0.53139 0" />
+          <parent
+            link="${prefix}_R_wheel" />
+          <child
+            link="${prefix}_R_roller_guide_10" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_pin_10">
+          <inertial>
+            <origin
+              xyz="-2.84494650060196E-16 2.56739074444567E-16 -2.08166817117217E-17"
+              rpy="0 0 0" />
+            <mass
+              value="0.00969526908824346" />
+            <inertia
+              ixx="3.09307788698156E-06"
+              ixy="5.29395592033938E-23"
+              ixz="-6.16249556352006E-22"
+              iyy="3.09307788698156E-06"
+              iyz="5.74890525724354E-22"
+              izz="3.02977159007609E-08" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_10.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.745098039215686 0.737254901960784 0.729411764705882 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_pin_10.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_pin_joint_10"
+          type="fixed">
+          <origin
+            xyz="-0.0053926 -0.0055408 0"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_roller_guide_10" />
+          <child
+            link="${prefix}_R_pin_10" />
+          <axis
+            xyz="0 0 0" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_19">
+          <inertial>
+            <origin
+              xyz="-3.19189119579733E-16 2.63677968348475E-16 -0.000228119247515422"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521239" />
+            <inertia
+              ixx="1.02352821766348E-06"
+              ixy="0"
+              ixz="-2.14405214773745E-21"
+              iyy="1.02352821766348E-06"
+              iyz="2.38228016415272E-22"
+              izz="7.96937025998479E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_19.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_19.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_19"
+          type="continuous">
+          <origin
+            xyz="0 0 -0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_10" />
+          <child
+            link="${prefix}_R_roller_19" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+        <link
+          name="${prefix}_R_roller_20">
+          <inertial>
+            <origin
+              xyz="-2.70616862252382E-16 2.63677968348475E-16 0.000228119247515229"
+              rpy="0 0 0" />
+            <mass
+              value="0.0102614605521241" />
+            <inertia
+              ixx="1.02352821766451E-06"
+              ixy="-2.64697796016969E-23"
+              ixz="-2.43521972335611E-21"
+              iyy="1.02352821766451E-06"
+              iyz="4.2351647362715E-22"
+              izz="7.96937026000477E-07" />
+          </inertial>
+          <visual>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_20.STL" />
+            </geometry>
+            <material
+              name="">
+              <color
+                rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+            </material>
+          </visual>
+          <collision>
+            <origin
+              xyz="0 0 0"
+              rpy="0 0 0" />
+            <geometry>
+              <mesh
+                filename="package://mecanum_right/meshes/R_roller_20.STL" />
+            </geometry>
+          </collision>
+        </link>
+        <joint
+          name="${prefix}_R_roller_joint_20"
+          type="continuous">
+          <origin
+            xyz="0 0 0.01562"
+            rpy="0 0 0" />
+          <parent
+            link="${prefix}_R_pin_10" />
+          <child
+            link="${prefix}_R_roller_20" />
+          <axis
+            xyz="0 0 1" />
+        </joint>
+
+        <transmission name="${prefix}_R_wheel_trans">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_wheel_joint" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_wheel_motor">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_1">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_1" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_1">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_2">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_2" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_2">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_3">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_3" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_3">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_4">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_4" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_4">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_5">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_5" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_5">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_6">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_6" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_6">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_7">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_7" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_7">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_8">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_8" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_8">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_9">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_9" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_9">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_10">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_10" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_10">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_11">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_11" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_11">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_12">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_12" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_12">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_13">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_13" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_13">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_14">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_14" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_14">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_15">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_15" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_15">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_16">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_16" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_16">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_17">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_17" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_17">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_18">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_18" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_18">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_19">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_19" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_19">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+        <transmission name="${prefix}_R_roller_joint_20">
+                <type>transmission_interface/SimpleTransmission</type>
+                <joint name="${prefix}_R_roller_joint_20" >
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                </joint>
+                <actuator name="${prefix}_R_roller_motor_20">
+                    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                    <mechanicalReduction>1</mechanicalReduction>
+                </actuator>
+        </transmission>
+
+        <gazebo reference="${prefix}_R_wheel">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_guide_1">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_guide_2">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_guide_3">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_guide_4">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_guide_5">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_guide_6">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_guide_7">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_guide_8">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_guide_9">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_guide_10">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_pin_1">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_pin_2">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_pin_3">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_pin_4">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_pin_5">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_pin_6">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_pin_7">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_pin_8">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_pin_9">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_pin_10">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_1">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_2">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_3">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_4">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_5">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_6">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_7">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_8">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_9">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_10">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_11">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_12">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_13">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_14">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_15">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_16">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_17">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_18">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_19">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+        <gazebo reference="${prefix}_R_roller_20">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2> 
+            <kp>1e+13</kp>
+            <kd>1.0</kd>
+            <maxVel>0.001</maxVel>
+            <minDepth>0.00001</minDepth>
+            <turnGravityOff>false</turnGravityOff>
+            <gravity>1</gravity>
+            <material>Gazebo/DarkGrey</material>
+        </gazebo>
+
+    </xacro:macro>
+</robot>

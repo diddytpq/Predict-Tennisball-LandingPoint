@@ -1,0 +1,8 @@
+prefix=/home/drcl_yang/ros/tennis_trajectroy/devel
+
+Name: gripper_v3
+Description: Description of gripper_v3
+Version: 1.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

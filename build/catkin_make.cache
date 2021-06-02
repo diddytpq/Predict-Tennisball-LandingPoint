@@ -1,0 +1,2 @@
+ball_trajectory:gripper_v3:mecanum_left:mecanum_right:omni_manipulator:turtlebot3_description:turtlebot3_teleop
+-DPYTHON_EXECUTABLE=/usr/bin/python3 -DCATKIN_DEVEL_PREFIX=/home/drcl_yang/ros/tennis_trajectroy/devel -DCMAKE_INSTALL_PREFIX=/home/drcl_yang/ros/tennis_trajectroy/install -G Unix Makefiles

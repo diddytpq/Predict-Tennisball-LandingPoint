@@ -1,0 +1,8 @@
+prefix=/home/drcl_yang/ros/tennis_trajectroy/install
+
+Name: ball_trajectory
+Description: Description of ball_trajectory
+Version: 1.3.1
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: roscpp std_msgs sensor_msgs geometry_msgs nav_msgs tf gazebo_ros gazebo_ros

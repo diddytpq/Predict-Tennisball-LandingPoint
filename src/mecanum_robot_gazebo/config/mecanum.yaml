@@ -1,0 +1,42 @@
+mecanum:
+ #front_R_wheel_joint, front_L_wheel_joint, back_R_wheel_joint, back_L_wheel_joint
+  #Velocity Controllers
+  
+  wheel_1:
+    type: velocity_controllers/JointVelocityController
+    joint: front_R_wheel_joint
+    pid: {p: 100.0, i: 1.0, d: 10.0}
+    
+  wheel_2:
+    type: velocity_controllers/JointVelocityController
+    joint: front_L_wheel_joint
+    pid: {p: 100.0, i: 1.0, d: 10.0}
+
+  wheel_3:
+    type: velocity_controllers/JointVelocityController
+    joint: back_L_wheel_joint
+    pid: {p: 100.0, i: 1.0, d: 10.0}
+
+  wheel_4:
+    type: velocity_controllers/JointVelocityController
+    joint: back_R_wheel_joint
+    pid: {p: 100.0, i: 1.0, d: 10.0}
+
+
+  #Effort Conrollers
+  # wheel_1_torque:
+  #   type: effort_controllers/JointEffortController
+  #   joint: right_front_mecanum_joint
+  #   pid: {p: 100.0, i: 0.01, d: 10.0}
+  # wheel_2_torque:
+  #   type: effort_controllers/JointEffortController
+  #   joint: left_front_mecanum_joint
+  #   pid: {p: 100.0, i: 0.01, d: 10.0}
+  # wheel_3_torque:
+  #   type: effort_controllers/JointEffortController
+  #   joint: left_back_mecanum_joint
+  #   pid: {p: 100.0, i: 0.01, d: 10.0}
+  # wheel_4_torque:
+  #   type: effort_controllers/JointEffortController
+  #   joint: right_back_mecanum_joint
+  #   pid: {p: 100.0, i: 0.01, d: 10.0}
