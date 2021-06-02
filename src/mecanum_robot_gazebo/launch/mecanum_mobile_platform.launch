@@ -41,7 +41,7 @@
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
   
   <!-- Joystick node -->
-  <!--node name="joy" pkg="joy" type="joy_node"/!-->
+  <node name="joy" pkg="joy" type="joy_node"/>
 
 
 </launch>
