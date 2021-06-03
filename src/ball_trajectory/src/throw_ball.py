@@ -9,6 +9,7 @@ import roslib
 from std_msgs.msg import Empty as EmptyMsg
 from nav_msgs.msg import Odometry
 import time
+from tool.utils import  *
 
 
 roslib.load_manifest('ball_trajectory')
@@ -23,12 +24,14 @@ def spwan_ball(model_name):
 
     res = srv_delete_model(model_name)
 
+    time.sleep(0.2)
+
     file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/ball_main.sdf'
     srv_spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
   
     g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
     
-    state = g_get_state(model_name="turtlebot3_waffle")
+    state = g_get_state(model_name="mecanum")
 
     object_pose = Pose()
     object_pose.position.x = float(state.pose.position.x)
@@ -64,7 +67,7 @@ def throw_ball():
 
     g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
     
-    state = g_get_state(model_name="turtlebot3_waffle")
+    state = g_get_state(model_name="mecanum")
 
 
     x = float(state.pose.orientation.x)
@@ -96,7 +99,7 @@ def throw_ball():
 
     if success:
         print('Body wrench perturbation applied!')
-        print('\tFrame: ', body_name)
+        #print('\tFrame: ', body_name)
         print('\tDuration [s]: ', duration)
         print('\tForce [N]: ', force)
         print('\tTorque [Nm]: ', torque)

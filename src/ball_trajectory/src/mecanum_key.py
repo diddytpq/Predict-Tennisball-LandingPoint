@@ -10,6 +10,7 @@ if os.name == 'nt':
 else:
   import tty, termios
 
+from throw_ball import *
 
 
 roslib.load_manifest('ball_trajectory')
@@ -32,9 +33,27 @@ def getKey():
     return key
 
 
-def check_velocity(cur_vel, max_vel):
-    pass
+def check_velocity(cur_vel):
+    max_x = 5.5 #km/h
+    max_y = 1.5 #km/h
+    max_wz = 3.5 #deg/sec
 
+    x_vel, y_vel, z_vel, z_angle = cur_vel
+
+    if max_x < abs(x_vel):
+        if x_vel > 0: x_vel = max_x
+        else: x_vel = -max_x
+
+    if max_y < abs(y_vel):
+        if y_vel > 0: y_vel = max_y
+        else: y_vel = -max_y
+
+    if max_wz < abs(z_angle):
+        if z_angle > 0: z_angle = max_wz
+        else: z_angle = -max_wz
+        
+
+    return [x_vel, y_vel, z_vel], z_angle
 
 def mecanum_wheel_velocity(vx, vy, wz):
     r = 0.0762 # radius of wheel
@@ -53,7 +72,7 @@ def mecanum_wheel_velocity(vx, vy, wz):
 
 
 def move_mecanum(data):
-    # start publisher of cmd_vel to control Turtlesim
+    # start publisher of cmd_vel to control mecanum
 
 
     pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
@@ -69,91 +88,36 @@ def move_mecanum(data):
 
     robot_state = g_get_state(model_name="mecanum")
 
-    print(linear[0], linear[1], linear[2])
-    print(float(robot_state.twist.linear.x), float(robot_state.twist.linear.y), float(robot_state.twist.linear.z))
 
-
-    x_vel = linear[0]
-    y_vel = linear[1]
-    z_vel = linear[2]
-
-    z_angle = angular[2]
-
-    vbx = 5.5 #km/h
-    vby = 1.5 #km/h
-    wbz = 3.5 #deg/sec
+    linear, angular[2] = check_velocity([linear[0],linear[1],linear[2],angular[2]])
 
     twist = Twist()
 
-    twist.linear.x = x_vel
-    twist.linear.y = y_vel
-    twist.linear.z = z_vel
+    twist.linear.x = linear[0]
+    twist.linear.y = linear[1]
+    twist.linear.z = linear[2]
 
-    twist.angular.z = z_angle
+    twist.angular.z = angular[2]
 
 
     wheel_vel = mecanum_wheel_velocity(twist.linear.x, twist.linear.y, twist.angular.z)
     
+    print("-------------------------------------------------------------------------------")
     rospy.loginfo("\ttwist.linear.x : %f", twist.linear.x)
     rospy.loginfo("\ttwist.linear.y : %f", twist.linear.y)
-    rospy.loginfo("\ttwist.linear.z : %f", twist.linear.z)
+    rospy.loginfo("\ttwist.linear.z : %f", twist.angular.z)
     
     # record values to log file and screen
     #rospy.loginfo("twist.linear.x: %f; twist.linear.y: %f ; angular %f", twist.linear.x, twist.linear.y, twist.angular.z)
 
-    # publish cmd_vel move command to Turtlesim
+    # publish cmd_vel move command to mecanum 
     pub.publish(twist)
     pub_wheel_vel_1.publish(wheel_vel[0,:])
     pub_wheel_vel_2.publish(wheel_vel[1,:])
     pub_wheel_vel_3.publish(wheel_vel[2,:])
     pub_wheel_vel_4.publish(wheel_vel[3,:])
 
-
-def stop_mecanum():
-    # start publisher of cmd_vel to control Turtlesim
-
-
-    pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
-    pub_wheel_vel_1 = rospy.Publisher("/mecanum/wheel_1/command", Float64, queue_size=10)
-    pub_wheel_vel_2 = rospy.Publisher("/mecanum/wheel_2/command", Float64, queue_size=10)
-    pub_wheel_vel_3 = rospy.Publisher("/mecanum/wheel_3/command", Float64, queue_size=10)
-    pub_wheel_vel_4 = rospy.Publisher("/mecanum/wheel_4/command", Float64, queue_size=10)
-    
-
-    x_vel = 0
-    y_vel = 0
-    z_vel = 0
-
-    vbx = 5.5 #km/h
-    vby = 1.5 #km/h
-    wbz = 3.5 #deg/sec
-
-    twist = Twist()
-
-    twist.linear.x = 0
-    twist.linear.y = 0
-    twist.linear.z = 0
-
-    twist.angular.x = 0
-    twist.angular.y = 0
-    twist.angular.z = 0
-
-
-    wheel_vel = mecanum_wheel_velocity(twist.linear.x, twist.linear.y, twist.angular.z)
-    
-    rospy.loginfo("\ttwist.linear.x : %f", twist.linear.x)
-    rospy.loginfo("\ttwist.linear.y : %f", twist.linear.y)
-    rospy.loginfo("\ttwist.linear.z : %f", twist.linear.z)
-    
-    # record values to log file and screen
-    #rospy.loginfo("twist.linear.x: %f; twist.linear.y: %f ; angular %f", twist.linear.x, twist.linear.y, twist.angular.z)
-
-    # publish cmd_vel move command to Turtlesim
-    pub.publish(twist)
-    pub_wheel_vel_1.publish(wheel_vel[0,:])
-    pub_wheel_vel_2.publish(wheel_vel[1,:])
-    pub_wheel_vel_3.publish(wheel_vel[2,:])
-    pub_wheel_vel_4.publish(wheel_vel[3,:])
+    return [linear[0],linear[1],linear[2]], angular[2]
 
 
 if __name__ == '__main__':
@@ -170,40 +134,54 @@ if __name__ == '__main__':
             if key == 'w' :
 
                 linear[0] += 1 
-                move_mecanum([linear,angular])
+                linear, angular[2] = move_mecanum([linear,angular])
 
             elif key == 'x' :
                 linear[0] -= 1 
-                move_mecanum([linear,angular])
+                linear, angular[2] = move_mecanum([linear,angular])
+
 
             elif key == 'a' :
                 linear[1] += 1 
-                move_mecanum([linear,angular])
+                linear, angular[2] = move_mecanum([linear,angular])
 
-                move_mecanum([linear,angular])
 
             elif key == 'd' :
                 linear[1] -= 1 
-                move_mecanum([linear,angular])
-
-                move_mecanum([linear,angular])
+                linear, angular[2] = move_mecanum([linear,angular])
 
             elif key == 'q' :
 
-                angular[2] -= 1 
-                move_mecanum([linear,angular])
+                angular[2] += 1 
+                linear, angular[2] = move_mecanum([linear,angular])
+
 
             elif key == 'e' :
 
-                angular[2] += 1 
-                move_mecanum([linear,angular])
+                angular[2] -= 1 
+                linear, angular[2] = move_mecanum([linear,angular])
 
 
-            elif key == ' ' or key == 's' :
+            elif key == 's' :
                 linear = [0, 0, 0]
                 angular = [0, 0, 0]
-                move_mecanum([linear,angular])
+                linear, angular[2] = move_mecanum([linear,angular])
+                
+
+            elif key == ' ' :
+                linear = [0, 0, 0]
+                angular = [0, 0, 0]
+                linear, angular[2] = move_mecanum([linear,angular])
+
+                model_name = "ball"
+                spwan_ball(model_name)   
+                time.sleep(0.1)
+                throw_ball()
+
             if (key == '\x03'):
+                linear = [0, 0, 0]
+                angular = [0, 0, 0]
+                linear, angular[2] = move_mecanum([linear,angular])
                 break
 
     except rospy.ROSInt:
