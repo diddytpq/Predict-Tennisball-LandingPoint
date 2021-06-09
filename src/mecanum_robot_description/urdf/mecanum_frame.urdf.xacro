@@ -33,9 +33,10 @@
                 </material>
             </visual>
             <collision>
-                <origin xyz="0 0 0" rpy="${pi/2} 0.0 ${-pi/2}"/>
+                <origin xyz="0 0 0" rpy="$0.0 0.0 0.0"/>
                 <geometry>
-                    <mesh filename="package://mecanum_robot_description/meshes/frame_c.stl" scale="0.001 0.001 0.001"/>         
+                    <box size="0.64 0.598 0.2"/>
+                    <!--mesh filename="package://omni_manipulator/meshes/frame_c.stl" scale="0.001 0.001 0.001"/!-->       
                 </geometry>
             </collision>
             <inertial>
