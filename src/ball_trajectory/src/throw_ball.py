@@ -36,7 +36,7 @@ def spwan_ball(model_name):
     object_pose = Pose()
     object_pose.position.x = float(state.pose.position.x)
     object_pose.position.y = float(state.pose.position.y)
-    object_pose.position.z = float(state.pose.position.z + 0.5)
+    object_pose.position.z = float(state.pose.position.z + 1)
 
     object_pose.orientation.x = float(state.pose.orientation.x)
     object_pose.orientation.y = float(state.pose.orientation.y)
@@ -63,7 +63,7 @@ def throw_ball():
     starting_time = 0
     duration = 0.01
     force = [91.96, 0, 34.06]
-    torque = [0, 2000, 0]
+    torque = [0, 0, 0]
 
     g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
     
@@ -75,7 +75,7 @@ def throw_ball():
     z = float(state.pose.orientation.z)
     w = float(state.pose.orientation.w)
 
-    angle = qua2eular(x,y,z,w)
+    roll_x, pitch_y, yaw_z  = qua2eular(x,y,z,w)
 
     
     rospy.wait_for_service('/gazebo/apply_body_wrench', timeout=10)
@@ -84,7 +84,7 @@ def throw_ball():
     body_name = 'ball::base_link'
 
     wrench = Wrench()
-    ror_matrix = rotation_matrix(angle[2])
+    ror_matrix = rotation_matrix(yaw_z)
     force, torque = get_wrench(force, torque, ror_matrix)
 
     wrench.force = Vector3(*force)

@@ -133,11 +133,9 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/gtest/cmake_install.cmake")
   include("/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/mecanum_robot_gazebo/cmake_install.cmake")
   include("/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/ball_trajectory/cmake_install.cmake")
-  include("/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_teleop/cmake_install.cmake")
   include("/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/mecanum_robot_description/cmake_install.cmake")
   include("/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/mecanum_left/cmake_install.cmake")
   include("/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/mecanum_right/cmake_install.cmake")
-  include("/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_description/cmake_install.cmake")
 
 endif()
 

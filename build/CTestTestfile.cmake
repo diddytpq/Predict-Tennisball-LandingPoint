@@ -7,8 +7,6 @@
 subdirs("gtest")
 subdirs("mecanum_robot_gazebo")
 subdirs("ball_trajectory")
-subdirs("turtlebot3_teleop")
 subdirs("mecanum_robot_description")
 subdirs("mecanum_left")
 subdirs("mecanum_right")
-subdirs("turtlebot3_description")

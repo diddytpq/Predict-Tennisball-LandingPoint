@@ -15,7 +15,6 @@
 
 
   <param name="ball_description_0" textfile="$(find ball_trajectory)/urdf/ball.urdf"/>
-  <param name="ball_description_5" textfile="$(find ball_trajectory)/models/test_ball/model.sdf"/>
   <param name="ball_description_1" textfile="$(find ball_trajectory)/urdf/ball_main.sdf"/>
 
 
@@ -24,7 +23,6 @@
 
 
   <node pkg="gazebo_ros" type="spawn_model" name="ball_0"  args="-urdf -model ball_0 -x 0 -y 0 -z 10  -param ball_description_0" />
-  <node pkg="gazebo_ros" type="spawn_model" name="ball_1"  args="-sdf -model ball_1 -x 0 -y 1 -z 10 -param ball_description_1" />
   <node pkg="gazebo_ros" type="spawn_model" name="ball_5"  args="-sdf -model ball_5 -x 0 -y 2 -z 10  -param ball_description_5" />
 
 

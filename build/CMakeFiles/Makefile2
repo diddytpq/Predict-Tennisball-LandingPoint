@@ -56,11 +56,9 @@ CMAKE_BINARY_DIR = /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build
 all: gtest/all
 all: mecanum_robot_gazebo/all
 all: ball_trajectory/all
-all: turtlebot3_teleop/all
 all: mecanum_robot_description/all
 all: mecanum_left/all
 all: mecanum_right/all
-all: turtlebot3_description/all
 
 .PHONY : all
 
@@ -68,11 +66,9 @@ all: turtlebot3_description/all
 preinstall: gtest/preinstall
 preinstall: mecanum_robot_gazebo/preinstall
 preinstall: ball_trajectory/preinstall
-preinstall: turtlebot3_teleop/preinstall
 preinstall: mecanum_robot_description/preinstall
 preinstall: mecanum_left/preinstall
 preinstall: mecanum_right/preinstall
-preinstall: turtlebot3_description/preinstall
 
 .PHONY : preinstall
 
@@ -85,11 +81,9 @@ clean: CMakeFiles/download_extra_data.dir/clean
 clean: gtest/clean
 clean: mecanum_robot_gazebo/clean
 clean: ball_trajectory/clean
-clean: turtlebot3_teleop/clean
 clean: mecanum_robot_description/clean
 clean: mecanum_left/clean
 clean: mecanum_right/clean
-clean: turtlebot3_description/clean
 
 .PHONY : clean
 
@@ -310,42 +304,6 @@ mecanum_robot_gazebo/preinstall:
 mecanum_robot_gazebo/clean: mecanum_robot_gazebo/CMakeFiles/_catkin_empty_exported_target.dir/clean
 
 .PHONY : mecanum_robot_gazebo/clean
-
-#=============================================================================
-# Directory level rules for directory turtlebot3_description
-
-# Recursive "all" directory target.
-turtlebot3_description/all: turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/all
-
-.PHONY : turtlebot3_description/all
-
-# Recursive "preinstall" directory target.
-turtlebot3_description/preinstall:
-
-.PHONY : turtlebot3_description/preinstall
-
-# Recursive "clean" directory target.
-turtlebot3_description/clean: turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/clean
-
-.PHONY : turtlebot3_description/clean
-
-#=============================================================================
-# Directory level rules for directory turtlebot3_teleop
-
-# Recursive "all" directory target.
-turtlebot3_teleop/all:
-
-.PHONY : turtlebot3_teleop/all
-
-# Recursive "preinstall" directory target.
-turtlebot3_teleop/preinstall:
-
-.PHONY : turtlebot3_teleop/preinstall
-
-# Recursive "clean" directory target.
-turtlebot3_teleop/clean:
-
-.PHONY : turtlebot3_teleop/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/doxygen.dir
@@ -2561,33 +2519,6 @@ dynamic_reconfigure_generate_messages_eus: ball_trajectory/CMakeFiles/dynamic_re
 ball_trajectory/CMakeFiles/dynamic_reconfigure_generate_messages_eus.dir/clean:
 	$(MAKE) -f ball_trajectory/CMakeFiles/dynamic_reconfigure_generate_messages_eus.dir/build.make ball_trajectory/CMakeFiles/dynamic_reconfigure_generate_messages_eus.dir/clean
 .PHONY : ball_trajectory/CMakeFiles/dynamic_reconfigure_generate_messages_eus.dir/clean
-
-#=============================================================================
-# Target rules for target turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir
-
-# All Build rule for target.
-turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/all:
-	$(MAKE) -f turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/build.make turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/depend
-	$(MAKE) -f turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/build.make turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/CMakeFiles --progress-num= "Built target turtlebot3_description_xacro_generated_to_devel_space_"
-.PHONY : turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/all
-
-# Build rule for subdir invocation for target.
-turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/CMakeFiles 0
-	$(MAKE) -f CMakeFiles/Makefile2 turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/CMakeFiles 0
-.PHONY : turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/rule
-
-# Convenience name for target.
-turtlebot3_description_xacro_generated_to_devel_space_: turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/rule
-
-.PHONY : turtlebot3_description_xacro_generated_to_devel_space_
-
-# clean rule for target.
-turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/clean:
-	$(MAKE) -f turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/build.make turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/clean
-.PHONY : turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

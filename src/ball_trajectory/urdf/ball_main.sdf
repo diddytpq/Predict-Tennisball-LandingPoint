@@ -90,8 +90,8 @@
             <ode>
               <soft_cfm>0</soft_cfm>
               <soft_erp>0.2</soft_erp>
-              <kp>1000</kp>
-              <kd>-1</kd>
+              <kp>1200</kp>
+              <kd>-0.6</kd>
               <max_vel>1000</max_vel>
               <min_depth>0</min_depth>
             </ode>

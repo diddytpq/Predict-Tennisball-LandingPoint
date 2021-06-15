@@ -1233,19 +1233,6 @@ dynamic_reconfigure_generate_messages_eus/fast:
 	$(MAKE) -f ball_trajectory/CMakeFiles/dynamic_reconfigure_generate_messages_eus.dir/build.make ball_trajectory/CMakeFiles/dynamic_reconfigure_generate_messages_eus.dir/build
 .PHONY : dynamic_reconfigure_generate_messages_eus/fast
 
-#=============================================================================
-# Target rules for targets named turtlebot3_description_xacro_generated_to_devel_space_
-
-# Build rule for target.
-turtlebot3_description_xacro_generated_to_devel_space_: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 turtlebot3_description_xacro_generated_to_devel_space_
-.PHONY : turtlebot3_description_xacro_generated_to_devel_space_
-
-# fast build rule for target.
-turtlebot3_description_xacro_generated_to_devel_space_/fast:
-	$(MAKE) -f turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/build.make turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir/build
-.PHONY : turtlebot3_description_xacro_generated_to_devel_space_/fast
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -1341,7 +1328,6 @@ help:
 	@echo "... gazebo_msgs_generate_messages_eus"
 	@echo "... geometry_msgs_generate_messages_nodejs"
 	@echo "... dynamic_reconfigure_generate_messages_eus"
-	@echo "... turtlebot3_description_xacro_generated_to_devel_space_"
 .PHONY : help
 
 

@@ -122,13 +122,6 @@
 /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/ball_trajectory/CMakeFiles/gazebo_msgs_generate_messages_eus.dir
 /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/ball_trajectory/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir
 /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/ball_trajectory/CMakeFiles/dynamic_reconfigure_generate_messages_eus.dir
-/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_teleop/CMakeFiles/install/strip.dir
-/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_teleop/CMakeFiles/install/local.dir
-/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_teleop/CMakeFiles/install.dir
-/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_teleop/CMakeFiles/list_install_components.dir
-/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_teleop/CMakeFiles/rebuild_cache.dir
-/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_teleop/CMakeFiles/edit_cache.dir
-/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_teleop/CMakeFiles/test.dir
 /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/mecanum_robot_description/CMakeFiles/install/strip.dir
 /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/mecanum_robot_description/CMakeFiles/install/local.dir
 /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/mecanum_robot_description/CMakeFiles/install.dir
@@ -150,11 +143,3 @@
 /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/mecanum_right/CMakeFiles/rebuild_cache.dir
 /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/mecanum_right/CMakeFiles/edit_cache.dir
 /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/mecanum_right/CMakeFiles/test.dir
-/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_description/CMakeFiles/install/local.dir
-/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_description/CMakeFiles/install.dir
-/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_description/CMakeFiles/list_install_components.dir
-/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_description/CMakeFiles/rebuild_cache.dir
-/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_description/CMakeFiles/edit_cache.dir
-/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_description/CMakeFiles/test.dir
-/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_description/CMakeFiles/install/strip.dir
-/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build/turtlebot3_description/CMakeFiles/turtlebot3_description_xacro_generated_to_devel_space_.dir
