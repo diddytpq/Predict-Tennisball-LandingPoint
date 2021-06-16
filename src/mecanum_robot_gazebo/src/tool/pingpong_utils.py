@@ -31,7 +31,7 @@ class Make_mecanum_left():
         self.vel_forward_apply = 0
         self.vel_lateral_apply = 0
 
-
+        self.twist = Twist()
         self.get_position()
 
     def get_position(self):
@@ -82,9 +82,12 @@ class Make_mecanum_left():
             
         return x_vel, y_vel
 
-    def move(self, x_target, y_target):
+    def move(self, x_target, y_target, home_mecanum):
         
         while True:
+
+            return_home(home_mecanum)
+
             self.get_position()
 
             self.x_error = x_target - self.object_pose.position.x
@@ -93,7 +96,7 @@ class Make_mecanum_left():
             self.vel_forward_apply, self.vel_lateral_apply = self.check_velocity(self.vel_forward * (self.x_error*2), 
                                                                                     self.vel_lateral * (self.y_error*2))
             
-            self.twist = Twist()
+            
             
             self.twist.linear.x = self.vel_forward_apply
             self.twist.linear.y = self.vel_lateral_apply
@@ -109,6 +112,7 @@ class Make_mecanum_left():
 
             if abs(self.x_error) <0.1 and abs(self.y_error)< 0.1 :
                 self.stop()
+                home_mecanum.stop()
                 break 
 
     def spwan_ball(self):
@@ -215,10 +219,13 @@ class Make_mecanum_left():
 class Make_mecanum_right(Make_mecanum_left):
 
     
-    def move(self, x_target, y_target):
+    def move(self, x_target, y_target, home_mecanum):
         
         while True:
+            return_home(home_mecanum)
+
             self.get_position()
+
 
             self.x_error = self.object_pose.position.x - x_target
             self.y_error = self.object_pose.position.y - y_target
@@ -242,39 +249,9 @@ class Make_mecanum_right(Make_mecanum_left):
 
             if abs(self.x_error) <0.1 and abs(self.y_error)< 0.1 :
                 self.stop()
+                home_mecanum.stop()
                 break 
-
-
-        def spwan_ball(self):
-
-            self.del_ball()
-   
-            file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/ball_main.sdf'
-            srv_spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
-        
-            self.get_position()
-            ball_pose = Pose()
-            ball_pose.position.x = self.object_pose.position.x
-            ball_pose.position.y = self.object_pose.position.y
-            ball_pose.position.z = self.object_pose.position.z + 0.5
-
-            ball_pose.orientation.x = 0
-            ball_pose.orientation.y = 0
-            ball_pose.orientation.z = 1
-            ball_pose.orientation.w = 0
-
-
-            file_xml = open(file_localition)
-            xml_string=file_xml.read()
-
-            req = SpawnModelRequest()
-            req.model_name = "ball"  
-            req.model_xml = xml_string
-            req.initial_pose = ball_pose
-
-            res = srv_spawn_model(req)
-
-            
+          
     def throw_ball(self):
 
         duration = 0.01
@@ -419,6 +396,7 @@ def check_catch(mecanum):
 
     while True:
         ball_state = g_get_state(model_name='ball')
+
         mecanum.get_position()
 
         ball_x = ball_state.pose.position.x
@@ -432,8 +410,66 @@ def check_catch(mecanum):
         distance = np.sqrt((robot_x - ball_x)**2 + (robot_y - ball_y)**2 + (robot_z - ball_z)**2)
         print(distance)
 
-        if distance< 0.6 or distance > 20:
+
+
+        if ((distance< 0.6 or distance > 20)):
             mecanum.del_ball()
             break
 
 
+def return_home(home_mecanum):
+
+    home_mecanum.get_position()
+
+    robot_x = home_mecanum.object_pose.position.x
+    robot_y = home_mecanum.object_pose.position.y
+    robot_z = home_mecanum.object_pose.position.z
+
+    if robot_x < 0:
+        x_error = -10 - robot_x
+        y_error = -robot_y
+
+        vel_forward_apply, vel_lateral_apply = home_mecanum.check_velocity(home_mecanum.vel_forward * (x_error*2), 
+                                                                            home_mecanum.vel_lateral * (y_error*2))
+        
+        home_mecanum.twist.linear.x = vel_forward_apply
+        home_mecanum.twist.linear.y = vel_lateral_apply
+        home_mecanum.twist.linear.z = 0
+
+        home_mecanum.wheel_vel = mecanum_wheel_velocity(home_mecanum.twist.linear.x, home_mecanum.twist.linear.y, home_mecanum.twist.angular.z)
+
+        home_mecanum.pub.publish(home_mecanum.twist)
+        home_mecanum.pub_wheel_vel_1.publish(home_mecanum.wheel_vel[0,:])
+        home_mecanum.pub_wheel_vel_2.publish(home_mecanum.wheel_vel[1,:])
+        home_mecanum.pub_wheel_vel_3.publish(home_mecanum.wheel_vel[2,:])
+        home_mecanum.pub_wheel_vel_4.publish(home_mecanum.wheel_vel[3,:])
+
+        if abs(x_error) <0.1 and abs(y_error)< 0.1 :
+            home_mecanum.stop()
+
+
+    if robot_x > 0:
+        x_error = robot_x - (10)
+        y_error = robot_y
+
+        vel_forward_apply, vel_lateral_apply = home_mecanum.check_velocity(home_mecanum.vel_forward * (x_error*2), 
+                                                                            home_mecanum.vel_lateral * (y_error*2))
+        
+        home_mecanum.twist.linear.x = vel_forward_apply
+        home_mecanum.twist.linear.y = vel_lateral_apply
+        home_mecanum.twist.linear.z = 0
+
+        home_mecanum.wheel_vel = mecanum_wheel_velocity(home_mecanum.twist.linear.x, home_mecanum.twist.linear.y, home_mecanum.twist.angular.z)
+
+        home_mecanum.pub.publish(home_mecanum.twist)
+        home_mecanum.pub_wheel_vel_1.publish(home_mecanum.wheel_vel[0,:])
+        home_mecanum.pub_wheel_vel_2.publish(home_mecanum.wheel_vel[1,:])
+        home_mecanum.pub_wheel_vel_3.publish(home_mecanum.wheel_vel[2,:])
+        home_mecanum.pub_wheel_vel_4.publish(home_mecanum.wheel_vel[3,:])
+
+        if abs(x_error) <0.1 and abs(y_error)< 0.1 :
+            home_mecanum.stop()
+
+        
+  
+        

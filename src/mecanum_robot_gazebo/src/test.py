@@ -10,7 +10,7 @@ if os.name == 'nt':
 else:
   import tty, termios
 
-from tool.pingpong_utils import *
+from tool.utils import *
 import time
 
 
@@ -28,13 +28,14 @@ if __name__ == '__main__' :
     mecanum_0 = Make_mecanum_left('mecanum_0')
     mecanum_1 = Make_mecanum_right('mecanum_1')
 
+    mecanum_0.move(-10,0)
 
-    while True:
+    """while True:
         mecanum_0.spwan_ball()
         mecanum_0.throw_ball()
         ball_landing_point = [mecanum_0.x_target, mecanum_0.y_target]
         
-        mecanum_1.move(ball_landing_point[0],ball_landing_point[1],mecanum_0)
+        mecanum_1.move(ball_landing_point[0],ball_landing_point[1])
 
         check_catch(mecanum_1)
 
@@ -42,7 +43,13 @@ if __name__ == '__main__' :
         mecanum_1.throw_ball()  
         ball_landing_point = [mecanum_1.x_target, mecanum_1.y_target]
 
-        mecanum_0.move(ball_landing_point[0],ball_landing_point[1],mecanum_1)
+        mecanum_0.move(ball_landing_point[0],ball_landing_point[1])
 
-        check_catch(mecanum_0)
+        check_catch(mecanum_0)"""
+
+
+    #mecanum_0.spwan_ball()
+    #mecanum_1.spwan_ball()
+    #mecanum_1.throw_ball()
+
 
