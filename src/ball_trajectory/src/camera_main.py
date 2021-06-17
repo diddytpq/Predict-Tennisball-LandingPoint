@@ -44,14 +44,17 @@ class Image_converter:
         (rows,cols,channels) = self.right_data.shape
 
         if cols > 60 and rows > 60 :
+            t1 = time.time()
 
             self.left_frame = cv2.resize(self.left_data,(0,0),fx = 0.5, fy = 0.5, interpolation = cv2.INTER_AREA)
             self.right_frame = cv2.resize(self.right_data,(0,0),fx = 0.5, fy = 0.5, interpolation = cv2.INTER_AREA)
 
             self.main_frame = cv2.hconcat([self.left_frame,self.right_frame])
 
+            t2 = time.time()
             cv2.imshow("main", self.main_frame)
 
+            print((t2-t1))
             key = cv2.waitKey(1)
 
             if key == 27 : 

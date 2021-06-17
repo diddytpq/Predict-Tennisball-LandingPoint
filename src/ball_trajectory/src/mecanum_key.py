@@ -15,6 +15,28 @@ from throw_ball import *
 
 roslib.load_manifest('ball_trajectory')
 
+def qua2eular(x,y,z,w):
+
+    q_x = x
+    q_y = y
+    q_z = z
+    q_w = w
+
+    t0 = +2.0 * (q_w * q_x + q_y * q_z)
+    t1 = +1.0 - 2.0 * (q_x * q_x + q_y * q_y)
+    roll_x = math.atan2(t0, t1)
+
+    t2 = +2.0 * (q_w * q_y - q_z * q_x)
+    t2 = +1.0 if t2 > +1.0 else t2
+    t2 = -1.0 if t2 < -1.0 else t2
+    pitch_y = math.asin(t2)
+
+    t3 = +2.0 * (q_w * q_z + q_x * q_y)
+    t4 = +1.0 - 2.0 * (q_y * q_y + q_z * q_z)
+    yaw_z = math.atan2(t3, t4)
+
+    return roll_x, pitch_y, yaw_z # in radians
+
 def getKey():
     if os.name == 'nt':
       if sys.version_info[0] >= 3:
@@ -96,7 +118,11 @@ def move_mecanum(data):
 
 
     linear, angular[2] = check_velocity([linear[0],linear[1],linear[2],angular[2]])
+    
+    roll_x, pitch_y, yaw_z = qua2eular(robot_state.pose.orientation.x, robot_state.pose.orientation.y, 
+                            robot_state.pose.orientation.z, robot_state.pose.orientation.w)
 
+    print(np.rad2deg(yaw_z))
     twist = Twist()
 
     twist.linear.x = linear[0]
