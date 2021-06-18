@@ -2,10 +2,10 @@
 <robot
   name="camera_left">
 
-  <link name="base_footprint"/>
+  <link name="world" />
 
   <joint name="base_joint" type="fixed">
-    <parent link="base_footprint"/>
+    <parent link="world"/>
     <child link="body" />
     <origin xyz="0 0 0.010" rpy="0 0 0"/>
   </joint>
@@ -76,8 +76,7 @@
 
 
 
-
-    <gazebo reference="body">
+    <!--gazebo reference="body">
         <mu1>1</mu1>
         <mu2>1</mu2>
         <fdir1>1 0 0</fdir1>
@@ -87,7 +86,7 @@
         <minDepth>0.0000001</minDepth>
         <gravity>1</gravity>
         <material>Gazebo/Grey</material>
-    </gazebo>
+    </gazebo-->
 
     <gazebo reference="camera_link">
         <sensor type="camera" name="camera1">

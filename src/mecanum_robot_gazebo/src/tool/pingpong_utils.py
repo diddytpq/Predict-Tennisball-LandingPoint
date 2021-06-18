@@ -33,6 +33,7 @@ class Make_mecanum_left():
 
         self.twist = Twist()
         self.get_position()
+        self.score = 0
 
     def get_position(self):
 
@@ -85,19 +86,20 @@ class Make_mecanum_left():
         self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
         self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
 
-    def move(self, x_target, y_target, home_mecanum):
+    def move(self, x_target, y_target, my_mecanum, home_mecanum):
         
         while True:
 
             return_home(home_mecanum)
+            home_mecanum.score, self.score, meg  = ball_catch_check(my_mecanum, "ball_right", self.score, home_mecanum.score)
 
             self.get_position()
 
             self.x_error = x_target - self.object_pose.position.x
             self.y_error = y_target - self.object_pose.position.y
            
-            self.vel_forward_apply, self.vel_lateral_apply = self.check_velocity(self.vel_forward * (self.x_error*2), 
-                                                                                    self.vel_lateral * (self.y_error*2))
+            self.vel_forward_apply, self.vel_lateral_apply = self.check_velocity(self.vel_forward * (self.x_error), 
+                                                                                    self.vel_lateral * (self.y_error))
   
             self.twist.linear.x = self.vel_forward_apply
             self.twist.linear.y = self.vel_lateral_apply
@@ -111,14 +113,18 @@ class Make_mecanum_left():
             self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
             self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
 
-            if abs(self.x_error) <0.1 and abs(self.y_error)< 0.1 :
+            if (abs(self.x_error) <0.1 and abs(self.y_error)< 0.1) :
+                self.stop()
+                home_mecanum.stop()
+                
+            if meg:
                 self.stop()
                 home_mecanum.stop()
                 break 
 
     def spwan_ball(self, name):
         #time.sleep(0.1)
-
+        #print("________________________________________________")
         file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/ball_main.sdf'
         srv_spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
     
@@ -219,19 +225,20 @@ class Make_mecanum_left():
 class Make_mecanum_right(Make_mecanum_left):
 
     
-    def move(self, x_target, y_target, home_mecanum):
+    def move(self, x_target, y_target, my_mecanum,home_mecanum):
         
         while True:
             return_home(home_mecanum)
-
+            home_mecanum.score, self.score, meg = ball_catch_check(my_mecanum, "ball_left", home_mecanum.score, self.score)
             self.get_position()
+
 
 
             self.x_error = self.object_pose.position.x - x_target
             self.y_error = self.object_pose.position.y - y_target
            
-            self.vel_forward_apply, self.vel_lateral_apply = self.check_velocity(self.vel_forward * (self.x_error*2), 
-                                                                                    self.vel_lateral * (self.y_error*2))
+            self.vel_forward_apply, self.vel_lateral_apply = self.check_velocity(self.vel_forward * (self.x_error), 
+                                                                                    self.vel_lateral * (self.y_error))
 
             self.twist = Twist()
             
@@ -246,8 +253,12 @@ class Make_mecanum_right(Make_mecanum_left):
             self.pub_wheel_vel_2.publish(self.wheel_vel[1,:])
             self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
             self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
-
-            if abs(self.x_error) <0.1 and abs(self.y_error)< 0.1 :
+            
+            if (abs(self.x_error) <0.1 and abs(self.y_error)< 0.1) :
+                self.stop()
+                home_mecanum.stop()
+                
+            if meg:
                 self.stop()
                 home_mecanum.stop()
                 break 
@@ -396,43 +407,50 @@ def mecanum_wheel_velocity(vx, vy, wz):
 
 def ball_catch_check(mecanum, ball_name, left_score, right_score):
 
+    meg = False
+
     g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
-    while True:
-        ball_state = g_get_state(model_name = ball_name)
-
-        mecanum.get_position()
-
-        ball_x = ball_state.pose.position.x
-        ball_y = ball_state.pose.position.y
-        ball_z = ball_state.pose.position.z
-        
-        robot_x = mecanum.object_pose.position.x
-        robot_y = mecanum.object_pose.position.y
-        robot_z = mecanum.object_pose.position.z
-
-        distance = np.sqrt((robot_x - ball_x)**2 + (robot_y - ball_y)**2 + (robot_z - ball_z)**2)
-        
-        distance_x = abs(ball_x - robot_x)
-        distance_y = abs(ball_y - robot_y)
-        distance_z = abs(ball_z - robot_z)
-        
-        """print("--------------------------------------------------")
-        print("\tdistance_x :",distance_x)
-        print("\tdistance_y :",distance_y)
-        print("\tdistance_z :",distance_z)"""
 
 
-        """if ((distance< 0.7 or distance > 20)):
-            mecanum.del_ball()
-            break"""
-        
-        if distance > 20:
-            left_score, right_score = score_board(left_score, right_score, ball_name)
+    ball_state = g_get_state(model_name = ball_name)
 
-        if (distance_x < 0.6 and distance_y <0.6  and distance_z < 0.6) or distance > 20:
-            mecanum.del_ball()
-            return left_score, right_score
+    mecanum.get_position()
+
+    ball_x = ball_state.pose.position.x
+    ball_y = ball_state.pose.position.y
+    ball_z = ball_state.pose.position.z
+    
+    robot_x = mecanum.object_pose.position.x
+    robot_y = mecanum.object_pose.position.y
+    robot_z = mecanum.object_pose.position.z
+
+    distance = np.sqrt((robot_x - ball_x)**2 + (robot_y - ball_y)**2 + (robot_z - ball_z)**2)
+    
+    distance_x = abs(ball_x - robot_x)
+    distance_y = abs(ball_y - robot_y)
+    distance_z = abs(ball_z - robot_z)
+    
+    """print("--------------------------------------------------")
+    print("\tdistance_x :",distance_x)
+    print("\tdistance_y :",distance_y)
+    print("\tdistance_z :",distance_z)"""
+
+
+    """if ((distance< 0.7 or distance > 20)):
+        mecanum.del_ball()
+        break"""
+    
+    if distance > 25:
+        left_score, right_score = score_board(left_score, right_score, ball_name)
+        meg = True
+
+    if (distance_x < 0.6 and distance_y <0.6  and distance_z < 0.6) or distance > 25:
+        mecanum.del_ball()
+        meg = True
+        return left_score, right_score, meg, 
+
+    return left_score, right_score, meg
 
 
 

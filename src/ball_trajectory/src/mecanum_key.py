@@ -97,24 +97,24 @@ def move_mecanum(data):
     # start publisher of cmd_vel to control mecanum
 
 
-    """pub = rospy.Publisher("/mecanum_0_vel", Twist, queue_size=10)
+    pub = rospy.Publisher("/mecanum_0_vel", Twist, queue_size=10)
     pub_wheel_vel_1 = rospy.Publisher("/mecanum/wheel_1/command", Float64, queue_size=10)
     pub_wheel_vel_2 = rospy.Publisher("/mecanum/wheel_2/command", Float64, queue_size=10)
     pub_wheel_vel_3 = rospy.Publisher("/mecanum/wheel_3/command", Float64, queue_size=10)
-    pub_wheel_vel_4 = rospy.Publisher("/mecanum/wheel_4/command", Float64, queue_size=10)"""
+    pub_wheel_vel_4 = rospy.Publisher("/mecanum/wheel_4/command", Float64, queue_size=10)
     
-    pub = rospy.Publisher("/mecanum_1_vel", Twist, queue_size=10)
+    """pub = rospy.Publisher("/mecanum_1_vel", Twist, queue_size=10)
     pub_wheel_vel_1 = rospy.Publisher("/mecanum_1/wheel_1/command", Float64, queue_size=10)
     pub_wheel_vel_2 = rospy.Publisher("/mecanum_1/wheel_2/command", Float64, queue_size=10)
     pub_wheel_vel_3 = rospy.Publisher("/mecanum_1/wheel_3/command", Float64, queue_size=10)
-    pub_wheel_vel_4 = rospy.Publisher("/mecanum_1/wheel_4/command", Float64, queue_size=10)
+    pub_wheel_vel_4 = rospy.Publisher("/mecanum_1/wheel_4/command", Float64, queue_size=10)"""
     
     linear = data[0]
     angular = data[1]
 
     g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
-    robot_state = g_get_state(model_name="mecanum_1")
+    robot_state = g_get_state(model_name="mecanum_0")
 
 
     linear, angular[2] = check_velocity([linear[0],linear[1],linear[2],angular[2]])

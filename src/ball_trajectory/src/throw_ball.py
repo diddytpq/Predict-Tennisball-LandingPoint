@@ -31,12 +31,16 @@ def spwan_ball(model_name):
   
     g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
     
-    state = g_get_state(model_name="mecanum")
+    state = g_get_state(model_name="mecanum_0")
 
     object_pose = Pose()
-    object_pose.position.x = float(state.pose.position.x)
+    """object_pose.position.x = float(state.pose.position.x)
     object_pose.position.y = float(state.pose.position.y)
-    object_pose.position.z = float(state.pose.position.z + 1)
+    object_pose.position.z = float(state.pose.position.z + 1)"""
+
+    object_pose.position.x = 0
+    object_pose.position.y = 0
+    object_pose.position.z = 1
 
     object_pose.orientation.x = float(state.pose.orientation.x)
     object_pose.orientation.y = float(state.pose.orientation.y)
@@ -63,11 +67,11 @@ def throw_ball():
     starting_time = 0
     duration = 0.01
     force = [91.96, 0, 34.06]
-    torque = [0, 0, 0]
+    torque = [0, -20000, 0]
 
     g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
     
-    state = g_get_state(model_name="mecanum")
+    state = g_get_state(model_name="mecanum_0")
 
 
     x = float(state.pose.orientation.x)
