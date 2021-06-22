@@ -27,7 +27,7 @@ class Make_mecanum_left():
 
         self.g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
         self.vel_forward = 5.5 #m/s
-        self.vel_lateral = 2 #m/s
+        self.vel_lateral = 1.5 #m/s
         self.ball_fly_time = 0.45 #max height time [sec]
         self.vel_forward_apply = 0
         self.vel_lateral_apply = 0
@@ -42,7 +42,6 @@ class Make_mecanum_left():
 
         self.twist = Twist()
         self.get_position()
-        self.score = 0
 
     def get_position(self):
 
@@ -123,12 +122,9 @@ class Make_mecanum_left():
         t0 = time.time()
         dt = 0
         while True:
-
             return_home(away_mecanum)
-            self.score, away_mecanum.score, meg  = ball_catch_check(my_mecanum, "ball_right", self.score, away_mecanum.score, away_mecanum)
-            if meg:
+            if ball_catch_check(my_mecanum, "ball_right", away_mecanum):
                 self.stop()
-                away_mecanum.stop()
                 break 
 
             self.get_position()
@@ -144,7 +140,6 @@ class Make_mecanum_left():
 
             if (abs(self.x_error) <0.1 and abs(self.y_error)< 0.1) :
                 self.stop()
-                away_mecanum.stop()
                 
             else :
                 self.set_x_velocity(dt)
@@ -168,11 +163,7 @@ class Make_mecanum_left():
                 self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
                 self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
                 t2 = time.time()
-
-
-
-                
-
+            
     def spwan_ball(self, name):
         #time.sleep(0.1)
         #print("________________________________________________")
@@ -185,10 +176,10 @@ class Make_mecanum_left():
         ball_pose.position.y = self.object_pose.position.y
         ball_pose.position.z = self.object_pose.position.z + self.spawn_pos_z
 
-        ball_pose.orientation.x = self.object_pose.orientation.x 
-        ball_pose.orientation.y = self.object_pose.orientation.y 
-        ball_pose.orientation.z = self.object_pose.orientation.z 
-        ball_pose.orientation.w = self.object_pose.orientation.w
+        ball_pose.orientation.x = 0
+        ball_pose.orientation.y = 0
+        ball_pose.orientation.z = 0
+        ball_pose.orientation.w = 1
 
 
         file_xml = open(file_localition)
@@ -202,8 +193,11 @@ class Make_mecanum_left():
         res = srv_spawn_model(req)
 
     def set_ball_target(self):
-        self.x_target = (np.random.randint(6, 10) + np.random.rand())
-        self.y_target = (np.random.randint(-3, 3) + np.random.rand())
+        #self.x_target = (np.random.randint(6, 10) + np.random.rand())
+        #self.y_target = (np.random.randint(-3, 3) + np.random.rand())
+
+        self.x_target = 5
+        self.y_target = 0
 
         self.get_position()
         
@@ -246,9 +240,12 @@ class Make_mecanum_left():
             wrench,
             rospy.Time().now(),
             rospy.Duration(duration))
-
+        print(self.apply_force)
+        print(self.apply_torque)
+        print(cal(self.apply_force, self.apply_torque))
+        print(self.yaw_z)
         """print("----------------------------------------------------")
-        v0, rpm = cal(force, torque)
+
         #print("\tx_target : ",self.x_target)
         #print("\ty_target : ",self.y_target)
         #print("\tx_error, y_error :",x_error,y_error)
@@ -286,11 +283,9 @@ class Make_mecanum_right(Make_mecanum_left):
         t0 = time.time()
         dt = 0
         while True:
-            return_home(away_mecanum)
-            away_mecanum.score, self.score, meg = ball_catch_check(my_mecanum, "ball_left", away_mecanum.score, self.score, away_mecanum)
-            if meg:
+
+            if ball_catch_check(my_mecanum, "ball_left", away_mecanum):
                 self.stop()
-                away_mecanum.stop()
                 break 
             
             self.get_position()
@@ -308,7 +303,6 @@ class Make_mecanum_right(Make_mecanum_left):
             #print(self.x_error, self.y_error)
             if (abs(self.x_error) <0.1 and abs(self.y_error)< 0.1) :
                 self.stop()
-                away_mecanum.stop()
         
             else:
                 self.set_x_velocity(dt)
@@ -318,7 +312,6 @@ class Make_mecanum_right(Make_mecanum_left):
 
                 if abs(self.y_error) < 0.1:
                     self.vel_lateral_apply = 0
-
 
                 self.twist = Twist()
                 #print(self.vel_forward_apply, self.vel_lateral_apply)
@@ -340,7 +333,7 @@ class Make_mecanum_right(Make_mecanum_left):
 
 
 
-def ball_catch_check(mecanum, ball_name, left_score, right_score, away_mecanum):
+def ball_catch_check(mecanum, ball_name, away_mecanum):
 
     meg = False
 
@@ -370,22 +363,18 @@ def ball_catch_check(mecanum, ball_name, left_score, right_score, away_mecanum):
     print("\tdistance_z :",distance_z)
 """
 
-
-
     if abs(ball_x) > 15:
-        left_score, right_score = score_board(left_score, right_score, ball_name)
         print("--------------------------------------------------")
+        print("\taway_position :", away_mecanum.object_pose.position.x, away_mecanum.object_pose.position.y)
+        print("\tyaw_z : ", np.rad2deg(away_mecanum.yaw_z))
         print("\tvelocity :",  away_mecanum.v)
-        print("\tangle :", away_mecanum.launch_angle)
+        print("\tangle :", np.rad2deg(away_mecanum.launch_angle))
 
-        pass
-
-    if (distance_x < 0.6 and distance_y <0.6  and distance_z < 1) or abs(ball_x) > 15:
+    if (distance_x < 0.6 and distance_y <0.6  and distance_z < 1) or abs(ball_x) > 50:
         mecanum.del_ball()
-        meg = True
-        return left_score, right_score, meg, 
+        return True
 
-    return left_score, right_score, meg
+    return False
 
 def return_home(home_mecanum):
 
@@ -429,24 +418,6 @@ def return_home(home_mecanum):
 
     if abs(x_error) <0.1 and abs(y_error)< 0.1 :
         home_mecanum.stop()
-
- 
-def score_board(left, right, ball_name):
-    left_score = left
-    right_score = right
-    
-    if ball_name == "ball_left":
-        left_score += 1
-
-    if ball_name == "ball_right":
-        right_score += 1
         
-
-    print("=====================================================")
-    #print("\n")
-    print("\t Left \t\t\t Right\t")
-    print("\t  {}  \t\t\t   {} \t".format(left_score,right_score))
-    #print("\n")
-    print("=====================================================")
-
-    return left_score, right_score
+        return False
+    return True

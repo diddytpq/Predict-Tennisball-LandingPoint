@@ -10,7 +10,6 @@ from std_msgs.msg import Empty as EmptyMsg
 from std_msgs.msg import Float64
 from nav_msgs.msg import Odometry
 import time
-from tool.mecanum_utils import *
 
 roslib.load_manifest('mecanum_robot_gazebo')
 
@@ -27,18 +26,10 @@ class Make_mecanum_left():
 
         self.g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
         self.vel_forward = 5.5 #m/s
-        self.vel_lateral = 2 #m/s
-        self.ball_fly_time = 0.45 #max height time [sec]
+        self.vel_lateral = 3.3 #m/s
+        self.ball_fly_time = 0.5 #max height time [sec]
         self.vel_forward_apply = 0
         self.vel_lateral_apply = 0
-        self.amax = 3
-
-        self.spawn_pos_z = 0.5
-
-        self.ball_name = 'ball_left::base_link'
-        
-        self.torque = [0,20000,0]
-        self.delete_model_name = "ball_right"
 
         self.twist = Twist()
         self.get_position()
@@ -64,6 +55,8 @@ class Make_mecanum_left():
         #print(self.object_pose.position.x, self.object_pose.position.y, self.object_pose.position.z)
         #print(self.angle)
    
+
+    
     def check_velocity(self, x_vel, y_vel):
 
         if self.vel_forward < abs(x_vel):
@@ -75,31 +68,6 @@ class Make_mecanum_left():
             else: y_vel = -self.vel_lateral
             
         return x_vel, y_vel
-
-    def set_x_velocity(self,dt):
-
-        if self.x_error > 0:
-            self.vel_forward_apply += self.amax * dt
-            if abs(self.vel_forward_apply) > self.vel_forward:
-                self.vel_forward_apply = self.vel_forward
-
-        else :
-            self.vel_forward_apply -= self.amax * dt
-            if abs(self.vel_forward_apply) > self.vel_forward:
-                self.vel_forward_apply = -self.vel_forward
-
-
-    def set_y_velocity(self,dt):
-
-        if self.y_error > 0:
-            self.vel_lateral_apply += self.amax * dt
-            if abs(self.vel_lateral_apply) > self.vel_lateral:
-                self.vel_lateral_apply = self.vel_lateral
-
-        else :
-            self.vel_lateral_apply -= self.amax * dt
-            if abs(self.vel_lateral_apply) > self.vel_lateral:
-                self.vel_lateral_apply = -self.vel_lateral   
 
     def stop(self):
         self.vel_forward_apply = 0
@@ -118,60 +86,41 @@ class Make_mecanum_left():
         self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
         self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
 
-
-    def move(self, x_target, y_target, my_mecanum, away_mecanum):
-        t0 = time.time()
-        dt = 0
+    def move(self, x_target, y_target, my_mecanum, home_mecanum):
+        
         while True:
 
-            return_home(away_mecanum)
-            self.score, away_mecanum.score, meg  = ball_catch_check(my_mecanum, "ball_right", self.score, away_mecanum.score, away_mecanum)
-            if meg:
-                self.stop()
-                away_mecanum.stop()
-                break 
+            return_home(home_mecanum)
+            home_mecanum.score, self.score, meg  = ball_catch_check(my_mecanum, "ball_right", self.score, home_mecanum.score)
 
             self.get_position()
-            t1 = time.time()
-
-            if dt == 0:
-                dt = t1-t0
-            else :
-                dt = t1 - t2
 
             self.x_error = x_target - self.object_pose.position.x
             self.y_error = y_target - self.object_pose.position.y
+           
+            self.vel_forward_apply, self.vel_lateral_apply = self.check_velocity(self.vel_forward * (self.x_error), 
+                                                                                    self.vel_lateral * (self.y_error))
+  
+            self.twist.linear.x = self.vel_forward_apply
+            self.twist.linear.y = self.vel_lateral_apply
+            self.twist.linear.z = 0
+
+            self.wheel_vel = mecanum_wheel_velocity(self.twist.linear.x, self.twist.linear.y, self.twist.angular.z)
+
+            self.pub.publish(self.twist)
+            self.pub_wheel_vel_1.publish(self.wheel_vel[0,:])
+            self.pub_wheel_vel_2.publish(self.wheel_vel[1,:])
+            self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
+            self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
 
             if (abs(self.x_error) <0.1 and abs(self.y_error)< 0.1) :
                 self.stop()
-                away_mecanum.stop()
+                home_mecanum.stop()
                 
-            else :
-                self.set_x_velocity(dt)
-                self.set_y_velocity(dt)
-
-                if abs(self.x_error) < 0.1:
-                    self.vel_forward_apply = 0
-
-                if abs(self.y_error) < 0.1:
-                    self.vel_lateral_apply = 0
-
-                self.twist.linear.x = self.vel_forward_apply
-                self.twist.linear.y = self.vel_lateral_apply
-                self.twist.linear.z = 0
-
-                self.wheel_vel = mecanum_wheel_velocity(self.twist.linear.x, self.twist.linear.y, self.twist.angular.z)
-
-                self.pub.publish(self.twist)
-                self.pub_wheel_vel_1.publish(self.wheel_vel[0,:])
-                self.pub_wheel_vel_2.publish(self.wheel_vel[1,:])
-                self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
-                self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
-                t2 = time.time()
-
-
-
-                
+            if meg:
+                self.stop()
+                home_mecanum.stop()
+                break 
 
     def spwan_ball(self, name):
         #time.sleep(0.1)
@@ -183,12 +132,12 @@ class Make_mecanum_left():
         ball_pose = Pose()
         ball_pose.position.x = self.object_pose.position.x
         ball_pose.position.y = self.object_pose.position.y
-        ball_pose.position.z = self.object_pose.position.z + self.spawn_pos_z
+        ball_pose.position.z = self.object_pose.position.z + 0.5
 
-        ball_pose.orientation.x = self.object_pose.orientation.x 
-        ball_pose.orientation.y = self.object_pose.orientation.y 
-        ball_pose.orientation.z = self.object_pose.orientation.z 
-        ball_pose.orientation.w = self.object_pose.orientation.w
+        ball_pose.orientation.x = 0
+        ball_pose.orientation.y = 0
+        ball_pose.orientation.z = 0
+        ball_pose.orientation.w = 1
 
 
         file_xml = open(file_localition)
@@ -201,52 +150,55 @@ class Make_mecanum_left():
 
         res = srv_spawn_model(req)
 
-    def set_ball_target(self):
-        self.x_target = (np.random.randint(6, 10) + np.random.rand())
-        self.y_target = (np.random.randint(-3, 3) + np.random.rand())
-
-        self.get_position()
-        
-        self.x_error = self.x_target - self.object_pose.position.x
-        self.y_error = self.y_target - self.object_pose.position.y
-        self.s = np.sqrt(self.x_error**2 + self.y_error**2)
-
     def throw_ball(self):
 
         duration = 0.01
 
-        self.set_ball_target()
+        
+        self.x_target = (np.random.randint(6, 10) + np.random.rand())
+        self.y_target = (np.random.randint(-3, 3) + np.random.rand())
 
-        self.yaw_z = np.arctan(self.y_error/self.x_error)
+
+        self.get_position()
+
+        x_error = self.x_target - self.object_pose.position.x
+        y_error = self.y_target - self.object_pose.position.y
+
+        self.yaw_z = np.tan(y_error/x_error)
         self.ror_matrix = rotation_matrix(self.yaw_z)
+        s = np.sqrt(x_error**2 + y_error**2)
         vz0 = 9.8 * self.ball_fly_time
 
-        h = (self.object_pose.position.z + self.spawn_pos_z) + vz0 * self.ball_fly_time - (9.8 * self.ball_fly_time**2)/2
+        h = (self.object_pose.position.z + 0.5) + vz0 * self.ball_fly_time - (9.8 * self.ball_fly_time**2)/2
         self.ball_fly_time_plus = np.sqrt(2 * h / 9.8)
-        v0 = self.s/(self.ball_fly_time + self.ball_fly_time_plus)
+        v0 = s/(self.ball_fly_time + self.ball_fly_time_plus)
 
-        self.v = np.sqrt(v0**2 + vz0**2)
-        self.launch_angle = np.arctan(vz0/v0)
+        v = np.sqrt(v0**2 + vz0**2)
+        launch_angle = np.arctan(vz0/v0)
 
-        self.force = [v0 * 0.057 * 100, 0, vz0 * 0.057 *100 ]
+        force = [v0 * 0.057 * 100, 0, vz0 * 0.057 *100 ]
+        torque = [0, 10000, 0]
 
         rospy.wait_for_service('/gazebo/apply_body_wrench', timeout=10)
 
         apply_wrench = rospy.ServiceProxy('/gazebo/apply_body_wrench', ApplyBodyWrench)
-        
-        wrench = Wrench()
-        self.apply_force, self.apply_torque = get_wrench(self.force, self.torque, self.ror_matrix)
+        body_name = 'ball_left::base_link'
 
-        wrench.force = Vector3(*self.apply_force)
-        wrench.torque = Vector3(*self.apply_torque)
+
+        wrench = Wrench()
+        force, torque = get_wrench(force, torque, self.ror_matrix)
+
+        wrench.force = Vector3(*force)
+        wrench.torque = Vector3(*torque)
         success = apply_wrench(
-            self.ball_name,
+            body_name,
             'world',
             Point(0, 0, 0),
             wrench,
             rospy.Time().now(),
             rospy.Duration(duration))
 
+        
         """print("----------------------------------------------------")
         v0, rpm = cal(force, torque)
         #print("\tx_target : ",self.x_target)
@@ -261,90 +213,203 @@ class Make_mecanum_left():
 
     def del_ball(self):
         srv_delete_model = rospy.ServiceProxy('gazebo/delete_model', DeleteModel)
-        
-        #req = DeleteModelRequest()
-        #req.model_name = "ball_right" 
+        req = DeleteModelRequest()
+        req.model_name = "ball_right" 
 
-
-        res = srv_delete_model(self.delete_model_name)
-
+        res = srv_delete_model("ball_right")
         #time.sleep(0.1)
+
+    
 
 class Make_mecanum_right(Make_mecanum_left):
 
-    def set_ball_target(self):
-        self.x_target = -(np.random.randint(6, 10) + np.random.rand())
-        self.y_target = (np.random.randint(-3, 3) + np.random.rand())
-
-        self.get_position()
+    
+    def move(self, x_target, y_target, my_mecanum,home_mecanum):
         
-        self.x_error = self.x_target - self.object_pose.position.x
-        self.y_error = self.y_target - self.object_pose.position.y
-        self.s = -np.sqrt(self.x_error**2 + self.y_error**2)
-
-    def move(self, x_target, y_target, my_mecanum, away_mecanum):
-        t0 = time.time()
-        dt = 0
         while True:
-            return_home(away_mecanum)
-            away_mecanum.score, self.score, meg = ball_catch_check(my_mecanum, "ball_left", away_mecanum.score, self.score, away_mecanum)
-            if meg:
-                self.stop()
-                away_mecanum.stop()
-                break 
-            
+            return_home(home_mecanum)
+            home_mecanum.score, self.score, meg = ball_catch_check(my_mecanum, "ball_left", home_mecanum.score, self.score)
             self.get_position()
 
-            t1 = time.time()
 
-            if dt == 0:
-                dt = t1-t0
-            else :
-                dt = t1 - t2
-            
+
             self.x_error = self.object_pose.position.x - x_target
             self.y_error = self.object_pose.position.y - y_target
+           
+            self.vel_forward_apply, self.vel_lateral_apply = self.check_velocity(self.vel_forward * (self.x_error), 
+                                                                                    self.vel_lateral * (self.y_error))
+
+            self.twist = Twist()
             
-            #print(self.x_error, self.y_error)
+            self.twist.linear.x = self.vel_forward_apply
+            self.twist.linear.y = self.vel_lateral_apply
+            self.twist.linear.z = 0
+
+            self.wheel_vel = mecanum_wheel_velocity(self.twist.linear.x, self.twist.linear.y, self.twist.angular.z)
+
+            self.pub.publish(self.twist)
+            self.pub_wheel_vel_1.publish(self.wheel_vel[0,:])
+            self.pub_wheel_vel_2.publish(self.wheel_vel[1,:])
+            self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
+            self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
+            
             if (abs(self.x_error) <0.1 and abs(self.y_error)< 0.1) :
                 self.stop()
-                away_mecanum.stop()
-        
-            else:
-                self.set_x_velocity(dt)
-                self.set_y_velocity(dt)
-                if abs(self.x_error) < 0.1:
-                    self.vel_forward_apply = 0
-
-                if abs(self.y_error) < 0.1:
-                    self.vel_lateral_apply = 0
-
-
-                self.twist = Twist()
-                #print(self.vel_forward_apply, self.vel_lateral_apply)
+                home_mecanum.stop()
                 
-                self.twist.linear.x = self.vel_forward_apply
-                self.twist.linear.y = self.vel_lateral_apply
-                self.twist.linear.z = 0
+            if meg:
+                self.stop()
+                home_mecanum.stop()
+                break 
+          
+    def throw_ball(self):
 
-                self.wheel_vel = mecanum_wheel_velocity(self.twist.linear.x, self.twist.linear.y, self.twist.angular.z)
+        duration = 0.01
+        
+        self.x_target = -(np.random.randint(6, 10) + np.random.rand())
+        self.y_target = (np.random.randint(-3, 3) + np.random.rand())
+        
+        self.get_position()
 
-                self.pub.publish(self.twist)
-                self.pub_wheel_vel_1.publish(self.wheel_vel[0,:])
-                self.pub_wheel_vel_2.publish(self.wheel_vel[1,:])
-                self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
-                self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
+        x_error = self.x_target - self.object_pose.position.x
+        y_error = self.y_target - self.object_pose.position.y
+        
+        self.yaw_z = np.tan(y_error/x_error)
+        self.ror_matrix = rotation_matrix(self.yaw_z)
 
-            t2 = time.time()
+        s = -np.sqrt(x_error**2 + y_error**2)
+        vz0 = 9.8 * self.ball_fly_time
+
+        h = (self.object_pose.position.z + 0.5) + vz0 * self.ball_fly_time - (9.8 * self.ball_fly_time**2)/2
+        self.ball_fly_time_plus = np.sqrt(2 * h / 9.8)
+        v0 = s/(self.ball_fly_time + self.ball_fly_time_plus)
+
+        v = np.sqrt(v0**2 + vz0**2)
+        launch_angle = np.arctan(vz0/v0)
+
+        force = [v0 * 0.057 * 100, 0, vz0 * 0.057 *100 ]
+        torque = [0, -10000, 0]
+
+        rospy.wait_for_service('/gazebo/apply_body_wrench', timeout=10)
+
+        apply_wrench = rospy.ServiceProxy('/gazebo/apply_body_wrench', ApplyBodyWrench)
+        body_name = 'ball_right::base_link'
 
 
+        wrench = Wrench()
+        force, torque = get_wrench(force, torque, self.ror_matrix)
+
+        wrench.force = Vector3(*force)
+        wrench.torque = Vector3(*torque)
+        success = apply_wrench(
+            body_name,
+            'world',
+            Point(0, 0, 0),
+            wrench,
+            rospy.Time().now(),
+            rospy.Duration(duration))
+
+        
+        """print("----------------------------------------------------")
+        v0, rpm = cal(force, torque)
+        #print("\tx_target : ",self.x_target)
+        #print("\ty_target : ",self.y_target)
+        #print("\tx_error, y_error :",x_error,y_error)
+        #print("\ts : ",s)
+        print('\tv0: {} \t RPM: {}' .format(v, rpm))
+        print('\tlaunch angle: ',np.rad2deg(launch_angle))
+        #print('\tForce [N]: ', force)
+        #print('\tTorque [Nm]: ', torque)
+        print('\tvo= : ', force[0]/0.057/100,force[1]/0.057/100,force[2]/0.057/100)"""
+    
+    def del_ball(self):
+        srv_delete_model = rospy.ServiceProxy('gazebo/delete_model', DeleteModel)
+        req = DeleteModelRequest()
+        req.model_name = "ball_left" 
+
+        res = srv_delete_model("ball_left")
+        #time.sleep(0.1)
 
 
-def ball_catch_check(mecanum, ball_name, left_score, right_score, away_mecanum):
+def Ttorpm(T):
+    
+    r = 0.065
+    v0 = T * 0.01
+
+
+    return v0 * 9.549297
+
+
+def cal(force, T):
+    a = np.sqrt((force[0])**2 + (force[2])**2) / 0.057
+    v0 = a *0.01
+
+    rpm = Ttorpm(T[1])
+
+    return v0 , rpm
+
+    
+
+def rotation_matrix(angle):
+
+    return np.array([[np.cos(angle),-np.sin(angle),0],
+             [np.sin(angle),np.cos(angle),0],
+             [0,0,1]])
+
+def get_wrench(force, torque, matrix):
+
+    F = matrix@(np.array(force).reshape([3,1]))
+    T = matrix@(np.array(torque).reshape([3,1]))
+    
+    F = F.reshape([1,3]).tolist()
+    T = T.reshape([1,3]).tolist()
+
+
+    return F[0], T[0]
+
+def qua2eular(x,y,z,w):
+
+    q_x = x
+    q_y = y
+    q_z = z
+    q_w = w
+
+    t0 = +2.0 * (q_w * q_x + q_y * q_z)
+    t1 = +1.0 - 2.0 * (q_x * q_x + q_y * q_y)
+    roll_x = math.atan2(t0, t1)
+
+    t2 = +2.0 * (q_w * q_y - q_z * q_x)
+    t2 = +1.0 if t2 > +1.0 else t2
+    t2 = -1.0 if t2 < -1.0 else t2
+    pitch_y = math.asin(t2)
+
+    t3 = +2.0 * (q_w * q_z + q_x * q_y)
+    t4 = +1.0 - 2.0 * (q_y * q_y + q_z * q_z)
+    yaw_z = math.atan2(t3, t4)
+
+    return roll_x, pitch_y, yaw_z # in radians
+
+
+def mecanum_wheel_velocity(vx, vy, wz):
+    r = 0.0762 # radius of wheel
+    l = 0.23 #length between {b} and wheel
+    w = 0.25225 #depth between {b} abd wheel
+    alpha = l + w
+    
+    q_dot = np.array([wz, vx, vy])
+    J_pseudo = np.array([[-alpha, 1, -1],[alpha, 1, 1],[alpha, 1, -1],[alpha, 1,1]])
+
+    u = 1/r * J_pseudo @ np.reshape(q_dot,(3,1))#q_dot.T
+
+    return u
+
+def ball_catch_check(mecanum, ball_name, left_score, right_score):
 
     meg = False
 
     g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
+
+
 
     ball_state = g_get_state(model_name = ball_name)
 
@@ -354,7 +419,7 @@ def ball_catch_check(mecanum, ball_name, left_score, right_score, away_mecanum):
     ball_y = ball_state.pose.position.y
     ball_z = ball_state.pose.position.z
     
-    robot_x = mecanum.object_pose.position.x 
+    robot_x = mecanum.object_pose.position.x
     robot_y = mecanum.object_pose.position.y
     robot_z = mecanum.object_pose.position.z
 
@@ -367,25 +432,26 @@ def ball_catch_check(mecanum, ball_name, left_score, right_score, away_mecanum):
     """print("--------------------------------------------------")
     print("\tdistance_x :",distance_x)
     print("\tdistance_y :",distance_y)
-    print("\tdistance_z :",distance_z)
-"""
+    print("\tdistance_z :",distance_z)"""
 
 
-
-    if abs(ball_x) > 15:
+    """if ((distance< 0.7 or distance > 20)):
+        mecanum.del_ball()
+        break"""
+    
+    if distance > 25:
         left_score, right_score = score_board(left_score, right_score, ball_name)
-        print("--------------------------------------------------")
-        print("\tvelocity :",  away_mecanum.v)
-        print("\tangle :", away_mecanum.launch_angle)
+        meg = True
 
-        pass
-
-    if (distance_x < 0.6 and distance_y <0.6  and distance_z < 1) or abs(ball_x) > 15:
+    if (distance_x < 0.6 and distance_y <0.6  and distance_z < 0.6) or distance > 25:
         mecanum.del_ball()
         meg = True
         return left_score, right_score, meg, 
 
     return left_score, right_score, meg
+
+
+
 
 def return_home(home_mecanum):
 
@@ -398,13 +464,13 @@ def return_home(home_mecanum):
     robot_angle = np.rad2deg(home_mecanum.angle[2])
 
     if robot_x < 0:
-        x_error = -11 - robot_x
+        x_error = -10 - robot_x
         y_error = -robot_y
 
         home_mecanum.twist.angular.z = -robot_angle/100
 
     if robot_x > 0:
-        x_error = robot_x - 11
+        x_error = robot_x - (10)
         y_error = robot_y
 
         if robot_angle > 0 :
@@ -412,12 +478,14 @@ def return_home(home_mecanum):
         else:
             home_mecanum.twist.angular.z = -(180 + robot_angle)/100
 
-    vel_forward_apply, vel_lateral_apply = home_mecanum.check_velocity(home_mecanum.vel_forward * (x_error*0.5), 
-                                                                        home_mecanum.vel_lateral * (y_error*0.5))
+
+    vel_forward_apply, vel_lateral_apply = home_mecanum.check_velocity(home_mecanum.vel_forward * (x_error*2), 
+                                                                        home_mecanum.vel_lateral * (y_error*2))
     
     home_mecanum.twist.linear.x = vel_forward_apply
     home_mecanum.twist.linear.y = vel_lateral_apply
     home_mecanum.twist.linear.z = 0
+
 
     home_mecanum.wheel_vel = mecanum_wheel_velocity(home_mecanum.twist.linear.x, home_mecanum.twist.linear.y, home_mecanum.twist.angular.z)
 
@@ -430,7 +498,8 @@ def return_home(home_mecanum):
     if abs(x_error) <0.1 and abs(y_error)< 0.1 :
         home_mecanum.stop()
 
- 
+
+  
 def score_board(left, right, ball_name):
     left_score = left
     right_score = right
