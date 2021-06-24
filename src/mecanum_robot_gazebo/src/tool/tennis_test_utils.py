@@ -35,7 +35,7 @@ class Make_mecanum_left():
 
         self.spawn_pos_z = 0.5
 
-        self.ball_name = 'ball_left::base_link'
+        self.ball_name = 'ball_left::ball_link'
         
         self.torque = [0,20000,0]
         self.delete_model_name = "ball_right"
@@ -168,6 +168,8 @@ class Make_mecanum_left():
         #time.sleep(0.1)
         #print("________________________________________________")
         file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/ball_main.sdf'
+        #file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/soccer_ball.sdf'
+        
         srv_spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
     
         self.get_position()
@@ -196,8 +198,8 @@ class Make_mecanum_left():
         #self.x_target = (np.random.randint(6, 10) + np.random.rand())
         #self.y_target = (np.random.randint(-3, 3) + np.random.rand())
 
-        self.x_target = 5
-        self.y_target = 0
+        self.x_target = 11
+        self.y_target = 4
 
         self.get_position()
         

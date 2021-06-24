@@ -1,7 +1,8 @@
 <?xml version='1.0'?>
 <sdf version='1.7'>
   <model name='main_ball'>
-    <link name='base_link'>
+
+    <link name='ball_link'>
 
       <inertial>
         <mass>0.057</mass>
@@ -22,13 +23,12 @@
       <kinematic>0</kinematic>
       <enable_wind>0</enable_wind>
 
-
-
       <visual name='visual'>
-        <pose>0 0 0 0 -0 0</pose>
+        <pose>0 0 0 0 0 0</pose>
         <geometry>
           <sphere>
-            <radius>0.067</radius>
+            <!--radius>0.0327</radius-->
+            <radius>0.065</radius>
           </sphere>
         </geometry>
         <material>
@@ -70,27 +70,28 @@
               <mu>0.8</mu>
               <mu2>0.8</mu2>
               <fdir1>0 0 0</fdir1>
-              <slip1>0.5</slip1>
-              <slip2>0.5</slip2>
+              <slip1>0.3</slip1>
+              <slip2>0.3</slip2>
             </ode>
             <torsional>
               <coefficient>1</coefficient>
-              <patch_radius>300</patch_radius>
+              <patch_radius>30000</patch_radius>
               <surface_radius>0.0327</surface_radius>
               <use_patch_radius>true</use_patch_radius>
               <ode>
+
                 <slip>0</slip>
               </ode>
             </torsional>
             <!--bullet>
-              <friction>1</friction>
-              <friction2>1</friction2>
+              <friction>0.5</friction>
+              <friction2>0.5</friction2>
               <fdir>0 0 0</fdir>
-              <rolling_friction>10000<rolling_friction>
+              <rolling_friction>1<rolling_friction>
             </bullet-->
           </friction>
           <bounce>
-            <restitution_coefficient>1</restitution_coefficient>
+            <restitution_coefficient>0</restitution_coefficient>
             <threshold>100000</threshold>
           </bounce>
           <contact>
@@ -105,7 +106,7 @@
               <kp>1200</kp>
               <kd>-0.7</kd>
               <max_vel>1000</max_vel>
-              <min_depth>0</min_depth>
+              <min_depth>0.01</min_depth>
             </ode>
           </contact>
         </surface>
@@ -113,5 +114,44 @@
     </link>
     <static>0</static>
     <allow_auto_disable>1</allow_auto_disable>
+
+    <link name="box">
+      <self_collide>false</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>0.000001</ixx>
+          <iyy>0.000001</iyy>
+          <izz>0.000001</izz>
+          <ixy>0.000001</ixy>
+          <ixz>0.000001</ixz>
+          <iyz>0.000001</iyz>
+        </inertia>
+      </inertial>
+      
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.05 0.010000000000000002 0.05</size>
+          </box>
+        </geometry>
+      </visual>
+    </link>
+      
+    <joint name = "joint_1" type="universal">
+      <parent>box</parent>
+      <child>ball_link</child>
+      <axis>
+        <xyz>1 1 1</xyz>
+        <dynamics>
+          <damping>10</damping>
+          <spring_stiffness>10</spring_stiffness>
+          <spring_reference>0.002</spring_reference>
+        </dynamics>
+      </axis>
+    </joint>
+
   </model>
 </sdf>

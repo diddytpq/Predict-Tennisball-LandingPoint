@@ -115,6 +115,8 @@ def move_mecanum(data):
     g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
     robot_state = g_get_state(model_name="mecanum_0")
+    #robot_state = g_get_state(model_name="mecanum_1")
+
 
 
     linear, angular[2] = check_velocity([linear[0],linear[1],linear[2],angular[2]])

@@ -15,12 +15,12 @@ if __name__ == '__main__' :
     mecanum_0 = Make_mecanum_left('mecanum_0')
     mecanum_1 = Make_mecanum_right('mecanum_1')
     
-    mecanum_0.torque = [0, -100000, 0]
-    #mecanum_0.torque = [0, 0, 20000]
+    #mecanum_0.torque = [0, -100000, 0]
+    #mecanum_0.torque = [0, 100, 0]
     
     #mecanum_1.torque = [0, -20000, 0]
 
-    mecanum_1.ball_name = 'ball_right::base_link'
+    mecanum_1.ball_name = 'ball_right::ball_link'
     mecanum_1.delete_model_name = "ball_left"
     mecanum_0.del_ball()
     mecanum_1.del_ball() 

@@ -35,7 +35,7 @@ class Make_mecanum_left():
 
         self.spawn_pos_z = 0.5
 
-        self.ball_name = 'ball_left::base_link'
+        self.ball_name = 'ball_left::ball_link'
         
         self.torque = [0,20000,0]
         self.delete_model_name = "ball_right"
