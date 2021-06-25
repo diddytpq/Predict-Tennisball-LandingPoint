@@ -35,6 +35,7 @@ class Make_mecanum_left():
 
         self.spawn_pos_z = 0.5
 
+
         self.ball_name = 'ball_left::ball_link'
         
         self.torque = [0,20000,0]
@@ -165,6 +166,10 @@ class Make_mecanum_left():
                 t2 = time.time()
             
     def spwan_ball(self, name):
+        self.cnt = 0
+
+        self.total_break_torque = [0, 0, 0]
+
         #time.sleep(0.1)
         #print("________________________________________________")
         file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/ball_main.sdf'
@@ -198,8 +203,8 @@ class Make_mecanum_left():
         #self.x_target = (np.random.randint(6, 10) + np.random.rand())
         #self.y_target = (np.random.randint(-3, 3) + np.random.rand())
 
-        self.x_target = 11
-        self.y_target = 4
+        self.x_target = 9
+        self.y_target = 0
 
         self.get_position()
         
@@ -233,6 +238,8 @@ class Make_mecanum_left():
         wrench = Wrench()
         self.apply_force, self.apply_torque = get_wrench(self.force, self.torque, self.ror_matrix)
 
+        #self.apply_torque = [int(self.apply_torque[0]),int(self.apply_torque[1]),int(self.apply_torque[2])]
+
         wrench.force = Vector3(*self.apply_force)
         wrench.torque = Vector3(*self.apply_torque)
         success = apply_wrench(
@@ -242,10 +249,10 @@ class Make_mecanum_left():
             wrench,
             rospy.Time().now(),
             rospy.Duration(duration))
-        print(self.apply_force)
+        """print(self.apply_force)
         print(self.apply_torque)
         print(cal(self.apply_force, self.apply_torque))
-        print(self.yaw_z)
+        print(self.yaw_z)"""
         """print("----------------------------------------------------")
 
         #print("\tx_target : ",self.x_target)
@@ -269,6 +276,71 @@ class Make_mecanum_left():
 
         #time.sleep(0.1)
 
+    def break_ball_rolling(self):
+        self.ball_state = self.g_get_state(model_name="ball_left")
+
+        self.ball_pose = Pose()
+        self.ball_pose.position.x = float(self.ball_state.pose.position.x)
+        self.ball_pose.position.y = float(self.ball_state.pose.position.y)
+        self.ball_pose.position.z = float(self.ball_state.pose.position.z)
+        
+        print(self.cnt)
+
+        if abs(self.ball_pose.position.z) < 0.023 and self.cnt < 7:
+            duration = 0.01
+            self.cnt += 1
+            
+            self.apply_force = [0,0,0]
+            apply_torque = [-self.apply_torque[0]/6,-self.apply_torque[1]/6,-self.apply_torque[2]/6]
+
+            self.total_break_torque = [self.total_break_torque[0] + apply_torque[0], self.total_break_torque[1] + apply_torque[1], self.total_break_torque[2] + apply_torque[2]]
+
+
+
+            rospy.wait_for_service('/gazebo/apply_body_wrench', timeout=10)
+
+            apply_wrench = rospy.ServiceProxy('/gazebo/apply_body_wrench', ApplyBodyWrench)
+
+            wrench = Wrench()
+
+            wrench.force = Vector3(*self.apply_force)
+            wrench.torque = Vector3(*apply_torque)
+            success = apply_wrench(
+                self.ball_name,
+                'world',
+                Point(0, 0, 0),
+                wrench,
+                rospy.Time().now(),
+                rospy.Duration(duration))
+        
+        """if self.cnt == 5:
+   
+            duration = 0.01
+            self.apply_force = [0,0,0]
+            apply_torque = [-(self.apply_torque[0] + self.total_break_torque[0]),-(self.apply_torque[1] + self.total_break_torque[1]),-(self.apply_torque[2] + self.total_break_torque[2])]
+            print(self.apply_torque)
+            print(self.total_break_torque)
+            print(apply_torque)
+            print(np.array(self.total_break_torque) + np.array(apply_torque))
+
+            rospy.wait_for_service('/gazebo/apply_body_wrench', timeout=10)
+
+            apply_wrench = rospy.ServiceProxy('/gazebo/apply_body_wrench', ApplyBodyWrench)
+
+            wrench = Wrench()
+
+            wrench.force = Vector3(*self.apply_force)
+            wrench.torque = Vector3(*apply_torque)
+            success = apply_wrench(
+                self.ball_name,
+                'world',
+                Point(0, 0, 0),
+                wrench,
+                rospy.Time().now(),
+                rospy.Duration(duration))
+            #self.cnt += 1"""
+
+
 class Make_mecanum_right(Make_mecanum_left):
 
     def set_ball_target(self):
@@ -285,6 +357,8 @@ class Make_mecanum_right(Make_mecanum_left):
         t0 = time.time()
         dt = 0
         while True:
+
+            away_mecanum.break_ball_rolling()
 
             if ball_catch_check(my_mecanum, "ball_left", away_mecanum):
                 self.stop()
@@ -365,12 +439,12 @@ def ball_catch_check(mecanum, ball_name, away_mecanum):
     print("\tdistance_z :",distance_z)
 """
 
-    if abs(ball_x) > 15:
+    """if abs(ball_x) > 15:
         print("--------------------------------------------------")
         print("\taway_position :", away_mecanum.object_pose.position.x, away_mecanum.object_pose.position.y)
         print("\tyaw_z : ", np.rad2deg(away_mecanum.yaw_z))
         print("\tvelocity :",  away_mecanum.v)
-        print("\tangle :", np.rad2deg(away_mecanum.launch_angle))
+        print("\tangle :", np.rad2deg(away_mecanum.launch_angle))"""
 
     if (distance_x < 0.6 and distance_y <0.6  and distance_z < 1) or abs(ball_x) > 50:
         mecanum.del_ball()
@@ -423,3 +497,4 @@ def return_home(home_mecanum):
         
         return False
     return True
+

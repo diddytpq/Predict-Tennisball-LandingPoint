@@ -75,7 +75,7 @@
             </ode>
             <torsional>
               <coefficient>1</coefficient>
-              <patch_radius>50</patch_radius>
+              <patch_radius>30000</patch_radius>
               <surface_radius>0.0327</surface_radius>
               <use_patch_radius>true</use_patch_radius>
               <ode>
@@ -114,5 +114,44 @@
     </link>
     <static>0</static>
     <allow_auto_disable>1</allow_auto_disable>
+
+    <link name="box">
+      <self_collide>false</self_collide>
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>0.000001</ixx>
+          <iyy>0.000001</iyy>
+          <izz>0.000001</izz>
+          <ixy>0.000001</ixy>
+          <ixz>0.000001</ixz>
+          <iyz>0.000001</iyz>
+        </inertia>
+      </inertial>
+      
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.05 0.010000000000000002 0.05</size>
+          </box>
+        </geometry>
+      </visual>
+    </link>
+      
+    <joint name = "joint_1" type="universal">
+      <parent>box</parent>
+      <child>ball_link</child>
+      <axis>
+        <xyz>1 1 1</xyz>
+        <dynamics>
+          <damping>10</damping>
+          <spring_stiffness>10</spring_stiffness>
+          <spring_reference>0.002</spring_reference>
+        </dynamics>
+      </axis>
+    </joint>
+
   </model>
 </sdf>
