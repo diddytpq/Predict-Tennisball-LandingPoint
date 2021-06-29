@@ -27,7 +27,7 @@ class Make_mecanum_left():
 
         self.g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
         self.vel_forward = 5.5 #m/s
-        self.vel_lateral = 2 #m/s
+        self.vel_lateral = 1.5 #m/s
         self.ball_fly_time = 0.45 #max height time [sec]
         self.vel_forward_apply = 0
         self.vel_lateral_apply = 0
@@ -123,8 +123,10 @@ class Make_mecanum_left():
         t0 = time.time()
         dt = 0
         while True:
-
+            
+            away_mecanum.break_ball_rolling()
             return_home(away_mecanum)
+
             self.score, away_mecanum.score, meg  = ball_catch_check(my_mecanum, "ball_right", self.score, away_mecanum.score, away_mecanum)
             if meg:
                 self.stop()
@@ -134,10 +136,9 @@ class Make_mecanum_left():
             self.get_position()
             t1 = time.time()
 
-            if dt == 0:
-                dt = t1-t0
-            else :
-                dt = t1 - t2
+    
+            dt = t1-t0
+
 
             self.x_error = x_target - self.object_pose.position.x
             self.y_error = y_target - self.object_pose.position.y
@@ -167,13 +168,16 @@ class Make_mecanum_left():
                 self.pub_wheel_vel_2.publish(self.wheel_vel[1,:])
                 self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
                 self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
-                t2 = time.time()
-
+            t0 = time.time()
 
 
                 
 
     def spwan_ball(self, name):
+
+        self.spawn_name = name
+        self.cnt = 0
+        self.total_break_torque = [0, 0, 0]
         #time.sleep(0.1)
         #print("________________________________________________")
         file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/ball_main.sdf'
@@ -195,7 +199,7 @@ class Make_mecanum_left():
         xml_string=file_xml.read()
 
         req = SpawnModelRequest()
-        req.model_name = name
+        req.model_name = self.spawn_name
         req.model_xml = xml_string
         req.initial_pose = ball_pose
 
@@ -270,6 +274,69 @@ class Make_mecanum_left():
 
         #time.sleep(0.1)
 
+
+    def break_ball_rolling(self):
+            self.ball_state = self.g_get_state(model_name = self.spawn_name)
+
+            self.ball_pose = Pose()
+            self.ball_pose.position.x = float(self.ball_state.pose.position.x)
+            self.ball_pose.position.y = float(self.ball_state.pose.position.y)
+            self.ball_pose.position.z = float(self.ball_state.pose.position.z)
+            
+            if abs(self.ball_pose.position.z) == 0 and self.cnt < 7:
+                duration = 0.01
+                self.cnt += 1
+                self.apply_force = [0,0,0]
+                apply_torque = [-self.apply_torque[0]/6,-self.apply_torque[1]/6,-self.apply_torque[2]/6]
+
+                self.total_break_torque = [self.total_break_torque[0] + apply_torque[0], self.total_break_torque[1] + apply_torque[1], self.total_break_torque[2] + apply_torque[2]]
+
+
+
+                rospy.wait_for_service('/gazebo/apply_body_wrench', timeout=10)
+
+                apply_wrench = rospy.ServiceProxy('/gazebo/apply_body_wrench', ApplyBodyWrench)
+
+                wrench = Wrench()
+
+                wrench.force = Vector3(*self.apply_force)
+                wrench.torque = Vector3(*apply_torque)
+                success = apply_wrench(
+                    str(self.delete_model_name) + ":ball_link",
+                    'world',
+                    Point(0, 0, 0),
+                    wrench,
+                    rospy.Time().now(),
+                    rospy.Duration(duration))
+            
+            """if self.cnt == 5:
+    
+                duration = 0.01
+                self.apply_force = [0,0,0]
+                apply_torque = [-(self.apply_torque[0] + self.total_break_torque[0]),-(self.apply_torque[1] + self.total_break_torque[1]),-(self.apply_torque[2] + self.total_break_torque[2])]
+                print(self.apply_torque)
+                print(self.total_break_torque)
+                print(apply_torque)
+                print(np.array(self.total_break_torque) + np.array(apply_torque))
+
+                rospy.wait_for_service('/gazebo/apply_body_wrench', timeout=10)
+
+                apply_wrench = rospy.ServiceProxy('/gazebo/apply_body_wrench', ApplyBodyWrench)
+
+                wrench = Wrench()
+
+                wrench.force = Vector3(*self.apply_force)
+                wrench.torque = Vector3(*apply_torque)
+                success = apply_wrench(
+                    self.ball_name,
+                    'world',
+                    Point(0, 0, 0),
+                    wrench,
+                    rospy.Time().now(),
+                    rospy.Duration(duration))
+                #self.cnt += 1"""
+
+
 class Make_mecanum_right(Make_mecanum_left):
 
     def set_ball_target(self):
@@ -286,8 +353,11 @@ class Make_mecanum_right(Make_mecanum_left):
         t0 = time.time()
         dt = 0
         while True:
+
             return_home(away_mecanum)
+            away_mecanum.break_ball_rolling()
             away_mecanum.score, self.score, meg = ball_catch_check(my_mecanum, "ball_left", away_mecanum.score, self.score, away_mecanum)
+
             if meg:
                 self.stop()
                 away_mecanum.stop()
@@ -297,10 +367,9 @@ class Make_mecanum_right(Make_mecanum_left):
 
             t1 = time.time()
 
-            if dt == 0:
-                dt = t1-t0
-            else :
-                dt = t1 - t2
+ 
+            dt = t1 - t0
+
             
             self.x_error = self.object_pose.position.x - x_target
             self.y_error = self.object_pose.position.y - y_target
@@ -335,7 +404,7 @@ class Make_mecanum_right(Make_mecanum_left):
                 self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
                 self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
 
-            t2 = time.time()
+            t0 = time.time()
 
 
 

@@ -15,8 +15,9 @@ if __name__ == '__main__' :
     mecanum_0 = Make_mecanum_left('mecanum_0')
     mecanum_1 = Make_mecanum_right('mecanum_1')
     
-    #mecanum_0.torque = [0, -100000, 0]
-    #mecanum_0.torque = [0, 100, 0]
+    #mecanum_0.torque = [0, -20000, 0]
+    
+    mecanum_0.torque = [0, 0, 0]
     #mecanum_0.torque = [0, 0, 20000]
     
     #mecanum_1.torque = [0, -20000, 0]

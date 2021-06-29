@@ -131,10 +131,8 @@ class Make_mecanum_left():
             self.get_position()
             t1 = time.time()
 
-            if dt == 0:
-                dt = t1-t0
-            else :
-                dt = t1 - t2
+            dt = t1 - t0
+
 
             self.x_error = x_target - self.object_pose.position.x
             self.y_error = y_target - self.object_pose.position.y
@@ -163,7 +161,7 @@ class Make_mecanum_left():
                 self.pub_wheel_vel_2.publish(self.wheel_vel[1,:])
                 self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
                 self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
-                t2 = time.time()
+            t0 = time.time()
             
     def spwan_ball(self, name):
         self.cnt = 0
@@ -368,10 +366,7 @@ class Make_mecanum_right(Make_mecanum_left):
 
             t1 = time.time()
 
-            if dt == 0:
-                dt = t1-t0
-            else :
-                dt = t1 - t2
+            dt = t1 - t0
             
             self.x_error = self.object_pose.position.x - x_target
             self.y_error = self.object_pose.position.y - y_target
@@ -404,7 +399,7 @@ class Make_mecanum_right(Make_mecanum_left):
                 self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
                 self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
 
-            t2 = time.time()
+            t0 = time.time()
 
 
 
