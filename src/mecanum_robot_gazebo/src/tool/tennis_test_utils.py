@@ -201,7 +201,7 @@ class Make_mecanum_left():
         #self.x_target = (np.random.randint(6, 10) + np.random.rand())
         #self.y_target = (np.random.randint(-3, 3) + np.random.rand())
 
-        self.x_target = 9
+        self.x_target = 5
         self.y_target = 0
 
         self.get_position()

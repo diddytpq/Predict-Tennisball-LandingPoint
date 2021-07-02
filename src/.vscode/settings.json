@@ -1,0 +1,7 @@
+{
+
+   "python.condaPath": "/home/drcl_yang/anaconda3/envs/test/bin/python",
+   "python.analysis.extraPaths": ["/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/src/mecanum_robot_gazebo/src", ],
+
+
+ }
