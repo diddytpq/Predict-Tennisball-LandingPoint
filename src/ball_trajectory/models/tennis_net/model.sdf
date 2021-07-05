@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+    <model name="tennis_net">
+        <static>true</static>
+
+
+        <link name="tennis_net">
+            <visual name="visual">
+                <pose> 0 0 0.53 0 0 0 </pose> 
+                <geometry>
+                    <box>
+                        <size> 0.01 12.4 1.06 </size>
+                    </box>
+                </geometry>
+                <material>
+                    <script>
+                        <uri>file://media/materials/scripts/gazebo.material</uri>
+                        <name>Gazebo/Grey</name>
+                    </script>
+                </material>
+            </visual>
+
+            <collision name="collision">
+                <pose> 0 0 0.53 0 0 0 </pose> 
+                <geometry>
+                    <box>
+                        <size> 0.2 12.4 1.06 </size>
+                    </box>
+                </geometry>
+                <contact>
+                    <collide_without_contact>1</collide_without_contact>
+                    <collide_without_contact_bitmask>0</collide_without_contact_bitmask>
+                    <collide_bitmask>1</collide_bitmask>
+                    <poissons_ratio> 0.26 </poissons_ratio>
+                    <elastic_modulus> 0.26 </elastic_modulus>
+                    <ode>
+                        <soft_cfm>0</soft_cfm>
+                        <soft_erp>0.2</soft_erp>
+                        <kp>100000000</kp>
+                        <kd>1000</kd>
+                        <max_vel>0</max_vel>
+                        <min_depth>1</min_depth>
+                    </ode>
+                </contact>
+            </collision>
+        </link>
+    </model>
+</sdf>

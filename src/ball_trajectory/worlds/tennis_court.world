@@ -24,6 +24,11 @@
       <pose>0 0 0.002 0.0 0.0 0.0</pose>
     </include>
 
+    <include>
+      <uri>model://tennis_net</uri>
+      <pose>0 0 0.003 0.0 0.0 0.0</pose>
+    </include> 
+
     <physics type="ode">
       <real_time_update_rate>1000.0</real_time_update_rate>
       <max_step_size>0.001</max_step_size>

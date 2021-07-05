@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+<robot name="tennis_net">
+
+  <link name="world" />
+
+  <joint name="base_joint" type="fixed">
+    <parent link="world"/>
+    <child link="tennis_net" />
+    <origin xyz="0 0 0.010" rpy="0 0 0"/>
+  </joint>
+
+  <link name="tennis_net">
+    <inertial>
+      <origin
+        xyz="0 0 0.53"
+        rpy="0 0 0" />
+      <mass
+        value="10000" />
+      <inertia
+        ixx="1"
+        ixy="0"
+        ixz="0"
+        iyy="1"
+        iyz="0"
+        izz="1" />
+    </inertial>
+    
+    <visual>
+      <origin
+          xyz="0 0 0.53"
+          rpy="0 0 0" />
+      <geometry>
+        <box size = "0.01 12.4 1.06"/>
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.84706 0.83922 0.83922 1" />
+      </material>
+    </visual>
+
+    <collision>
+      <origin
+        xyz="0 0 0.53"
+        rpy="0 0 0" />
+      <geometry>
+        <box size = "1 12.4 1.06"/>
+      </geometry>
+    </collision>
+    </link>
+
+    <gazebo reference="tennis_net">
+        <mu1>100</mu1>
+        <mu2>150</mu2>
+        <fdir1>0 0 0</fdir1>
+        <kp>1e+13</kp>
+        <kd>0</kd>
+        <maxVel>1</maxVel>
+        <minDepth>1</minDepth>
+        <gravity>1</gravity>
+        <material>Gazebo/Grey</material>
+    </gazebo> 
+
+</robot>

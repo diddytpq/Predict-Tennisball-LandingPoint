@@ -16,8 +16,7 @@
         </inertia>
         <pose>0 0 0 0 -0 0</pose>
       </inertial>
-
-      <pose>-0 0 0 0 -0 0</pose>
+      <pose>-0 0 0 0 0 0</pose>
       <gravity>1</gravity>
       <self_collide>0</self_collide>
       <kinematic>0</kinematic>
@@ -28,7 +27,7 @@
         <geometry>
           <sphere>
             <!--radius>0.0327</radius-->
-            <radius>0.066</radius>
+            <radius>0.033</radius>
           </sphere>
         </geometry>
         <material>
@@ -57,8 +56,8 @@
 
       <collision name='collision'>
         <laser_retro>0</laser_retro>
-        <max_contacts>10</max_contacts>
-        <pose>0 0 0 0 -0 0</pose>
+        <max_contacts>100</max_contacts>
+        <pose>0 0 0 0 0 0</pose>
         <geometry>
           <sphere>
             <radius>0.033</radius>
@@ -70,8 +69,8 @@
               <mu>0.6</mu>
               <mu2>0.6</mu2>
               <fdir1>0 0 0</fdir1>
-              <slip1>0.3</slip1>
-              <slip2>0.3</slip2>
+              <slip1>0.4</slip1>
+              <slip2>0.4</slip2>
             </ode>
             <torsional>
               <coefficient>1</coefficient>
@@ -79,8 +78,7 @@
               <surface_radius>0.0327</surface_radius>
               <use_patch_radius>true</use_patch_radius>
               <ode>
-
-                <slip>0</slip>
+                <slip>0.3</slip>
               </ode>
             </torsional>
             <!--bullet>
@@ -92,7 +90,7 @@
           </friction>
           <bounce>
             <restitution_coefficient>0</restitution_coefficient>
-            <threshold>100000</threshold>
+            <threshold>1</threshold>
           </bounce>
           <contact>
             <collide_without_contact>0</collide_without_contact>
@@ -106,7 +104,7 @@
               <kp>1000</kp>
               <kd>-0.88</kd>
               <max_vel>1000</max_vel>
-              <min_depth>0.01</min_depth>
+              <min_depth>0.0001</min_depth>
             </ode>
           </contact>
         </surface>
