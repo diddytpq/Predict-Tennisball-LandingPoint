@@ -12,7 +12,9 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
 
+
 roslib.load_manifest('ball_trajectory')
+
 
 
 class Image_converter:
@@ -24,11 +26,8 @@ class Image_converter:
 
         self.image_left_0 = rospy.Subscriber("/camera_left_0/image_raw",Image,self.callback_left_0)
         self.image_left_1 = rospy.Subscriber("/camera_left_1/image_raw",Image,self.callback_left_1)
-
         self.image_right_0 = rospy.Subscriber("/camera_right_0/image_raw",Image,self.callback_right_0)
         self.image_right_1 = rospy.Subscriber("/camera_right_1/image_raw",Image,self.callback_right_1)
-
-
 
     def callback_left_0(self,data):
         try:
@@ -48,14 +47,14 @@ class Image_converter:
         try:
             self.right_data_0 = self.bridge.imgmsg_to_cv2(data, "bgr8")
 
+
         except CvBridgeError as e:
             print(e)
-
-
 
     def callback_right_1(self,data):
         try:
             self.right_data_1 = self.bridge.imgmsg_to_cv2(data, "bgr8")
+
 
         except CvBridgeError as e:
             print(e)
@@ -89,12 +88,16 @@ class Image_converter:
                 return 0
 
 
+
 def main(args):
 
     ic = Image_converter()
     
     try:
         rospy.spin()
+
+
+
     except KeyboardInterrupt:
         print("Shutting down")
         cv2.destroyAllWindows()

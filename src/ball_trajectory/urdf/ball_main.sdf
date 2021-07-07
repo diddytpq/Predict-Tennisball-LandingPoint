@@ -27,7 +27,7 @@
         <geometry>
           <sphere>
             <!--radius>0.0327</radius-->
-            <radius>0.033</radius>
+            <radius>0.066</radius>
           </sphere>
         </geometry>
         <material>

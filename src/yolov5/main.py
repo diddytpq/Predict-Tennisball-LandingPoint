@@ -31,7 +31,7 @@ line_thickness=3,  # bounding box thickness (pixels)
 
 @torch.no_grad()
 def main():
-    path = 'data/images/main.mov'
+    path = 'data/images/test.mp4'
 
     cap=cv2.VideoCapture(path)
 
