@@ -177,10 +177,10 @@ class Make_mecanum_left():
         ball_pose = Pose()
         ball_pose.position.x = self.object_pose.position.x
         ball_pose.position.y = self.object_pose.position.y
-        ball_pose.position.z = 0.01 #self.object_pose.position.z + self.spawn_pos_z
+        ball_pose.position.z = self.object_pose.position.z + self.spawn_pos_z
 
         self.ball_pre_position_z = self.object_pose.position.z + self.spawn_pos_z
-        self.pre_gradient = 0
+        self.pre_gradient = 1
 
         ball_pose.orientation.x = 0
         ball_pose.orientation.y = 0
@@ -202,7 +202,7 @@ class Make_mecanum_left():
         #self.x_target = (np.random.randint(6, 10) + np.random.rand())
         #self.y_target = (np.random.randint(-3, 3) + np.random.rand())
 
-        self.x_target = 5
+        self.x_target = 10
         self.y_target = 0
 
         self.get_position()
@@ -210,6 +210,7 @@ class Make_mecanum_left():
         self.x_error = self.x_target - self.object_pose.position.x
         self.y_error = self.y_target - self.object_pose.position.y
         self.s = np.sqrt(self.x_error**2 + self.y_error**2)
+
 
     def throw_ball(self):
 
@@ -235,9 +236,8 @@ class Make_mecanum_left():
         self.ball_apply_force(self.apply_force, self.apply_torque, duration)
 
         #self.apply_torque = [int(self.apply_torque[0]),int(self.apply_torque[1]),int(self.apply_torque[2])]
+        print(v0)
 
-
-    
     def ball_apply_force(self, force, torque, duration):
 
         rospy.wait_for_service('/gazebo/apply_body_wrench', timeout=10)
@@ -303,21 +303,21 @@ class Make_mecanum_left():
 
         if self.check_bounce() and self.ball_pose.position.z < 0.021 :
             self.cnt += 1
-            print(self.cnt)
+            #print(self.cnt)
 
             self.get_ball_stats()
 
-            print(self.ball_vel.linear.x , self.ball_pre_vel_linear_x)
+            #print(self.ball_vel.linear.x , self.ball_pre_vel_linear_x)
 
             w_y2 = self.ball_vel.angular.y - 1.5 * 0.033 * (self.ball_vel.linear.x - self.ball_pre_vel_linear_x) / 0.03 ** 2
             w_x2 = self.ball_vel.angular.x - 1.5 * 0.033 * (self.ball_vel.linear.y - self.ball_pre_vel_linear_y) / 0.03 ** 2
-
+            
             force = [0, 0, 0]
 
-            print("w_y2 : ",w_y2)
+            #print("w_y2 : ",w_y2)
             self.apply_torque = [-(self.ball_vel.angular.x  - w_x2) * 1000, -(self.ball_vel.angular.y - w_y2) * 1000, 0]
             
-            print(self.apply_torque[0]/100 , self.apply_torque[1]/1000)
+            #print(self.apply_torque[0]/100 , self.apply_torque[1]/1000)
 
             self.ball_apply_force(force, self.apply_torque, duration)
             
@@ -325,7 +325,7 @@ class Make_mecanum_left():
 
         self.current_gradient = self.ball_pose.position.z - self.ball_pre_position_z
 
-        if self.check_gradient(self.pre_gradient) == False :#and self.check_gradient(self.current_gradient) == True:
+        if self.check_gradient(self.pre_gradient) == False and self.check_gradient(self.current_gradient) == True:
             self.ball_pre_position_z = self.ball_pose.position.z
             self.pre_gradient = self.current_gradient
             return True
@@ -445,7 +445,7 @@ def ball_catch_check(mecanum, ball_name, away_mecanum):
         print("\tvelocity :",  away_mecanum.v)
         print("\tangle :", np.rad2deg(away_mecanum.launch_angle))"""
 
-    if (distance_x < 0.6 and distance_y <0.6  and distance_z < 1) or abs(ball_x) > 50:
+    if (distance_x < 0.6 and distance_y <0.6  and distance_z < 1) or abs(ball_x) > 20:
         mecanum.del_ball()
         return True
 

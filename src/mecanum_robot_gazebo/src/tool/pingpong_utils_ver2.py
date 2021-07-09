@@ -190,7 +190,7 @@ class Make_mecanum_left():
 
         self.ball_pre_position_z = self.object_pose.position.z + self.spawn_pos_z
 
-        self.pre_gradient = 0
+        self.pre_gradient = 1
 
         ball_pose.orientation.x = self.object_pose.orientation.x 
         ball_pose.orientation.y = self.object_pose.orientation.y 
@@ -318,7 +318,7 @@ class Make_mecanum_left():
 
         self.current_gradient = self.ball_pose.position.z - self.ball_pre_position_z
 
-        if self.check_gradient(self.pre_gradient) == False :#and self.check_gradient(self.current_gradient) == True:
+        if self.check_gradient(self.pre_gradient) == False and self.check_gradient(self.current_gradient) == True:
             self.ball_pre_position_z = self.ball_pose.position.z
             self.pre_gradient = self.current_gradient
             return True

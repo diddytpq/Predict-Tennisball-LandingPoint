@@ -24,7 +24,7 @@
                 <pose> 0 0 0.53 0 0 0 </pose> 
                 <geometry>
                     <box>
-                        <size> 0.2 12.4 1.06 </size>
+                        <size> 0.25 12.4 1.06 </size>
                     </box>
                 </geometry>
                 <contact>
