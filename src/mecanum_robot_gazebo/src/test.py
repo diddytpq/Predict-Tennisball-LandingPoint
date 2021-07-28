@@ -17,11 +17,11 @@ if __name__ == '__main__' :
     
     #mecanum_0.torque = [0, -20000, 0]
     
-    mecanum_0.torque = [0, 0, 0]
+    #mecanum_0.torque = [0, 0, 0]
     #mecanum_0.torque = [0, 0, 20000]
     
     #mecanum_1.torque = [0, -20000, 0]
-    mecanum_1.torque = [0, 0, 0]
+    #mecanum_1.torque = [0, 0, 0]
 
     mecanum_1.ball_name = 'ball_right'
     mecanum_1.delete_model_name = "ball_left"
@@ -33,13 +33,21 @@ if __name__ == '__main__' :
 
     add_catch_point = 3.5
 
+    f = open("ball_landing_data.txt",'w')
+
+
     while True:
         mecanum_0.spwan_ball("ball_left")
         mecanum_0.throw_ball()
+
+        print([mecanum_0.x_target, mecanum_0.y_target])
+        f.write(str(mecanum_0.x_target, mecanum_0.y_target) + "\n")
+
+
         #time.sleep(0.05)
         #ball_landing_point = [mecanum_0.x_target + add_catch_point * np.cos(mecanum_0.yaw_z), mecanum_0.y_target + add_catch_point * np.sin(mecanum_0.yaw_z)]
-        ball_landing_point = [mecanum_0.x_target + add_catch_point * np.cos(mecanum_0.yaw_z), mecanum_0.y_target + add_catch_point * np.sin(mecanum_0.yaw_z)]
-        mecanum_1.move(11,-4,mecanum_1,mecanum_0)
+        #ball_landing_point = [mecanum_0.x_target + add_catch_point * np.cos(mecanum_0.yaw_z), mecanum_0.y_target + add_catch_point * np.sin(mecanum_0.yaw_z)]
+        #mecanum_1.move(0,-10,mecanum_1,mecanum_0)
 
         #mecanum_1.move(ball_landing_point[0],ball_landing_point[1],mecanum_1,mecanum_0)
         #while return_home(mecanum_1):

@@ -199,11 +199,11 @@ class Make_mecanum_left():
         res = srv_spawn_model(req)
 
     def set_ball_target(self):
-        #self.x_target = (np.random.randint(6, 10) + np.random.rand())
-        #self.y_target = (np.random.randint(-3, 3) + np.random.rand())
+        self.x_target = (np.random.randint(6, 10) + np.random.rand())
+        self.y_target = (np.random.randint(-3, 3) + np.random.rand())
 
-        self.x_target = 10
-        self.y_target = 0
+        #self.x_target = 20
+        #self.y_target = 0
 
         self.get_position()
         
@@ -236,7 +236,7 @@ class Make_mecanum_left():
         self.ball_apply_force(self.apply_force, self.apply_torque, duration)
 
         #self.apply_torque = [int(self.apply_torque[0]),int(self.apply_torque[1]),int(self.apply_torque[2])]
-        print(v0)
+        #print(v0)
 
     def ball_apply_force(self, force, torque, duration):
 
@@ -445,7 +445,7 @@ def ball_catch_check(mecanum, ball_name, away_mecanum):
         print("\tvelocity :",  away_mecanum.v)
         print("\tangle :", np.rad2deg(away_mecanum.launch_angle))"""
 
-    if (distance_x < 0.6 and distance_y <0.6  and distance_z < 1) or abs(ball_x) > 20:
+    if (distance_x < 0.6 and distance_y <0.6  and distance_z < 1) or abs(ball_x) > 18:
         mecanum.del_ball()
         return True
 
