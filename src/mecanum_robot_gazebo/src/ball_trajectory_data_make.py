@@ -26,7 +26,7 @@ if __name__ == '__main__' :
 
     add_catch_point = 3.5
 
-    f = open("ball_landing_data.txt",'w')
+    #f = open("ball_landing_data.txt",'w')
 
 
     while True:
@@ -35,7 +35,7 @@ if __name__ == '__main__' :
 
         print([mecanum_0.x_target, mecanum_0.y_target])
         savedata = [mecanum_0.x_target, mecanum_0.y_target]
-        f.write(str(savedata) + "\n")
+        #f.write(str(savedata) + ",")
 
 
         x_move = (np.random.randint(-13, -10))

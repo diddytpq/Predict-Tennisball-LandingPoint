@@ -74,8 +74,13 @@ ball_trajectory_list = []
 empty_list = []
 
 trajectroy_cnt = 0
+seq_cnt = 0
 
-f = open("ball_train_data.txt",'w')
+save_data = []
+
+#f = open("ball_train_data.txt",'wb')
+#ff = open("seq_cnt_data.txt",'w')
+
 
 class Image_converter:
 
@@ -127,6 +132,8 @@ class Image_converter:
         self.ball_box = []
 
         global trajectroy_cnt 
+        global seq_cnt
+        global save_data
 
         if cols > 60 and rows > 60 :
             t1 = time.time()
@@ -156,21 +163,28 @@ class Image_converter:
 
             elif (max(self.ball_centroid_list) == [0,0] or max(self.ball_centroid_list) > [640, 640]) :
                 ball_trajectory_list.clear()
-                f.write("\n")
-                trajectroy_cnt += 1
-                print(trajectroy_cnt)
+                
+                if seq_cnt < 5: #만약 로봇을 공으로 볼 경우 save data에서 마지막 항 빼고 파라미터 초기화
+                    seq_cnt = 0
+                    save_data.pop()
+
+                else:
+                    trajectroy_cnt += 1
+                    ff.write(str(seq_cnt) + ",")
+                    print("trajectroy_cnt :",trajectroy_cnt)
+                    print("seq_cnt: ",seq_cnt)
+                    seq_cnt = 0
+
 
 
             else:
             #elif max(self.ball_centroid_list) > [0,0]:
                 ball_trajectory = (self.ball_centroid_list[0] + self.ball_centroid_list[1])
                 ball_trajectory_list.append(ball_trajectory)
+                seq_cnt += 1
 
-                save_data = self.make_train_data(ball_trajectory_list)
-
-                print(save_data)
-                f.write(str(save_data) + "\n")
-                
+                save_data.append(self.make_train_data(ball_trajectory_list))
+                print(np.array(save_data).shape)
 
           
 
@@ -200,7 +214,6 @@ class Image_converter:
             cv2.imshow("ball_detect_img", ball_detect_img)
             #cv2.imshow("trajectroy_image", trajectroy_image)
 
-
             #cv2.imshow("fgmask_1", self.fgmask_1)
             #cv2.imshow("fgmask_erode", self.fgmask_erode)
             #cv2.imshow("fgmask_dila", self.fgmask_dila)
@@ -213,6 +226,14 @@ class Image_converter:
 
             if key == 27 : 
                 cv2.destroyAllWindows()
+
+            if key == ord('s'):
+                save_array  = np.array(save_data)
+                np.save("npy_test", arr=save_array)
+                print("train data save")
+                #np.savetxt('train_data.txt', save_array, fmt='%d', delimiter=',')
+                #f.write((save_data))
+
 
                 return 0
 
@@ -349,8 +370,8 @@ class Image_converter:
                 self.ball_box.append([0,0])"""
 
     def make_train_data(self, data):
-        return data + [[-1, -1, -1, -1]] * (20 - len(data))
-
+        #return [[0, 0, 0, 0]] * (20 - len(data)) + data 
+        return data
 
 def main(args):
 

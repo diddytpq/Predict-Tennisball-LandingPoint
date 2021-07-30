@@ -62,23 +62,13 @@ from cv_bridge import CvBridge, CvBridgeError
 roslib.load_manifest('ball_trajectory')
 
 
-conf_thres = 0.25
-iou_thres=0.45
-classes = None # filter by class: --class 0, or --class 0 2 3
-agnostic_nms = False # class-agnostic NMS
-max_det = 1000 # maximum detections per image
-hide_labels=False,  # hide labels
-hide_conf=False,  # hide confidences
-line_thickness=3,  # bounding box thickness (pixels)
-
-
+record = False
 
 class Image_converter:
 
     def __init__(self):
         
         self.bridge = CvBridge()
-        rospy.init_node('Image_converter', anonymous=True)
 
         self.image_left_0 = rospy.Subscriber("/camera_left_0/image_raw",Image,self.callback_left_0)
         self.image_left_1 = rospy.Subscriber("/camera_left_1/image_raw",Image,self.callback_left_1)
@@ -86,11 +76,14 @@ class Image_converter:
         self.image_right_1 = rospy.Subscriber("/camera_right_1/image_raw",Image,self.callback_right_1)
 
         self.frame_recode = np.zeros([360,1280,3], np.uint8)
-        self.codec = cv2.VideoWriter_fourcc(*'XVID')
-        self.out_0 = cv2.VideoWriter("left.mp4", self.codec, 60, (640,640))
-        self.out_1 = cv2.VideoWriter("right.mp4", self.codec, 60, (640,640))
+        
 
+        if record == True:
+            self.codec = cv2.VideoWriter_fourcc(*'XVID')
+            self.out_0 = cv2.VideoWriter("left.mp4", self.codec, 60, (640,640))
+            self.out_1 = cv2.VideoWriter("right.mp4", self.codec, 60, (640,640))
 
+        
 
     def callback_left_0(self,data):
         try:
@@ -143,9 +136,11 @@ class Image_converter:
             cv2.imshow("right_frame", self.right_frame)
 
             print(self.left_frame.shape)
+            
 
-            self.out_0.write(self.left_frame)
-            self.out_1.write(self.right_frame)
+            if record == True:
+                self.out_0.write(self.left_frame)
+                self.out_1.write(self.right_frame)
 
             #print((t2-t1))
             key = cv2.waitKey(1)
@@ -160,6 +155,7 @@ class Image_converter:
 def main(args):
 
     ic = Image_converter()
+    rospy.init_node('Image_converter', anonymous=True)
     
     try:
         rospy.spin()
