@@ -1,8 +1,7 @@
 <?xml version="1.0" ?>
 <sdf version="1.5">
     <model name="tennis_net">
-        <static>true</static>
-
+        <static>1</static>
 
         <link name="tennis_net">
             <visual name="visual">
@@ -47,9 +46,9 @@
                         <elastic_modulus> 0.26 </elastic_modulus>
                         <ode>
                             <soft_cfm>0</soft_cfm>
-                            <soft_erp>0.2</soft_erp>
+                            <soft_erp>0</soft_erp>
                             <kp>100000000</kp>
-                            <kd>1000</kd>
+                            <kd>100000000</kd>
                             <max_vel>0</max_vel>
                             <min_depth>1</min_depth>
                         </ode>
