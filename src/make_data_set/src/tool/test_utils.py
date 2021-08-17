@@ -33,7 +33,7 @@ class Make_mecanum_left():
         self.vel_lateral_apply = 0
         self.amax = 3
 
-        self.spawn_pos_z = 1.5
+        self.spawn_pos_z = 2.65
 
 
         self.ball_name = 'ball_left'
@@ -229,10 +229,10 @@ class Make_mecanum_left():
 
         self.force = [v0 * 0.057 * 1000, 0, vz0 * 0.057 *1000 ]"""
 
-        v0 = 25.56 #m/s
+        v0 = 55.56 #m/s
 
         angle = np.arctan(self.spawn_pos_z/self.x_error)
-        angle = np.deg2rad(0)
+        angle = np.deg2rad(5.5)
 
         print(np.rad2deg(angle))
         vx = v0 * np.cos(angle)

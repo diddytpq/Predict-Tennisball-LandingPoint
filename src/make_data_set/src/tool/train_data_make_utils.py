@@ -167,7 +167,7 @@ class Make_mecanum_left():
 
         #time.sleep(0.1)
         #print("________________________________________________")
-        file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/ball_test.sdf'
+        file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/ball_main.sdf'
         #file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/soccer_ball.sdf'
         
         srv_spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
@@ -359,6 +359,9 @@ def ball_catch_check(mecanum, ball_name):
         mecanum.del_ball()
         return True
 
+        
+
     return False
+
 
 

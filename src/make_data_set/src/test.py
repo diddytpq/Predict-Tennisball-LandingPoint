@@ -16,7 +16,7 @@ if __name__ == '__main__' :
     
     #mecanum_0.torque = [0, -2000000, 0]
     #mecanum_0.torque = [0, 0, 2000000]
-    mecanum_0.torque = [0, 0, 0]
+    #mecanum_0.torque = [0, 0, 0]
     
 
     mecanum_0.del_ball()
