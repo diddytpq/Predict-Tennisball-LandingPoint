@@ -29,6 +29,7 @@ class Make_mecanum_left():
 
         self.vel_forward = 1.5 #m/s
         self.vel_lateral = 5.5 #m/s
+        
         self.ball_fly_time = 0.45 #max height time [sec]
         self.vel_forward_apply = 0
         self.vel_lateral_apply = 0
@@ -96,6 +97,8 @@ class Make_mecanum_left():
             if abs(self.vel_forward_apply) > self.vel_forward:
                 self.vel_forward_apply = -self.vel_forward
 
+        print(self.vel_forward_apply)
+
 
     def set_y_velocity(self,dt):
 
@@ -129,9 +132,8 @@ class Make_mecanum_left():
 
     def move(self, x_target, y_target, away_mecanum):
         t0 = time.time()
-        dt = 0
-        while True:
 
+        while True:
             return_home(away_mecanum)
             self.break_ball_rolling()
             
@@ -142,8 +144,9 @@ class Make_mecanum_left():
 
             self.cal_liftdrag()
             self.get_position()
-            t1 = time.time()
     
+
+            t1 = time.time()
             dt = t1 - t0
 
             self.x_error = x_target - self.object_pose.position.x
@@ -181,7 +184,7 @@ class Make_mecanum_left():
 
     def spwan_ball(self, name):
 
-        file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/ball_main.sdf'
+        file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/ball_test.sdf'
         srv_spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
     
         self.get_position()
@@ -207,7 +210,9 @@ class Make_mecanum_left():
         res = srv_spawn_model(req)
 
     def set_ball_target(self):
-        self.x_target = (np.random.randint(8, 10) + np.random.rand())
+
+        #self.x_target = (np.random.randint(8, 10) + np.random.rand())
+        self.x_target = (np.random.randint(8, 12) + np.random.rand())
         self.y_target = (np.random.randint(-3, 3) + np.random.rand())
 
 
@@ -420,7 +425,9 @@ class Make_mecanum_left():
 class Make_mecanum_right(Make_mecanum_left):
 
     def set_ball_target(self):
-        self.x_target = -(np.random.randint(8, 10) + np.random.rand())
+        #self.x_target = -(np.random.randint(8, 10) + np.random.rand())
+        
+        self.x_target = -(np.random.randint(8, 12) + np.random.rand())
         self.y_target = (np.random.randint(-3, 3) + np.random.rand())
 
         self.get_position()
@@ -431,9 +438,8 @@ class Make_mecanum_right(Make_mecanum_left):
 
     def move(self, x_target, y_target, away_mecanum):
         t0 = time.time()
-        dt = 0
-        while True:
 
+        while True:
             return_home(away_mecanum)
             self.break_ball_rolling()
 
@@ -448,8 +454,6 @@ class Make_mecanum_right(Make_mecanum_left):
             self.get_position()
 
             t1 = time.time()
-
- 
             dt = t1 - t0
 
             
@@ -557,12 +561,12 @@ class Make_mecanum_right(Make_mecanum_left):
         self.liftdrag_force_y = (self.drag_force[0] + self.lift_force[0]) * np.sin(xy_angle)
         self.liftdrag_force_z = self.drag_force[1] + self.lift_force[1]
 
-        print("----------------------------------")
+        """print("----------------------------------")
         print(self.current_gradient)
         print(self.cl)
         print(self.drag_force[0] , self.drag_force[1] )
         print(self.lift_force[0] , self.lift_force[1] )
-        print(self.liftdrag_force_x, self.liftdrag_force_y ,self.liftdrag_force_z)
+        print(self.liftdrag_force_x, self.liftdrag_force_y ,self.liftdrag_force_z)"""
 
 
 

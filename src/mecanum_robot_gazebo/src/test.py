@@ -38,7 +38,7 @@ if __name__ == '__main__' :
 
 
         #mecanum_1.move(ball_landing_point[0],ball_landing_point[1],mecanum_0)
-        mecanum_1.move(10,10,mecanum_0)
+        mecanum_1.move(100,100,mecanum_0)
 
 
         #mecanum_1.spwan_ball("ball_right")
