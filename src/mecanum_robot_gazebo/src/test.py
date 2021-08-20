@@ -15,8 +15,10 @@ if __name__ == '__main__' :
     mecanum_0 = Make_mecanum_left('mecanum_0')
     mecanum_1 = Make_mecanum_right('mecanum_1')
     
-    mecanum_0.torque = [0, 200000, 0]
-    mecanum_1.torque = [0, -200000, 0]
+    #mecanum_0.torque = [0, -209000, 0]
+    mecanum_0.torque = [0, 0, 0]
+    
+    mecanum_1.torque = [0, -209000, 0]
 
     mecanum_1.ball_name = 'ball_right'
     mecanum_1.away_ball_name = "ball_left"
@@ -24,8 +26,6 @@ if __name__ == '__main__' :
     mecanum_1.del_ball() 
 
     add_catch_point = 3.5
-
-
 
     while True:
         mecanum_0.spwan_ball("ball_left")
@@ -38,12 +38,12 @@ if __name__ == '__main__' :
 
 
         #mecanum_1.move(ball_landing_point[0],ball_landing_point[1],mecanum_0)
-        mecanum_1.move(100,100,mecanum_0)
+        mecanum_1.move(10,-10,mecanum_0)
 
 
         #mecanum_1.spwan_ball("ball_right")
         #mecanum_1.throw_ball()  
-        time.sleep(3)
+        time.sleep(2)
 
         mecanum_1.del_ball() 
 

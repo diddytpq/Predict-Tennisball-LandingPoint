@@ -27,7 +27,7 @@
           <sphere>
             <!--radius>0.0327</radius-->
             <!--radius>0.033</radius-->
-            <radius>0.050</radius>
+            <radius>0.066</radius>
           </sphere>
         </geometry>
         <material>
@@ -67,8 +67,8 @@
         <surface>
           <friction>
             <ode>
-              <mu>0.6</mu>
-              <mu2>0.6</mu2>
+              <mu>0.1</mu>
+              <mu2>0.1</mu2>
               <fdir1>0 0 0</fdir1>
               <slip1>0.4</slip1>
               <slip2>0.4</slip2>
