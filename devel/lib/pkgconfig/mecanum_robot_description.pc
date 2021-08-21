@@ -1,4 +1,4 @@
-prefix=/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/devel
+prefix=/home/yoseph/ros/Predict-Tennisball-LandingPoint/devel
 
 Name: mecanum_robot_description
 Description: Description of mecanum_robot_description

@@ -1,8 +1,8 @@
-prefix=/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/devel
+prefix=/home/yoseph/ros/Predict-Tennisball-LandingPoint/devel
 
 Name: ball_trajectory
 Description: Description of ball_trajectory
 Version: 1.3.1
-Cflags: -I/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/src/ball_trajectory/include
+Cflags: -I/home/yoseph/ros/Predict-Tennisball-LandingPoint/src/ball_trajectory/include
 Libs: -L${prefix}/lib 
 Requires: roscpp std_msgs sensor_msgs geometry_msgs nav_msgs tf gazebo_ros gazebo_ros

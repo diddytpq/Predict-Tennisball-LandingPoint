@@ -1,8 +1,0 @@
-prefix=/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/devel
-
-Name: mecanum_left
-Description: Description of mecanum_left
-Version: 1.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
