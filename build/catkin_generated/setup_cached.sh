@@ -7,4 +7,5 @@
 # new environment variables
 
 # modified environment variables
-export PWD='/home/yoseph/ros/Predict-Tennisball-LandingPoint/build'
+export PWD='/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build'
+export ROS_PACKAGE_PATH='/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/src:/opt/ros/noetic/share'

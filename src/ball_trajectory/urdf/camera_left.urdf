@@ -102,11 +102,11 @@
         <material>Gazebo/Grey</material>
     </gazebo-->
 
-    <gazebo reference="camera_link_0">
+    <!--gazebo reference="camera_link_0">
         <sensor type="camera" name="camera_left_0">
-        <update_rate>100.0</update_rate>
+        <update_rate>20</update_rate>
             <camera name="head">
-                <horizontal_fov>1.3962634</horizontal_fov>
+                <horizontal_fov>1.5708</horizontal_fov>
                 <image>
                 <width>640</width>
                 <height>320</height>
@@ -128,11 +128,54 @@
                 <distortionT2>0.0</distortionT2>
             </plugin>
         </sensor>
+    </gazebo-->
+
+    <gazebo reference="camera_link_0">
+      <sensor name="camera_left_0" type="depth">
+        <update_rate>0</update_rate>
+        <camera>
+          <horizontal_fov>1.51844</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+        </camera>
+        <plugin name="camera_left_0_controller" filename="libgazebo_ros_openni_kinect.so">
+          <baseline>0.2</baseline>
+          <alwaysOn>true</alwaysOn>
+          <update_rate>0</update_rate>
+          <cameraName>camera_left_0_ir</cameraName>
+          <imageTopicName>camera_left_0/color/image_raw</imageTopicName>
+          <cameraInfoTopicName>/camera_left_0/color/camera_info</cameraInfoTopicName>
+          <depthImageTopicName>/camera_left_0/depth/image_raw</depthImageTopicName>
+          <depthImageInfoTopicName>/camera_left_0/depth/camera_info</depthImageInfoTopicName>
+          <pointCloudTopicName>/camera_left_0/depth/points</pointCloudTopicName>
+          <frameName>camera_left_0_frame</frameName>
+          <pointCloudCutoff>0.5</pointCloudCutoff>
+          <pointCloudCutoffMax>20.0</pointCloudCutoffMax>
+          <distortionK1>0.00000001</distortionK1>
+          <distortionK2>0.00000001</distortionK2>
+          <distortionK3>0.00000001</distortionK3>
+          <distortionT1>0.00000001</distortionT1>
+          <distortionT2>0.00000001</distortionT2>
+          <CxPrime>0</CxPrime>
+          <Cx>0</Cx>
+          <Cy>0</Cy>
+          <focalLength>0</focalLength>
+          <hackBaseline>0</hackBaseline>
+        </plugin>
+      </sensor>
     </gazebo>
 
-    <gazebo reference="camera_link_1">
+
+    <!--gazebo reference="camera_link_1">
         <sensor type="camera" name="camera_left_1">
-        <update_rate>100.0</update_rate>
+        <update_rate>20</update_rate>
             <camera name="head">
                 <horizontal_fov>1.3962634</horizontal_fov>
                 <image>
@@ -156,6 +199,48 @@
                 <distortionT2>0.0</distortionT2>
             </plugin>
         </sensor>
+    </gazebo-->
+
+    <gazebo reference="camera_link_1">
+      <sensor name="camera_link_1" type="depth">
+        <update_rate>0</update_rate>
+        <camera>
+          <horizontal_fov>1.51844</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+        </camera>
+        <plugin name="camera_left_1_controller" filename="libgazebo_ros_openni_kinect.so">
+          <baseline>0.2</baseline>
+          <alwaysOn>true</alwaysOn>
+          <update_rate>0</update_rate>
+          <cameraName>camera_left_1_ir</cameraName>
+          <imageTopicName>camera_left_1/color/image_raw</imageTopicName>
+          <cameraInfoTopicName>/camera_left_1/color/camera_info</cameraInfoTopicName>
+          <depthImageTopicName>/camera_left_1/depth/image_raw</depthImageTopicName>
+          <depthImageInfoTopicName>/camera_left_q/depth/camera_info</depthImageInfoTopicName>
+          <pointCloudTopicName>/camera_left_1/depth/points</pointCloudTopicName>
+          <frameName>camera_left_1_frame</frameName>
+          <pointCloudCutoff>0.5</pointCloudCutoff>
+          <pointCloudCutoffMax>20.0</pointCloudCutoffMax>
+          <distortionK1>0.00000001</distortionK1>
+          <distortionK2>0.00000001</distortionK2>
+          <distortionK3>0.00000001</distortionK3>
+          <distortionT1>0.00000001</distortionT1>
+          <distortionT2>0.00000001</distortionT2>
+          <CxPrime>0</CxPrime>
+          <Cx>0</Cx>
+          <Cy>0</Cy>
+          <focalLength>0</focalLength>
+          <hackBaseline>0</hackBaseline>
+        </plugin>
+      </sensor>
     </gazebo>
 
 
