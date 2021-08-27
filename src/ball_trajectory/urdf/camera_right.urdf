@@ -154,7 +154,7 @@
           <depthImageTopicName>/camera_right_0/depth/image_raw</depthImageTopicName>
           <depthImageInfoTopicName>/camera_right_0/depth/camera_info</depthImageInfoTopicName>
           <pointCloudTopicName>/camera_right_0/depth/points</pointCloudTopicName>
-          <frameName>camera_right_0_frame</frameName>
+          <frameName>camera_link_0</frameName>
           <pointCloudCutoff>0.5</pointCloudCutoff>
           <pointCloudCutoffMax>20.0</pointCloudCutoffMax>
           <distortionK1>0.00000001</distortionK1>
@@ -163,8 +163,8 @@
           <distortionT1>0.00000001</distortionT1>
           <distortionT2>0.00000001</distortionT2>
           <CxPrime>0</CxPrime>
-          <Cx>0</Cx>
-          <Cy>0</Cy>
+          <Cx>320</Cx>
+          <Cy>240</Cy>
           <focalLength>0</focalLength>
           <hackBaseline>0</hackBaseline>
         </plugin>
@@ -227,7 +227,7 @@
           <depthImageTopicName>/camera_right_1/depth/image_raw</depthImageTopicName>
           <depthImageInfoTopicName>/camera_right_1/depth/camera_info</depthImageInfoTopicName>
           <pointCloudTopicName>/camera_right_1/depth/points</pointCloudTopicName>
-          <frameName>camera_right_1_frame</frameName>
+          <frameName>camera_link_1</frameName>
           <pointCloudCutoff>0.5</pointCloudCutoff>
           <pointCloudCutoffMax>20.0</pointCloudCutoffMax>
           <distortionK1>0.00000001</distortionK1>
@@ -236,8 +236,8 @@
           <distortionT1>0.00000001</distortionT1>
           <distortionT2>0.00000001</distortionT2>
           <CxPrime>0</CxPrime>
-          <Cx>0</Cx>
-          <Cy>0</Cy>
+          <Cx>320</Cx>
+          <Cy>240</Cy>
           <focalLength>0</focalLength>
           <hackBaseline>0</hackBaseline>
         </plugin>

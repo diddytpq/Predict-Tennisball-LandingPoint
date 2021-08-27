@@ -103,6 +103,7 @@ def move_mecanum(linear,angular_z):
 def spwan_ball():
 
     del_ball()
+    time.sleep(0.5)
 
     file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/ball_test.sdf'
     srv_spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)

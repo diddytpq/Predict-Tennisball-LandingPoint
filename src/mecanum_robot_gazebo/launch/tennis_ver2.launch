@@ -20,7 +20,8 @@
 
   <param name="camera_left_description" textfile="$(find ball_trajectory)/urdf/camera_left.urdf"/>
   <param name="camera_right_description" textfile="$(find ball_trajectory)/urdf/camera_right.urdf"/>
-
+  
+  <param name="chess" textfile="$(find ball_trajectory)/urdf/landmark.sdf"/>
 
 
   <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
@@ -29,6 +30,10 @@
 
   <node pkg="gazebo_ros" type="spawn_model" name="mecanum_urdf_1" respawn="false" output="screen"
     args="-urdf -x 10 -y 0 -z 0 -Y 3.14 -model mecanum_1 -param robot_description_1"/>
+
+
+  <node pkg="gazebo_ros" type="spawn_model" name="chess" respawn="false" output="screen"
+    args="-sdf -x -5 -y -5 -z 0 -Y 0 -model chess -param chess"/>
   
   <node pkg="gazebo_ros" type="spawn_model" name="camera_left_urdf" args="-urdf -model camera_left -x 0 -y -6.4 -z 0 -param camera_left_description" />
   <node pkg="gazebo_ros" type="spawn_model" name="camera_right_urdf" args="-urdf -model camera_right -x 0 -y 6.4 -z 0 -param camera_right_description" />

@@ -27,7 +27,7 @@ class Make_mecanum_left():
 
         self.g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
-        self.vel_forward = 1.5 #m/s
+        self.vel_forward = 5.5 #m/s
         self.vel_lateral = 5.5 #m/s
         
         self.ball_fly_time = 0.45 #max height time [sec]
@@ -132,14 +132,14 @@ class Make_mecanum_left():
 
         while True:
             return_home(away_mecanum)
-            self.break_ball_rolling()
+            #self.break_ball_rolling()
             
             if self.ball_catch_check():
                 self.stop()
                 away_mecanum.stop()
                 break 
 
-            self.cal_liftdrag()
+            #self.cal_liftdrag()
             self.get_position()
     
 
@@ -213,8 +213,8 @@ class Make_mecanum_left():
         self.y_target = (np.random.randint(-3, 3) + np.random.rand())
 
 
-        self.x_target = 10
-        self.y_target = 0
+        #self.x_target = 10
+        #self.y_target = 0
 
         self.get_position()
         
@@ -444,7 +444,7 @@ class Make_mecanum_right(Make_mecanum_left):
 
         while True:
             return_home(away_mecanum)
-            self.break_ball_rolling()
+            #self.break_ball_rolling()
 
             if self.ball_catch_check():
 
@@ -452,7 +452,7 @@ class Make_mecanum_right(Make_mecanum_left):
                 away_mecanum.stop()
                 break 
             
-            self.cal_liftdrag()
+            #self.cal_liftdrag()
 
             self.get_position()
 

@@ -23,7 +23,7 @@ if __name__ == '__main__' :
     mecanum_0.del_ball()
     mecanum_1.del_ball() 
 
-    add_catch_point = 0
+    add_catch_point = 2.5
 
 
     while True:
