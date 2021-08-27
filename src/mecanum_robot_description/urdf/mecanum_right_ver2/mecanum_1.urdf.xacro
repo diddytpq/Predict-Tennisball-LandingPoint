@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<robot name="omni_manipulator" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="mecanum_R" xmlns:xacro="http://www.ros.org/wiki/xacro">
 	
 	<!--xacro:include filename="$(find omni_manipulator)/urdf/cycloid_gear_mecanum_wheel.urdf.xacro" /!-->
 	<xacro:include filename="$(find mecanum_robot_description)/urdf/mecanum_right_ver2/mecanum_frame.urdf.xacro" />
@@ -10,25 +10,27 @@
     <xacro:macro name="robot">
 		<xacro:frame/>
 
-		<xacro:mecanum_wheel_1 prefix="front_R" parent="frame" reflect="true">
+		<xacro:mecanum_wheel_1 prefix="mecanum_R_front_R" parent="frame" reflect="true">
 			<origin xyz="0.2541 0.23 -0.11838" rpy="${-pi/2} 0 ${pi/2}"/> <!--0.0762, 0.2541, x:0.069734-->
 		</xacro:mecanum_wheel_1>
 
-        <xacro:mecanum_wheel_1 prefix="front_L" parent="frame" reflect="false">
+        <xacro:mecanum_wheel_1 prefix="mecanum_R_front_L" parent="frame" reflect="false">
 			<origin xyz="0.2541 -0.23 -0.11838" rpy="${-pi/2} 0 ${pi/2}"/>
 		</xacro:mecanum_wheel_1>
 
-		<xacro:mecanum_wheel_1 prefix="back_R" parent="frame" reflect="false">
+		<xacro:mecanum_wheel_1 prefix="mecanum_R_back_R" parent="frame" reflect="false">
 			<origin xyz="-0.2541 0.23 -0.11838" rpy="${pi/2} 0 ${pi/2}"/> <!--y:-0.2571, 0.2541, x:0.390266-->
 		</xacro:mecanum_wheel_1>
 
-        <xacro:mecanum_wheel_1 prefix="back_L" parent="frame" reflect="true">
+        <xacro:mecanum_wheel_1 prefix="mecanum_R_back_L" parent="frame" reflect="true">
 			<origin xyz="-0.2541 -0.23 -0.11838" rpy="${pi/2} 0 ${pi/2}"/>
 		</xacro:mecanum_wheel_1>
         
 		<xacro:omni_steering/>
+		<xacro:ros_control/>
 
-   		</xacro:macro>
+
+	</xacro:macro>
 		   
 	<xacro:robot/>
 

@@ -4,7 +4,7 @@
   <xacro:macro name="omni_steering" params="">
 	<gazebo>
 	    <plugin name="omni_steering" filename="libgazebo_ros_planar_move.so">
-	      <commandTopic>mecanum_1_vel</commandTopic>
+	      <commandTopic>mecanum_R_vel</commandTopic>
 	      <odometryTopic>odom</odometryTopic>
 	      <odometryFrame>odom</odometryFrame>
 	      <odometryRate>50.0</odometryRate>
@@ -16,15 +16,18 @@
   </xacro:macro>
   
   <!-- ros_control plugin -->
+  <xacro:macro name="ros_control" params="">
   <gazebo>
-    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+    <plugin name="mecanum_R_control" filename="libgazebo_ros_control.so">
       <controlPeriod>0.001</controlPeriod>
-      <robotNamespace>/mecanum_1</robotNamespace>
-      <jointName>front_R_wheel_joint, front_L_wheel_joint, back_R_wheel_joint, back_L_wheel_joint </jointName>
+      <robotNamespace>/mecanum_R</robotNamespace>
+      <!--jointName>mecanum_R_front_R_wheel_joint, mecanum_R_front_L_wheel_joint, mecanum_R_back_L_wheel_joint, mecanum_R_back_R_wheel_joint </jointName-->
       <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
-      <legacyModeNS>true</legacyModeNS>
+      <!--legacyModeNS>true</legacyModeNS-->
     </plugin>
   </gazebo>
+  </xacro:macro>
+  
 
   <!--gazebo>
    <plugin name="gazebo_grasp_fix" filename="libgazebo_grasp_fix.so">

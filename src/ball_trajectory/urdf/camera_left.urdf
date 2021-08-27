@@ -166,7 +166,7 @@
           <CxPrime>0</CxPrime>
           <Cx>320</Cx>
           <Cy>240</Cy>
-          <focalLength>1000</focalLength>
+          <focalLength>0</focalLength>
           <hackBaseline>0</hackBaseline>
         </plugin>
       </sensor>

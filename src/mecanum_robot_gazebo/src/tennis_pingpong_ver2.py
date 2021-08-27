@@ -12,36 +12,36 @@ if __name__ == '__main__' :
     rospy.init_node('pingpong')
 
 
-    mecanum_0 = Make_mecanum_left('mecanum_0')
-    mecanum_1 = Make_mecanum_right('mecanum_1')
+    mecanum_L = Make_mecanum_left('mecanum_L')
+    mecanum_R = Make_mecanum_right('mecanum_R')
     
 
-    mecanum_1.torque = [0, -200000, 0]
+    mecanum_R.torque = [0, -200000, 0]
 
-    mecanum_1.ball_name = 'ball_right'
-    mecanum_1.away_ball_name = "ball_left"
-    mecanum_0.del_ball()
-    mecanum_1.del_ball() 
+    mecanum_R.ball_name = 'ball_right'
+    mecanum_R.away_ball_name = "ball_left"
+    mecanum_L.del_ball()
+    mecanum_R.del_ball() 
 
     add_catch_point = 2.5
 
 
     while True:
-        mecanum_0.spwan_ball("ball_left")
-        mecanum_0.throw_ball()
+        mecanum_L.spwan_ball("ball_left")
+        mecanum_L.throw_ball()
         #time.sleep(0.05)
-        ball_landing_point = [mecanum_0.x_target + add_catch_point * np.cos(mecanum_0.yaw_z), mecanum_0.y_target + add_catch_point * np.sin(mecanum_0.yaw_z)]
+        ball_landing_point = [mecanum_L.x_target + add_catch_point * np.cos(mecanum_L.yaw_z), mecanum_L.y_target + add_catch_point * np.sin(mecanum_L.yaw_z)]
         #print(ball_landing_point)
         #print(add_catch_point * np.cos(mecanum_0.yaw_z),add_catch_point * np.sin(mecanum_0.yaw_z))
 
 
-        mecanum_1.move(ball_landing_point[0],ball_landing_point[1],mecanum_0)
+        mecanum_R.move(ball_landing_point[0],ball_landing_point[1],mecanum_L)
 
 
-        mecanum_1.spwan_ball("ball_right")
-        mecanum_1.throw_ball()  
+        mecanum_R.spwan_ball("ball_right")
+        mecanum_R.throw_ball()  
         #time.sleep(0.05)
-        ball_landing_point = [mecanum_1.x_target - add_catch_point * np.cos(mecanum_1.yaw_z), mecanum_1.y_target - add_catch_point * np.sin(mecanum_1.yaw_z)]
-        mecanum_0.move(ball_landing_point[0],ball_landing_point[1],mecanum_1)
+        ball_landing_point = [mecanum_R.x_target - add_catch_point * np.cos(mecanum_R.yaw_z), mecanum_R.y_target - add_catch_point * np.sin(mecanum_R.yaw_z)]
+        mecanum_L.move(ball_landing_point[0],ball_landing_point[1],mecanum_R)
 
 

@@ -27,7 +27,7 @@ torque = [0, 209*1000, 0]
 
 def get_position():
 
-    robot_state = g_get_state(model_name="mecanum_0")
+    robot_state = g_get_state(model_name="mecanum_L")
 
     object_pose = Pose()
     object_pose.position.x = float(robot_state.pose.position.x)
@@ -67,13 +67,13 @@ def vel_threshold(x_vel, y_vel):
 
 def move_mecanum(linear,angular_z):
 
-    pub = rospy.Publisher("/mecanum_0_vel", Twist, queue_size=10)
-    pub_wheel_vel_1 = rospy.Publisher("/mecanum/wheel_1/command", Float64, queue_size=10)
-    pub_wheel_vel_2 = rospy.Publisher("/mecanum/wheel_2/command", Float64, queue_size=10)
-    pub_wheel_vel_3 = rospy.Publisher("/mecanum/wheel_3/command", Float64, queue_size=10)
-    pub_wheel_vel_4 = rospy.Publisher("/mecanum/wheel_4/command", Float64, queue_size=10)
+    pub = rospy.Publisher("/mecanum_L_vel", Twist, queue_size=10)
+    pub_wheel_vel_1 = rospy.Publisher("/mecanum_L/wheel_1_controller/command", Float64, queue_size=10)
+    pub_wheel_vel_2 = rospy.Publisher("/mecanum_L/wheel_2_controller/command", Float64, queue_size=10)
+    pub_wheel_vel_3 = rospy.Publisher("/mecanum_L/wheel_3_controller/command", Float64, queue_size=10)
+    pub_wheel_vel_4 = rospy.Publisher("/mecanum_L/wheel_4_controller/command", Float64, queue_size=10)
     
-    robot_state = g_get_state(model_name="mecanum_0")
+    robot_state = g_get_state(model_name="mecanum_L")
 
     roll_x, pitch_y, yaw_z = qua2eular(robot_state.pose.orientation.x, 
                                         robot_state.pose.orientation.y, 

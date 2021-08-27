@@ -20,10 +20,10 @@ class Make_mecanum_left():
         self.model_name = model_name
         
         self.pub = rospy.Publisher("/{}_vel".format(model_name), Twist, queue_size=10)
-        self.pub_wheel_vel_1 = rospy.Publisher("/{}/wheel_1/command".format(model_name), Float64, queue_size=10)
-        self.pub_wheel_vel_2 = rospy.Publisher("/{}/wheel_2/command".format(model_name), Float64, queue_size=10)
-        self.pub_wheel_vel_3 = rospy.Publisher("/{}/wheel_3/command".format(model_name), Float64, queue_size=10)
-        self.pub_wheel_vel_4 = rospy.Publisher("/{}/wheel_4/command".format(model_name), Float64, queue_size=10)
+        self.pub_wheel_vel_1 = rospy.Publisher("/{}/wheel_1_controller/command".format(model_name), Float64, queue_size=10)
+        self.pub_wheel_vel_2 = rospy.Publisher("/{}/wheel_2_controller/command".format(model_name), Float64, queue_size=10)
+        self.pub_wheel_vel_3 = rospy.Publisher("/{}/wheel_3_controller/command".format(model_name), Float64, queue_size=10)
+        self.pub_wheel_vel_4 = rospy.Publisher("/{}/wheel_4_controller/command".format(model_name), Float64, queue_size=10)
 
         self.g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
