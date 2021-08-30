@@ -7,5 +7,7 @@
 # new environment variables
 
 # modified environment variables
-export PWD='/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/build'
-export ROS_PACKAGE_PATH='/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/src:/opt/ros/noetic/share'
+export LD_LIBRARY_PATH='/opt/ros/noetic/lib'
+export PKG_CONFIG_PATH='/opt/ros/noetic/lib/pkgconfig'
+export PWD='/home/yoseph/ros/Predict-Tennisball-LandingPoint/build'
+export ROS_PACKAGE_PATH='/home/yoseph/ros/Predict-Tennisball-LandingPoint/src:/opt/ros/noetic/share'
