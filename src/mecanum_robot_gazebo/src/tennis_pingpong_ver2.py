@@ -16,14 +16,14 @@ if __name__ == '__main__' :
     mecanum_R = Make_mecanum_right('mecanum_R')
     
 
-    mecanum_R.torque = [0, -200000, 0]
+    mecanum_R.torque = [0, -209000, 0]
 
     mecanum_R.ball_name = 'ball_right'
     mecanum_R.away_ball_name = "ball_left"
     mecanum_L.del_ball()
     mecanum_R.del_ball() 
 
-    add_catch_point = 2.5
+    add_catch_point = 0
 
 
     while True:

@@ -120,7 +120,7 @@ def spwan_ball():
     xml_string=file_xml.read()
 
     req = SpawnModelRequest()
-    req.model_name = "tennis_ball"
+    req.model_name = "ball_left"
     req.model_xml = xml_string
     req.initial_pose = ball_pose
 
@@ -128,7 +128,7 @@ def spwan_ball():
 
 def del_ball():
     srv_delete_model = rospy.ServiceProxy('gazebo/delete_model', DeleteModel)
-    res = srv_delete_model("tennis_ball")
+    res = srv_delete_model("ball_left")
 
 def ball_apply_force(target, force, torque, duration):
     
@@ -162,7 +162,7 @@ def throw_ball():
     
     apply_force, apply_torque = get_wrench(force, torque, ror_matrix)
 
-    ball_apply_force("tennis_ball", apply_force, apply_torque, duration)
+    ball_apply_force("ball_left", apply_force, apply_torque, duration)
 
     t0 = time.time()
 
@@ -175,7 +175,7 @@ def throw_ball():
 
 
 def gat_ball_stats():
-    ball_state = g_get_state(model_name = "tennis_ball")
+    ball_state = g_get_state(model_name = "ball_left")
 
     return ball_state
 
@@ -274,4 +274,4 @@ def cal_liftdrag(dt):
 
     force = [np.round(liftdrag_force_x,5) / dt, np.round(liftdrag_force_y,5) / dt, np.round(liftdrag_force_z,5) / dt]
     
-    ball_apply_force("tennis_ball", force, [0,0,0], dt)
+    ball_apply_force("ball_left", force, [0,0,0], dt)

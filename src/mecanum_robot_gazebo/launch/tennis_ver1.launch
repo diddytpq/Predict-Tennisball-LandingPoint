@@ -16,8 +16,8 @@
   <param name="robot_description" command="$(find xacro)/xacro  '$(find mecanum_robot_description)/urdf/mecanum_left_ver1/mecanum.urdf.xacro'"/>
   <param name="robot_description_1" command="$(find xacro)/xacro  '$(find mecanum_robot_description)/urdf/mecanum_right_ver1/mecanum_1.urdf.xacro'"/>
 
-  <param name="camera_left_description" textfile="$(find ball_trajectory)/urdf/camera_left.urdf"/>
-  <param name="camera_right_description" textfile="$(find ball_trajectory)/urdf/camera_right.urdf"/>
+  <param name="camera_left_description" textfile="$(find ball_trajectory)/urdf/camera/camera_left.urdf"/>
+  <param name="camera_right_description" textfile="$(find ball_trajectory)/urdf/camera/camera_right.urdf"/>
 
 
 

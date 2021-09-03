@@ -180,7 +180,7 @@ class Make_mecanum_left():
         self.total_break_torque = [0, 0, 0]
         #time.sleep(0.1)
         #print("________________________________________________")
-        file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/ball_main.sdf'
+        file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/tennis_ball/ball_main.sdf'
         srv_spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
     
         self.get_position()

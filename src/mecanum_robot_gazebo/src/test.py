@@ -15,8 +15,9 @@ if __name__ == '__main__' :
     mecanum_L = Make_mecanum_left('mecanum_L')
     mecanum_R = Make_mecanum_right('mecanum_R')
     
+    #mecanum_L.torque = [0, -209000, 0]
 
-    mecanum_R.torque = [0, -200000, 0]
+    mecanum_R.torque = [0, -209000, 0]
 
     mecanum_R.ball_name = 'ball_right'
     mecanum_R.away_ball_name = "ball_left"
