@@ -105,7 +105,7 @@ def spwan_ball():
     del_ball()
     time.sleep(0.5)
 
-    file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/ball_test.sdf'
+    file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/tennis_ball/ball_test.sdf'
     srv_spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
 
     robot_x, robot_y, robot_z = get_position()

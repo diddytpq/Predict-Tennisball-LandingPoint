@@ -250,14 +250,39 @@ class Image_converter:
                 
 
                 real_ball_pos_list = [np.round(self.ball_pose.position.x,3), np.round(self.ball_pose.position.y,3), np.round(self.ball_pose.position.z,3)]
-                self.draw_point_court(real_ball_pos_list, [ball_x_L, ball_y_L, ball_z_L])
+                
+                print("real ball pos : {}, {}, {}".format(real_ball_pos_list[0], real_ball_pos_list[1], real_ball_pos_list[2]))
+                print("camera_preadict_pos : ",np.round(ball_x_L,3), np.round(ball_y_L,3), np.round(ball_z_L,3))
+
+                if np.isnan(ball_x_L):
+
+                    uk_dir = ball_ukf.update([])
+
+                    #print(ball_ukf.f[0],ball_ukf.f[2],ball_ukf.f[4])
+                    """if ball_ukf.kf_pred_dict.keys():
+
+                        for ID, value in ball_ukf.kf_pred_dict.items():
+                            ball_ukf.deregister(ID)
+                    """
+                else:
+                    uk_dir = ball_ukf.update([ball_x_L, ball_y_L, ball_z_L])
+
+
+                self.get_uk_pos(uk_dir)
 
                 #print("height : ",self.ball_height_list)
                 #print("real_depth : ", np.round(np.sqrt(real_ball_pos_list[0] **2 + (real_ball_pos_list[1] - (-6.4)) ** 2 + (real_ball_pos_list[2] - 1) ** 2), 3), np.round(np.sqrt(real_ball_pos_list[0] **2 + (real_ball_pos_list[1] - (6.4)) ** 2 + (real_ball_pos_list[2] - 1) ** 2), 3))
                 #print("depth : ", np.round(self.ball_depth_list[0], 3), np.round(self.ball_depth_list[1], 3))
-                #print("real ball pos : {}, {}, {}".format(real_ball_pos_list[0], real_ball_pos_list[1], real_ball_pos_list[2]))
-                #print(np.round(ball_x_L,3), np.round(ball_y_L,3), np.round(ball_z_L,3))
                 #print(np.round(ball_x_R,3), np.round(ball_y_R,3), np.round(ball_z_R,3))
+                
+                ##칼만 필터 예측값 다듬기
+            
+
+
+                self.draw_point_court(real_ball_pos_list, [ball_x_L, ball_y_L, ball_z_L])
+
+
+
 
                 
 
@@ -514,6 +539,32 @@ class Image_converter:
         self.ball_vel.angular.y = float(self.ball_state.twist.angular.y)
         self.ball_vel.angular.z = float(self.ball_state.twist.angular.z)
 
+    def get_uk_pos(self, uk_dir):
+
+        if uk_dir:
+            for (objectID, pos_list) in uk_dir.items():
+                
+                # draw both the ID of the object and the centroid of the
+                # object on the output frame
+                np.random.seed(objectID)
+                
+                #color = tuple(np.random.randint(low=50, high = 255, size = 3).tolist())
+                #text = "ID {}".format(objectID)
+                x, y, z = pos_list[-1]
+
+                #cv2.putText(frame, text, (x -10, y -10),cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                #cv2.circle(frame, (x, y), 4, color, -1)
+                
+                uk_ball_pos_list = ball_ukf.kf_pred_dict[objectID]
+
+                #print(objects_dict)
+
+                x_pred, y_pred, z_pred = uk_ball_pos_list[0], uk_ball_pos_list[1], uk_ball_pos_list[2]
+
+                #cv2.putText(frame, text, (int(x_pred) - 10, int(y_pred) -15),cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                #cv2.rectangle(frame, (int(x_pred) - 10, int(y_pred) -10), (int(x_pred) + 10, int(y_pred) + 10), color, 3)
+
+                print(x_pred, y_pred, z_pred)
 
 def main(args):
 

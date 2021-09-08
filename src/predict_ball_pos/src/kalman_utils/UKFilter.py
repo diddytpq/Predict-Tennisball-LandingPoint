@@ -9,37 +9,32 @@ from filterpy.kalman import KalmanFilter, UnscentedKalmanFilter, MerweScaledSigm
 from filterpy.common import Q_discrete_white_noise
 
 
-
 def fx(x, dt):
     # state transition function - predict next state based
     # on constant velocity model x = vt + x_0
+    
 
-    u_x, u_y = 0, 1
+    #[x, x', y, y', z, z']
 
-    F = np.array([[1, 0, 0, dt, 0, 0],
-                    [0, 1, 0, 0, dt, 0],
-                    [0, 0, 1, 0, 0, dt],
-                    [0, 0, 0, 1, 0, 0],
-                    [0, 0, 0, 0, 1, 0],
-                    [0, 0, 0, 0, 0, 1]])
+    F = np.array([[1, dt, 0, 0, 0, 0],    #x
+                    [0, 1, 0, 0, 0, 0],   #x'
+                    [0, 0, 1, dt, 0, 0],  #y
+                    [0, 0, 0, 1, 0, 0],   #y'
+                    [0, 0, 0, 0, 1, dt],  #z
+                    [0, 0, 0, 0, 0, 1]])  #z'
+    
+    B = np.array([0, 0, 0, 0, (dt**2)/2, dt])   #[x, x', y, y', z, z']
 
-
-    B = np.array([[0],
-                [(dt**2)/2],
-                [0],
-                [0],
-                [dt],
-                [0]])
-
-    u = np.array([[-9.8]]) 
+    u = np.array([[-9.8]]) # g
     
     return np.dot(F, x) + B * u
+    
 
 def hx(x):
     # measurement function - convert state into a measurement
     # where measurements are [x_pos, y_pos, z_pos]
 
-    return x[[0, 1, 2]]
+    return x[[0, 2, 4]]
 
 class UK_filter():
 
@@ -52,23 +47,17 @@ class UK_filter():
         self.z_std = 0.1
 
         self.sigmas_points = MerweScaledSigmaPoints(6, alpha=.1, beta=2., kappa=1)
-        self.f = UnscentedKalmanFilter(dim_x=6, dim_z=3, dt=self.dt, fx=fx, hx=hx, points=self.sigmas_points)
+        self.f = UnscentedKalmanFilter(dim_x=6, dim_z=6, dt=self.dt, fx=fx, hx=hx, points=self.sigmas_points)
 
-        self.f.x = np.array([self.init_x, 1, self.init_y, 1, self.init_z, 1])  #velocity 측정이 필요한가?
-
+        self.f.x = np.array([self.init_x, 0, self.init_y, 0, self.init_z, 0]) 
 
         self.f.P = np.eye(6)
 
-        """self.f.Q *= np.array([[(self.dt**4)/4, 0, (self.dt**3)/2, 0],
-                            [0, (self.dt**4)/4, 0, (self.dt**3)/2],
-                            [(self.dt**3)/2, 0, self.dt**2, 0],
-                            [0, (self.dt**3)/2, 0, self.dt**2]]) * std_acc**2"""
-
-        self.f.Q = Q_discrete_white_noise(2, dt = self.dt, var = 0.01**2, block_size = 2)
-
-        self.f.R = np.array([[x_std_meas**2, 0, 0],
-                            [0, y_std_meas**2, 0],
-                            [0, 0, z_std_meas**2]])
+        self.f.Q = Q_discrete_white_noise(2, dt = self.dt, var = 0.01**2, block_size = 3)
+        
+        self.f.R = np.array([[x_std_meas**2,0,0],
+                            [0, y_std_meas**2,0],
+                            [0, 0, y_std_meas**2]])
 
         self.f.predict()
 
@@ -114,10 +103,10 @@ class Trajectory_ukf:
 
                 self.kf_dict[ID].f.predict()
                 
-                pred_point = self.kf_dict[ID].f.x 
-                x, y = int(pred_point[0]), int(pred_point[1])
-                
-                self.kf_pred_dict[ID] = [x, y]
+                pred_point = self.kf_dict[ID].f.x
+
+                x, y, z = pred_point[0], pred_point[2], pred_point[4]
+                self.kf_pred_dict[ID] = [x, y, z]
                 
                 if self.disappeared_dict[ID] >= self.maxDisappeared:
                     self.deregister(ID)
@@ -125,28 +114,29 @@ class Trajectory_ukf:
             return self.point_dict
         
         if len(self.point_dict) == 0:
-            for i in range(len(next_centroid_list)):
-                self.register(next_centroid_list[i])
+            self.register(next_centroid_list)
 
         else:
             objectIDs = list(self.point_dict.keys())     
-            #pre_point = list()
             self.kf_predict_list = list()
             
             for ID in objectIDs:
                 
                 pred_point = self.kf_dict[ID].f.x
 
-                x, y = int(pred_point[0]), int(pred_point[1])
-                self.kf_pred_dict[ID] = [x, y]
-                self.kf_predict_list.append([x, y])
+                x, y, z = pred_point[0], pred_point[2], pred_point[4]
+                self.kf_pred_dict[ID] = [x, y, z]
+                
+                self.kf_predict_list.append([x, y, z])
 
-            distan = dist.cdist(np.array(self.kf_predict_list), next_centroid_list)
+            #distan = dist.cdist(np.array(self.kf_predict_list), next_centroid_list)
             
-            ID_list, indexes = linear_sum_assignment(distan)
+            #ID_list, indexes = linear_sum_assignment(distan)
             
-            next_ball_point = next_centroid_list[indexes[0]]
+            #next_ball_point = next_centroid_list[indexes[0]]
 
+            next_ball_point = next_centroid_list
+            
             self.point_dict[objectIDs[0]].append(next_ball_point)
             self.kf_dict[objectIDs[0]].f.update(next_ball_point)
             self.kf_dict[objectIDs[0]].f.predict()
