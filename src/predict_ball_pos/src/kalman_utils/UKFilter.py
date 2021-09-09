@@ -13,58 +13,64 @@ def fx(x, dt):
     # state transition function - predict next state based
     # on constant velocity model x = vt + x_0
     
+    u_x, u_y = 0, 1
 
-    #[x, x', y, y', z, z']
+    F = np.array([[1, 0, dt, 0],
+                    [0, 1, 0, dt],
+                    [0, 0, 1, 0],
+                    [0, 0, 0, 1]])
+    B = np.array([[(dt**2)/2, 0],
+                    [0, (dt**2)/2],
+                    [dt,0],
+                    [0,dt]])
 
-    F = np.array([[1, dt, 0, 0, 0, 0],    #x
-                    [0, 1, 0, 0, 0, 0],   #x'
-                    [0, 0, 1, dt, 0, 0],  #y
-                    [0, 0, 0, 1, 0, 0],   #y'
-                    [0, 0, 0, 0, 1, dt],  #z
-                    [0, 0, 0, 0, 0, 1]])  #z'
+    u = np.array([[u_x],[u_y]]) 
     
-    B = np.array([0, 0, 0, 0, (dt**2)/2, dt])   #[x, x', y, y', z, z']
-
-    u = np.array([[-9.8]]) # g
-    
-    return np.dot(F, x) + B * u
-    
+    return np.dot(F, x) + np.dot(B,u).reshape(1,4)
 
 def hx(x):
     # measurement function - convert state into a measurement
     # where measurements are [x_pos, y_pos, z_pos]
 
-    return x[[0, 2, 4]]
+    return x[[0, 1]]
 
 class UK_filter():
 
-    def __init__(self, dt, x_std_meas, y_std_meas, z_std_meas, init_x, init_y, init_z):  
-    
+    def __init__(self, dt, x_std_meas, y_std_meas, init_x, init_y):  
+        
+        std_acc = -0.01
+
         self.init_x = init_x 
         self.init_y = init_y
-        self.init_z = init_z
         self.dt = dt
         self.z_std = 0.1
 
-        self.sigmas_points = MerweScaledSigmaPoints(6, alpha=.1, beta=2., kappa=1)
-        self.f = UnscentedKalmanFilter(dim_x=6, dim_z=6, dt=self.dt, fx=fx, hx=hx, points=self.sigmas_points)
+        self.points = MerweScaledSigmaPoints(4, alpha=.1, beta=2., kappa=-1)
+        self.f = UnscentedKalmanFilter(dim_x=4, dim_z=2, dt=self.dt, fx=fx, hx=hx, points=self.points)
 
-        self.f.x = np.array([self.init_x, 0, self.init_y, 0, self.init_z, 0]) 
+        self.f.x = np.array([self.init_x,0,self.init_y,0])
 
-        self.f.P = np.eye(6)
 
-        self.f.Q = Q_discrete_white_noise(2, dt = self.dt, var = 0.01**2, block_size = 3)
-        
-        self.f.R = np.array([[x_std_meas**2,0,0],
-                            [0, y_std_meas**2,0],
-                            [0, 0, y_std_meas**2]])
+        self.f.P = np.eye(4)
+        #self.f.P = np.eye(4) * 0.2
+
+
+        self.f.Q = np.array([[(self.dt**4)/4, 0, (self.dt**3)/2, 0],
+                            [0, (self.dt**4)/4, 0, (self.dt**3)/2],
+                            [(self.dt**3)/2, 0, self.dt**2, 0],
+                            [0, (self.dt**3)/2, 0, self.dt**2]]) * std_acc**2
+
+        #self.f.Q = Q_discrete_white_noise(2, dt = self.dt, var = 0.01**2, block_size = 2)
+
+        self.f.R = np.array([[x_std_meas**2,0],
+                            [0, y_std_meas**2]])
 
         self.f.predict()
 
 
 
 class Trajectory_ukf:
-    def __init__(self, maxDisappeared = 10):
+    def __init__(self, maxDisappeared = 5):
 
         self.nextObjectID = 0
         self.point_dict = OrderedDict()
@@ -77,13 +83,12 @@ class Trajectory_ukf:
 
         self.point_dict[self.nextObjectID] = [centroid]
         self.disappeared_dict[self.nextObjectID] = 0
-        self.kf_dict[self.nextObjectID] = UK_filter(dt = 0.03, 
+        self.kf_dict[self.nextObjectID] = UK_filter(dt = 0.035, 
                                                     x_std_meas = 0.01, 
                                                     y_std_meas = 0.01,
-                                                    z_std_meas = 0.01,
                                                     init_x = centroid[0],
-                                                    init_y = centroid[1],
-                                                    init_z = centroid[2])
+                                                    init_y = centroid[1])
+                                                    
 
         self.kf_pred_dict[self.nextObjectID] = centroid
         self.nextObjectID += 1
@@ -105,8 +110,8 @@ class Trajectory_ukf:
                 
                 pred_point = self.kf_dict[ID].f.x
 
-                x, y, z = pred_point[0], pred_point[2], pred_point[4]
-                self.kf_pred_dict[ID] = [x, y, z]
+                x, y = pred_point[0], pred_point[1]
+                self.kf_pred_dict[ID] = [x, y]
                 
                 if self.disappeared_dict[ID] >= self.maxDisappeared:
                     self.deregister(ID)
@@ -124,10 +129,10 @@ class Trajectory_ukf:
                 
                 pred_point = self.kf_dict[ID].f.x
 
-                x, y, z = pred_point[0], pred_point[2], pred_point[4]
-                self.kf_pred_dict[ID] = [x, y, z]
+                x, y = pred_point[0], pred_point[1]
+                self.kf_pred_dict[ID] = [x, y]
                 
-                self.kf_predict_list.append([x, y, z])
+                self.kf_predict_list.append([x, y])
 
             #distan = dist.cdist(np.array(self.kf_predict_list), next_centroid_list)
             

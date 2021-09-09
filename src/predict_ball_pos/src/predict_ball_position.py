@@ -70,14 +70,26 @@ stride = int(model.stride.max())  # model stride
 imgsz = check_img_size(img_size, s=stride)  # check image size
 names = model.module.names if hasattr(model, 'module') else model.names  # get class names
 
+camera_L_points = np.float32([[26,198],[318,181],[639,200],[177,316]])
+camera_R_points = np.float32([[317,181],[615,198],[442,316],[0,200]])
+
+court_img_L_points = np.float32([[0,600],[0,0],[638,0],[531,600]])
+court_img_R_points = np.float32([[0,600],[0,0],[531,0],[638,600]])
+
+h_L = cv2.getPerspectiveTransform(camera_L_points, court_img_L_points)
+h_R = cv2.getPerspectiveTransform(camera_R_points, court_img_R_points)
+
 point_image = np.zeros([640,640,3], np.uint8) + 255
 trajectroy_image = np.zeros([640,640,3], np.uint8) + 255
+
 tennis_court_img = cv2.imread(path + "/images/tennis_court.png")
 tennis_court_img = cv2.resize(tennis_court_img,(0,0), fx=2, fy=2, interpolation = cv2.INTER_AREA)
 
 ball_ukf = Trajectory_ukf()
 
 color = tuple(np.random.randint(low=75, high = 255, size = 3).tolist())
+
+
 class Image_converter:
 
     def __init__(self):
@@ -170,156 +182,6 @@ class Image_converter:
             print(e)
 
 
-
-    def main(self):
-
-        global point_image
-
-        global color
-        global tennis_court_img
-
-        global ball_ukf
-
-        (rows,cols,channels) = self.left_data_0.shape
-
-        self.ball_box = []
-
-        self.ball_height_list = [[0], [0]]
-        self.ball_centroid_list = [[0, 0],[0, 0]]
-        self.ball_depth_list = [[0, 0],[0, 0]]
-
-        self.get_ball_status()
-        
-
-        if cols > 60 and rows > 60 :
-            t1 = time.time()
-
-            """self.left_data_0 = cv2.resize(self.left_data_0,(0,0),fx = 0.5, fy = 0.5, interpolation = cv2.INTER_AREA)
-            self.left_data_1 = cv2.resize(self.left_data_1,(0,0),fx = 0.5, fy = 0.5, interpolation = cv2.INTER_AREA)
-
-            self.right_data_0 = cv2.resize(self.right_data_0,(0,0),fx = 0.5, fy = 0.5, interpolation = cv2.INTER_AREA)
-            self.right_data_1 = cv2.resize(self.right_data_1,(0,0),fx = 0.5, fy = 0.5, interpolation = cv2.INTER_AREA)"""
-
-            self.main_frame = cv2.vconcat([self.left_data_0,self.right_data_0])
-            self.left_depth = cv2.vconcat([self.left_depth_0_ori, self.right_depth_0_ori])
-
-            self.left_depth = np.float32(self.left_depth)
-
-            self.left_depth_frame = cv2.normalize(self.left_depth, None, 0, 255, cv2.NORM_MINMAX)
-            self.left_depth_frame = np.uint8(np.round(self.left_depth_frame))
-
-            image_ori = self.main_frame 
-            self.image_robot_tracking = self.robot_tracking(image_ori.copy()) #get robot bbox
-
-            self.ball_tracking(image_ori.copy())  #get ball cand bbox list
-                   
-            if self.ball_cand_box:
-                self.check_iou(self.robot_box, self.ball_cand_box) # get ball bbox list
-
-            
-
-            if self.ball_box:  #draw ball bbox and trajectory and predict ball pos
-
-                for i in range(len(self.ball_box)):
-                    x0, y0, x1, y1 = self.ball_box[i]
-
-                    ball_x_pos, ball_y_pos = int((x0 + x1)/2), int((y0 +y1)/2)
-
-                    cv2.rectangle(image_ori, (x0, y0), (x1, y1), color, 3)
-                    cv2.circle(point_image,(ball_x_pos, ball_y_pos), 4, color, -1)
-
-
-                    #predict ball pos
-                    ball_depth = self.get_depth(x0, y0, x1, y1)
-
-                    if ball_y_pos < 320:
-                        self.ball_height_list[0] = self.cal_ball_height(ball_depth, ball_x_pos, ball_y_pos)
-                        self.ball_centroid_list[0] = [ball_x_pos, ball_y_pos]
-                        self.ball_depth_list[0] = ball_depth
-                        
-                    else:
-                        self.ball_height_list[1] = self.cal_ball_height(ball_depth, ball_x_pos, ball_y_pos)
-                        self.ball_centroid_list[1] = [ball_x_pos, ball_y_pos - 320]
-                        self.ball_depth_list[1] = ball_depth
-
-            if min(self.ball_centroid_list) > [0, 0]:
-                print("------------------------------------------------------------------")
-                
-                [ball_x_L, ball_y_L, ball_z_L], [ball_x_R, ball_y_R, ball_z_R] = self.cal_ball_position(self.ball_height_list, self.ball_depth_list)
-
-                
-
-                real_ball_pos_list = [np.round(self.ball_pose.position.x,3), np.round(self.ball_pose.position.y,3), np.round(self.ball_pose.position.z,3)]
-                
-                print("real ball pos : {}, {}, {}".format(real_ball_pos_list[0], real_ball_pos_list[1], real_ball_pos_list[2]))
-                print("camera_preadict_pos : ",np.round(ball_x_L,3), np.round(ball_y_L,3), np.round(ball_z_L,3))
-
-                if np.isnan(ball_x_L):
-
-                    uk_dir = ball_ukf.update([])
-
-                    #print(ball_ukf.f[0],ball_ukf.f[2],ball_ukf.f[4])
-                    """if ball_ukf.kf_pred_dict.keys():
-
-                        for ID, value in ball_ukf.kf_pred_dict.items():
-                            ball_ukf.deregister(ID)
-                    """
-                else:
-                    uk_dir = ball_ukf.update([ball_x_L, ball_y_L, ball_z_L])
-
-
-                self.get_uk_pos(uk_dir)
-
-                #print("height : ",self.ball_height_list)
-                #print("real_depth : ", np.round(np.sqrt(real_ball_pos_list[0] **2 + (real_ball_pos_list[1] - (-6.4)) ** 2 + (real_ball_pos_list[2] - 1) ** 2), 3), np.round(np.sqrt(real_ball_pos_list[0] **2 + (real_ball_pos_list[1] - (6.4)) ** 2 + (real_ball_pos_list[2] - 1) ** 2), 3))
-                #print("depth : ", np.round(self.ball_depth_list[0], 3), np.round(self.ball_depth_list[1], 3))
-                #print(np.round(ball_x_R,3), np.round(ball_y_R,3), np.round(ball_z_R,3))
-                
-                ##칼만 필터 예측값 다듬기
-            
-
-
-                self.draw_point_court(real_ball_pos_list, [ball_x_L, ball_y_L, ball_z_L])
-
-
-
-
-                
-
-            robot_tracking_img = cv2.hconcat([self.image_robot_tracking[:320,:640,:],self.image_robot_tracking[320:,:640,:]])
-            ball_detect_img = cv2.hconcat([image_ori[:320,:640,:],image_ori[320:,:640,:]])
-            #trajectroy_image = cv2.hconcat([point_image[:320,:640,:],point_image[320:,:640,:]])
-            #left_depth_img = cv2.hconcat([self.left_depth_frame[:320,:640], self.left_depth_frame[320:,:640]])
-
-
-
-            t2 = time.time()
-
-            #cv2.imshow("left_frame", self.left_frame)
-            #cv2.imshow("right_frame", self.right_frame)
-
-            #cv2.imshow("robot_tracking_img", robot_tracking_img)
-            
-            cv2.imshow("ball_detect_img", ball_detect_img)
-            #cv2.imshow("left_depth_0", left_depth_img)
-            cv2.imshow("tennis_court", tennis_court_img)
-
-            #cv2.imshow("trajectroy_image", trajectroy_image)
-
-
-            #print(1/(t2-t1))
-            
-            key = cv2.waitKey(1)
-
-
-            if key == 27 : 
-                cv2.destroyAllWindows()
-
-            if key == ord("c") : 
-                tennis_court_img = cv2.imread(path + "/images/tennis_court.png")
-                tennis_court_img = cv2.resize(tennis_court_img,(0,0), fx=2, fy=2, interpolation = cv2.INTER_AREA)
-
-
     def ball_tracking(self, image):
 
             self.ball_cand_box = []
@@ -394,6 +256,60 @@ class Image_converter:
 
             return im0
 
+    def get_robot_pos(self, robot_bbox):
+
+        robot_pos_list = []
+        print("---------------------------")
+
+        for x0, y0, x1, y1 in robot_bbox:
+
+            if y0 < (self.main_frame.shape[0]/2): #left camera robot position
+                
+                depth = self.get_depth(x0, y0, x1, y1)
+
+                #x_center = (x1 + x0) / 2
+                #y_center = (y0 + y1) * (1 - (depth / 20))
+
+                #x_center = x0 
+                #y_center = y1 - ((y1 - y0) / 5)
+
+                #print(depth)
+
+                for x_center, y_center in [[x0, y0], [x1, y0] ,[x0, y1], [x1, y1]]:
+
+                    robot_pos_court = h_L @ np.array([x_center, y_center, 1]).reshape(3,1)
+
+                    robot_pos_list.append([robot_pos_court[0]/robot_pos_court[2], robot_pos_court[1]/robot_pos_court[2]])
+
+                    cv2.circle(tennis_court_img, (int(robot_pos_court[0]/robot_pos_court[2]), int(robot_pos_court[1]/robot_pos_court[2])), 4, [0, 0, 255], -1)
+
+            else:                             #right camera robot position
+                
+                depth = self.get_depth(x0, y0, x1, y1)
+
+                #x_center = (x1 + x0) / 2
+                #y_center = (y0 + y1 - 320) * (1 - (depth / 20))
+                #x_center = x0 
+                #y_center = y1 - 320 - ((y1 - y0) / 5)
+
+                #print(depth)
+                for x_center, y_center in [[x0, y0], [x1, y0] ,[x0, y1], [x1, y1]]:
+
+                    y_center = y_center - 320
+
+                    robot_pos_court = h_R @ np.array([x_center, y_center, 1]).reshape(3,1)
+
+
+
+                    robot_pos_list.append([robot_pos_court[0]/robot_pos_court[2], robot_pos_court[1]/robot_pos_court[2]])
+
+                    cv2.circle(tennis_court_img, (int(robot_pos_court[0]/robot_pos_court[2]), int(robot_pos_court[1]/robot_pos_court[2])), 4, [0, 212, 125], -1)
+                    
+                    print((int(robot_pos_court[0]/robot_pos_court[2]), int(robot_pos_court[1]/robot_pos_court[2])))  
+
+        return [np.sum(np.array(robot_pos_list)[:,0])/len(robot_bbox) , np.sum(np.array(robot_pos_list)[:,1])/len(robot_bbox)]
+
+
     def check_iou(self, robot_box, ball_cand_box):
         no_ball_box = []
         centroid_ball = []
@@ -459,8 +375,6 @@ class Image_converter:
         focal_length = np.sqrt(x**2 + 337**2)
         theta_pix = np.arctan(abs(y) / focal_length)
 
-        #print('theta_pix : ',theta_pix)
-
         height = depth * np.sin(theta_pix)
 
         if y_pos < 160:
@@ -476,7 +390,7 @@ class Image_converter:
         height = sum(ball_height_list) / 2 - 1
         
         th_L = np.arccos((ball_depth_list[0] ** 2 + 12.8 ** 2 - ball_depth_list[1]**2) / (2 * 12.8 * ball_depth_list[0]))
-        th_R = np.arccos((ball_depth_list[1] ** 2 + 12.8 ** 2 - ball_depth_list[0]**2) / (2 * 12.8 * ball_depth_list[1]))
+        #th_R = np.arccos((ball_depth_list[1] ** 2 + 12.8 ** 2 - ball_depth_list[0]**2) / (2 * 12.8 * ball_depth_list[1]))
         
         #print(np.rad2deg(th_L), np.rad2deg(th_R))
 
@@ -487,38 +401,46 @@ class Image_converter:
         
         ball_position_x_L = ball2net_length_x_L * np.cos(ball_plate_angle_L)
         
-        ball2net_length_x_R = ball_depth_list[1] * np.sin(th_R)
-        ball_position_y_R = ball_depth_list[1] * np.cos(th_R)
+        #ball2net_length_x_R = ball_depth_list[1] * np.sin(th_R)
+        #ball_position_y_R = ball_depth_list[1] * np.cos(th_R)
         
-        ball_plate_angle_R = np.sin(height / ball2net_length_x_R)
+        #ball_plate_angle_R = np.sin(height / ball2net_length_x_R)
         
-        ball_position_x_R = ball2net_length_x_R * np.cos(ball_plate_angle_R)
+        #ball_position_x_R = ball2net_length_x_R * np.cos(ball_plate_angle_R)
 
-        return [-ball_position_x_L, ball_position_y_L - 6.4, height + 1], [-ball_position_x_R, 6.4 - ball_position_y_R , height + 1]
+        return [-ball_position_x_L, ball_position_y_L - 6.4, height + 1]#, [-ball_position_x_R, 6.4 - ball_position_y_R , height + 1]
 
     
-    def draw_point_court(self, real_point_list, predict_point_list):
+    def draw_point_court(self, real_point_list, camera_predict_point_list, uk_predict_point_list, robot_pos_list):
 
-        if np.isnan(predict_point_list[0]):
+        real_pix_point_list = []
+        predict_pix_point_list = []
+
+        #cv2.circle(tennis_court_img, (int(robot_pos_list[0]), int(robot_pos_list[1])), 4, [0, 212, 255], -1)
+
+        if np.isnan(camera_predict_point_list[0]):
             return 0
 
-        real_point_list[0] = int(np.round((11.885 + real_point_list[0]) / 0.03726)) * 2
-        predict_point_list[0] = int(np.round((11.885 + predict_point_list[0]) / 0.03726))* 2
+        x_pred = uk_predict_point_list[0][0]
+        y_pred = camera_predict_point_list[1]
 
-        real_point_list[1] = int(np.round((5.485 - real_point_list[1]) / 0.03656))* 2
-        predict_point_list[1] = int(np.round((5.485 - predict_point_list[1]) / 0.03656))* 2
+        y_pix_length, x_pix_length = tennis_court_img.shape[0], tennis_court_img.shape[1]
 
-        real_point_xy = real_point_list[0:2]
-        predict_point = predict_point_list[0:2]
+        x_meter2pix = 23.77 / x_pix_length
+        y_meter2pix = 10.97 / y_pix_length
 
-        cv2.circle(tennis_court_img,real_point_xy, 4, [0, 0, 255], -1)
-        cv2.circle(tennis_court_img,predict_point, 4, [0, 255, 0], -1)
+        real_pix_point_list.append(int(np.round((11.885 + real_point_list[0]) / x_meter2pix)))
+        predict_pix_point_list.append(int(np.round((11.885 + x_pred) / x_meter2pix)))
 
+        real_pix_point_list.append(int(np.round((5.485 - real_point_list[1]) / y_meter2pix)))
+        predict_pix_point_list.append(int(np.round((5.485 - y_pred) / y_meter2pix)))
 
+        real_pix_point_xy = real_pix_point_list[0:2]
+        predict_pix_point = predict_pix_point_list[0:2]
 
+        cv2.circle(tennis_court_img,real_pix_point_xy, 4, [0, 0, 255], -1)
+        cv2.circle(tennis_court_img,predict_pix_point, 4, [0, 255, 0], -1)
 
-
-    
     def get_ball_status(self):
         self.g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
@@ -541,35 +463,187 @@ class Image_converter:
 
     def get_uk_pos(self, uk_dir):
 
+
+        uk_ball_list = []
+
         if uk_dir:
             for (objectID, pos_list) in uk_dir.items():
                 
                 # draw both the ID of the object and the centroid of the
                 # object on the output frame
                 np.random.seed(objectID)
-                
-                #color = tuple(np.random.randint(low=50, high = 255, size = 3).tolist())
-                #text = "ID {}".format(objectID)
-                x, y, z = pos_list[-1]
 
-                #cv2.putText(frame, text, (x -10, y -10),cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-                #cv2.circle(frame, (x, y), 4, color, -1)
-                
                 uk_ball_pos_list = ball_ukf.kf_pred_dict[objectID]
 
-                #print(objects_dict)
+                x_pred, y_pred = uk_ball_pos_list[0], uk_ball_pos_list[1]
+                uk_ball_list.append([x_pred, y_pred])
 
-                x_pred, y_pred, z_pred = uk_ball_pos_list[0], uk_ball_pos_list[1], uk_ball_pos_list[2]
+                #x_pred, y_pred, z_pred = uk_ball_pos_list[0], uk_ball_pos_list[1], uk_ball_pos_list[2]
 
-                #cv2.putText(frame, text, (int(x_pred) - 10, int(y_pred) -15),cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-                #cv2.rectangle(frame, (int(x_pred) - 10, int(y_pred) -10), (int(x_pred) + 10, int(y_pred) + 10), color, 3)
+                """print("real ball pos : {}, {}, {}".format(self.real_ball_pos_list[0], self.real_ball_pos_list[1], self.real_ball_pos_list[2]))
+                print("uk ball pos : ",x_pred, y_pred)"""
+            
+        return uk_ball_list
 
-                print(x_pred, y_pred, z_pred)
+
+
+    def main(self):
+
+        global point_image
+
+        global color
+        global tennis_court_img
+
+        global ball_ukf
+
+        (rows,cols,channels) = self.left_data_0.shape
+
+        self.ball_box = []
+
+        self.ball_height_list = [[0], [0]]
+        self.ball_centroid_list = [[0, 0],[0, 0]]
+        self.ball_depth_list = [[0, 0],[0, 0]]
+
+        self.get_ball_status()
+
+        self.ball_camera_list = [np.nan, np.nan, np.nan]
+        
+
+        if cols > 60 and rows > 60 :
+            t1 = time.time()
+
+            self.real_ball_pos_list = [np.round(self.ball_pose.position.x,3), np.round(self.ball_pose.position.y,3), np.round(self.ball_pose.position.z,3)]
+
+            #self.left_data_0 = cv2.resize(self.left_data_0,(0,0),fx = 0.5, fy = 0.5, interpolation = cv2.INTER_AREA)
+
+            self.main_frame = cv2.vconcat([self.left_data_0,self.right_data_0])
+            self.left_depth = cv2.vconcat([self.left_depth_0_ori, self.right_depth_0_ori])
+
+            self.left_depth = np.float32(self.left_depth)
+
+            self.left_depth_frame = cv2.normalize(self.left_depth, None, 0, 255, cv2.NORM_MINMAX)
+            self.left_depth_frame = np.uint8(np.round(self.left_depth_frame))
+
+            image_ori = self.main_frame 
+            self.image_robot_tracking = self.robot_tracking(image_ori.copy()) #get robot bbox
+
+            robot_pos = self.get_robot_pos(self.robot_box)
+
+            self.ball_tracking(image_ori.copy())  #get ball cand bbox list
+                   
+            if self.ball_cand_box:
+                self.check_iou(self.robot_box, self.ball_cand_box) # get ball bbox list
+
+            
+
+            if self.ball_box:  #draw ball bbox and trajectory and predict ball pos
+
+                for i in range(len(self.ball_box)):
+                    x0, y0, x1, y1 = self.ball_box[i]
+
+                    ball_x_pos, ball_y_pos = int((x0 + x1)/2), int((y0 +y1)/2)
+
+                    cv2.rectangle(image_ori, (x0, y0), (x1, y1), color, 3)
+                    cv2.circle(point_image,(ball_x_pos, ball_y_pos), 4, color, -1)
+
+                    #predict ball pos
+                    ball_depth = self.get_depth(x0, y0, x1, y1)
+
+                    if ball_y_pos < 320:
+                        self.ball_height_list[0] = self.cal_ball_height(ball_depth, ball_x_pos, ball_y_pos)
+                        self.ball_centroid_list[0] = [ball_x_pos, ball_y_pos]
+                        self.ball_depth_list[0] = ball_depth
+                        
+                    else:
+                        self.ball_height_list[1] = self.cal_ball_height(ball_depth, ball_x_pos, ball_y_pos)
+                        self.ball_centroid_list[1] = [ball_x_pos, ball_y_pos - 320]
+                        self.ball_depth_list[1] = ball_depth
+
+
+            if min(self.ball_centroid_list) > [0, 0]:
+                
+                self.ball_camera_list = self.cal_ball_position(self.ball_height_list, self.ball_depth_list)
+
+                print("------------------------------------------------------------------")
+                #print("camera_preadict_pos : ",np.round(self.ball_camera_list[0],3), np.round(self.ball_camera_list[1],3), np.round(self.ball_camera_list[2],3))
+
+                #print("height : ",self.ball_height_list)
+                #print("real_depth : ", np.round(np.sqrt(real_ball_pos_list[0] **2 + (real_ball_pos_list[1] - (-6.4)) ** 2 + (real_ball_pos_list[2] - 1) ** 2), 3), np.round(np.sqrt(real_ball_pos_list[0] **2 + (real_ball_pos_list[1] - (6.4)) ** 2 + (real_ball_pos_list[2] - 1) ** 2), 3))
+                #print("depth : ", np.round(self.ball_depth_list[0], 3), np.round(self.ball_depth_list[1], 3))
+                #print(np.round(ball_x_R,3), np.round(ball_y_R,3), np.round(ball_z_R,3))
+                
+                
+
+            if np.isnan(self.ball_camera_list[0]):
+
+                uk_dir = ball_ukf.update([])
+
+            else:
+                
+                uk_dir = ball_ukf.update([self.ball_camera_list[0], self.ball_camera_list[0]])
+                #uk_dir = ball_ukf.update([ball_x_L, ball_y_L, ball_z_L])
+
+
+            self.uk_ball_list = self.get_uk_pos(uk_dir)
+
+            self.draw_point_court(self.real_ball_pos_list, self.ball_camera_list, self.uk_ball_list, robot_pos)
+
+            robot_tracking_img = cv2.hconcat([self.image_robot_tracking[:320,:640,:],self.image_robot_tracking[320:,:640,:]])
+            ball_detect_img = cv2.hconcat([image_ori[:320,:640,:],image_ori[320:,:640,:]])
+            
+            #trajectroy_image = cv2.hconcat([point_image[:320,:640,:],point_image[320:,:640,:]])
+            #left_depth_img = cv2.hconcat([self.left_depth_frame[:320,:640], self.left_depth_frame[320:,:640]])
+
+
+
+            t2 = time.time()
+
+            #cv2.imshow("left_frame", self.left_frame)
+            #cv2.imshow("right_frame", self.right_frame)
+            #cv2.imshow("left_depth_0", left_depth_img)
+
+            cv2.imshow("robot_tracking_img", robot_tracking_img)
+            #cv2.imshow("image_ori", image_ori)
+            
+            cv2.imshow("ball_detect_img", ball_detect_img)
+            cv2.imshow("tennis_court", tennis_court_img)
+
+            #cv2.imshow("trajectroy_image", trajectroy_image)
+
+            #cv2.imshow("test", image_ori[320:,:640,:])
+
+            #print(1/(t2-t1))
+            
+            key = cv2.waitKey(1)
+
+
+            if key == 27 : 
+                cv2.destroyAllWindows()
+
+            if key == ord("c") : 
+                tennis_court_img = cv2.imread(path + "/images/tennis_court.png")
+                tennis_court_img = cv2.resize(tennis_court_img,(0,0), fx=2, fy=2, interpolation = cv2.INTER_AREA)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def main(args):
 
     ic = Image_converter()
-
 
     try:
         rospy.spin()
