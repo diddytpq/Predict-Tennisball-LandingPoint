@@ -166,6 +166,8 @@ def throw_ball():
 
     t0 = time.time()
 
+    print("vx, vz :", ball_init_vel_x, ball_init_vel_z)
+
     while gat_ball_stats().pose.position.z > 0.02 :
         t1 = time.time()
         dt = t1 - t0

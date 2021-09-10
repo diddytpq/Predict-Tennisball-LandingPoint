@@ -167,22 +167,25 @@ class Image_converter:
             self.left_frame = cv2.vconcat([self.left_data_0,self.right_data_0])
             self.right_frame = cv2.vconcat([self.left_data_1,self.right_data_1])
 
-            testL = cv2.warpPerspective(self.left_frame[:320,:640], h_L, (1276, 600))
-            testR = cv2.warpPerspective(self.left_frame[320:,:640], h_R, (1276, 600))
+            testL = cv2.warpPerspective(self.left_frame[:320,:640], h_L, (638, 600))
+            testR = cv2.warpPerspective(self.left_frame[320:,:640], h_R, (638, 600))
             #testR = cv2.warpPerspective(self.left_frame, h_R, (600, 1276))
 
+            main_frame = cv2.hconcat([self.left_frame[:320,:640,:],self.left_frame[320:,:640,:]])
 
 
             #self.frame_recode = self.main_frame
 
             t2 = time.time()
 
+            cv2.imshow("main_frame", main_frame)
             cv2.imshow("left_frame", self.left_frame)
+
             cv2.imshow("tennis_court_img", tennis_court_img)
 
             cv2.imshow("testL", testL)
             cv2.imshow("testR", testR)
-            cv2.imshow("123", self.left_frame[320:,:640])
+            #cv2.imshow("123", self.left_frame[320:,:640])
 
             self.t1 = time.time()
             #print(self.t1 - self.t0)

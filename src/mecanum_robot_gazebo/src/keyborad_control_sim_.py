@@ -64,11 +64,11 @@ if __name__ == '__main__':
                 linear, angular_z = move_mecanum(linear, angular_z)
 
             elif key == 'q' :
-                angular_z += 1 
+                angular_z += 0.5
                 linear, angular_z = move_mecanum(linear, angular_z)
 
             elif key == 'e' :
-                angular_z -= 1 
+                angular_z -= 0.5
                 linear, angular_z = move_mecanum(linear, angular_z)
 
             elif key == 's' :

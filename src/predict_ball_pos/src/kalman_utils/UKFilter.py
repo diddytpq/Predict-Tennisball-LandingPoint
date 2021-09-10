@@ -48,7 +48,7 @@ class UK_filter():
         self.points = MerweScaledSigmaPoints(4, alpha=.1, beta=2., kappa=-1)
         self.f = UnscentedKalmanFilter(dim_x=4, dim_z=2, dt=self.dt, fx=fx, hx=hx, points=self.points)
 
-        self.f.x = np.array([self.init_x,0,self.init_y,0])
+        self.f.x = np.array([self.init_x, 20, self.init_y,0])
 
 
         self.f.P = np.eye(4)

@@ -99,6 +99,7 @@ class Image_converter:
 
         rospy.init_node('Image_converter', anonymous=True)
 
+        rospy.Subscriber("/camera_left_top_ir/camera_left_top_ir/color/image_raw", Image, self.callback_left_top_ir)
 
         rospy.Subscriber("/camera_left_0/depth/image_raw",Image,self.callback_left_depth_0)
         rospy.Subscriber("/camera_left_0_ir/camera_left_0/color/image_raw",Image,self.callback_left_0)
@@ -115,6 +116,14 @@ class Image_converter:
     
     def landing_point_callback(self, data):
         self.landingpoint = [data.data[0], data.data[1]]
+
+    def callback_left_top_ir(self, data):
+        try:
+            self.t0 = time.time()
+            self.left_top_data_0 = self.bridge.imgmsg_to_cv2(data, "bgr8")
+
+        except CvBridgeError as e:
+            print(e)
 
     def callback_left_0(self, data):
         try:
@@ -281,7 +290,7 @@ class Image_converter:
 
                     robot_pos_list.append([robot_pos_court[0]/robot_pos_court[2], robot_pos_court[1]/robot_pos_court[2]])
 
-                    cv2.circle(tennis_court_img, (int(robot_pos_court[0]/robot_pos_court[2]), int(robot_pos_court[1]/robot_pos_court[2])), 4, [0, 0, 255], -1)
+                    cv2.circle(tennis_court_img, (int(robot_pos_court[0]/robot_pos_court[2]), int(robot_pos_court[1]/robot_pos_court[2])), 4, [0, 255, 255], -1)
 
             else:                             #right camera robot position
                 
@@ -303,7 +312,7 @@ class Image_converter:
 
                     robot_pos_list.append([robot_pos_court[0]/robot_pos_court[2], robot_pos_court[1]/robot_pos_court[2]])
 
-                    cv2.circle(tennis_court_img, (int(robot_pos_court[0]/robot_pos_court[2]), int(robot_pos_court[1]/robot_pos_court[2])), 4, [0, 212, 125], -1)
+                    cv2.circle(tennis_court_img, (int(robot_pos_court[0]/robot_pos_court[2]), int(robot_pos_court[1]/robot_pos_court[2])), 4, [255, 51, 255], -1)
                     
                     print((int(robot_pos_court[0]/robot_pos_court[2]), int(robot_pos_court[1]/robot_pos_court[2])))  
 
@@ -496,6 +505,7 @@ class Image_converter:
 
         global ball_ukf
 
+
         (rows,cols,channels) = self.left_data_0.shape
 
         self.ball_box = []
@@ -514,11 +524,15 @@ class Image_converter:
 
             self.real_ball_pos_list = [np.round(self.ball_pose.position.x,3), np.round(self.ball_pose.position.y,3), np.round(self.ball_pose.position.z,3)]
 
-            #self.left_data_0 = cv2.resize(self.left_data_0,(0,0),fx = 0.5, fy = 0.5, interpolation = cv2.INTER_AREA)
 
-            self.main_frame = cv2.vconcat([self.left_data_0,self.right_data_0])
+            self.left_top_frame = cv2.resize(self.left_top_data_0,(640,640),interpolation = cv2.INTER_AREA)
+
+            self.left_frame = cv2.vconcat([self.left_data_0,self.right_data_0])
+
+            self.main_frame = cv2.hconcat([self.left_frame, self.left_top_frame])
+
+            
             self.left_depth = cv2.vconcat([self.left_depth_0_ori, self.right_depth_0_ori])
-
             self.left_depth = np.float32(self.left_depth)
 
             self.left_depth_frame = cv2.normalize(self.left_depth, None, 0, 255, cv2.NORM_MINMAX)
@@ -589,6 +603,7 @@ class Image_converter:
             self.draw_point_court(self.real_ball_pos_list, self.ball_camera_list, self.uk_ball_list, robot_pos)
 
             robot_tracking_img = cv2.hconcat([self.image_robot_tracking[:320,:640,:],self.image_robot_tracking[320:,:640,:]])
+
             ball_detect_img = cv2.hconcat([image_ori[:320,:640,:],image_ori[320:,:640,:]])
             
             #trajectroy_image = cv2.hconcat([point_image[:320,:640,:],point_image[320:,:640,:]])
@@ -603,7 +618,7 @@ class Image_converter:
             #cv2.imshow("left_depth_0", left_depth_img)
 
             cv2.imshow("robot_tracking_img", robot_tracking_img)
-            #cv2.imshow("image_ori", image_ori)
+            cv2.imshow("image_robot_tracking", self.image_robot_tracking)
             
             cv2.imshow("ball_detect_img", ball_detect_img)
             cv2.imshow("tennis_court", tennis_court_img)
