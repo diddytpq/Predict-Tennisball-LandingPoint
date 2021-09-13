@@ -153,7 +153,7 @@ def throw_ball():
 
     duration = 0.001
 
-    ror_matrix = rotation_matrix(0)
+    ror_matrix = rotation_matrix(np.deg2rad(0))
 
     v0 = np.sqrt(ball_init_vel_x**2 + ball_init_vel_z**2)
     launch_angle = np.arctan(ball_init_vel_z/v0)

@@ -13,7 +13,7 @@
   <link name="body">
     <inertial>
       <origin
-        xyz="0 0 1.5"
+        xyz="0 0 1"
         rpy="0 0 0" />
       <mass
         value="1" />
@@ -28,10 +28,10 @@
     
     <visual>
       <origin
-          xyz="0 0 1.5"
+          xyz="0 0 1"
           rpy="0 0 0" />
       <geometry>
-        <cylinder length="3" radius="0.05"/>
+        <cylinder length="2" radius="0.05"/>
       </geometry>
       <material
         name="">
@@ -42,17 +42,17 @@
 
     <collision>
       <origin
-        xyz="0 0 1.5"
+        xyz="0 0 1"
         rpy="0 0 0" />
       <geometry>
-        <cylinder length="3" radius="0.05"/>
+        <cylinder length="2" radius="0.05"/>
       </geometry>
     </collision>
     </link>
 
 
     <joint name="camera_joint_0" type="fixed">
-        <origin xyz="0 0 3" rpy="0 0.523599 0"/>
+        <origin xyz="0 0 2" rpy="0 0 0"/>
         <parent link="body"/>
         <child link="camera_link_0"/>
     </joint>
@@ -119,9 +119,10 @@
         <update_rate>0</update_rate>
         <camera>
           <horizontal_fov>1.50098</horizontal_fov>
+          <vertical_fov>1.50098</vertical_fov>
           <image>
             <width>640</width>
-            <height>480</height>
+            <height>640</height>
             <format>R8G8B8</format>
           </image>
           <clip>
@@ -140,8 +141,8 @@
           <depthImageInfoTopicName>/camera_left_top_ir/depth/camera_info</depthImageInfoTopicName>
           <pointCloudTopicName>/camera_left_top_ir/depth/points</pointCloudTopicName>
           <frameName>camera_link_0</frameName>
-          <pointCloudCutoff>0.4</pointCloudCutoff>
-          <pointCloudCutoffMax>20.0</pointCloudCutoffMax>
+          <pointCloudCutoff>0.1</pointCloudCutoff>
+          <pointCloudCutoffMax>15.0</pointCloudCutoffMax>
           <distortionK1>0.00000001</distortionK1>
           <distortionK2>0.00000001</distortionK2>
           <distortionK3>0.00000001</distortionK3>
@@ -149,41 +150,11 @@
           <distortionT2>0.00000001</distortionT2>
           <CxPrime>0</CxPrime>
           <Cx>320</Cx>
-          <Cy>240</Cy>
-          <focalLength>0</focalLength>
+          <Cy>320</Cy>
+          <focalLength>343.159073</focalLength>
           <hackBaseline>0</hackBaseline>
         </plugin>
       </sensor>
     </gazebo>
-
-
-    <!--gazebo reference="camera_link_1">
-        <sensor type="camera" name="camera_left_1">
-        <update_rate>20</update_rate>
-            <camera name="head">
-                <horizontal_fov>1.3962634</horizontal_fov>
-                <image>
-                <width>640</width>
-                <height>320</height>
-                <format>R8G8B8</format>
-                </image>
-            </camera>        
-            <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
-                <alwaysOn>true</alwaysOn>
-                <updateRate>0.0</updateRate>
-                <cameraName>camera_left_1</cameraName>
-                <imageTopicName>image_raw</imageTopicName>
-                <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-                <frameName>camera_link_1</frameName>
-                <hackBaseline>0.07</hackBaseline>
-                <distortionK1>0.0</distortionK1>
-                <distortionK2>0.0</distortionK2>
-                <distortionK3>0.0</distortionK3>
-                <distortionT1>0.0</distortionT1>
-                <distortionT2>0.0</distortionT2>
-            </plugin>
-        </sensor>
-    </gazebo-->
-
 
 </robot>
