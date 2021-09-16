@@ -30,7 +30,7 @@
   <param name="camera_right_description" textfile="$(find ball_trajectory)/urdf/camera/camera_right.urdf"/>
   
   <param name="camera_left_top_description" textfile="$(find ball_trajectory)/urdf/camera/camera_left_top.urdf"/>
-  <param name="camera_right_top_description" textfile="$(find ball_trajectory)/urdf/camera/camera_right_top.urdf"/>
+  <!--param name="camera_right_top_description" textfile="$(find ball_trajectory)/urdf/camera/camera_right_top.urdf"/-->
   
 
 
@@ -46,7 +46,7 @@
   <node pkg="gazebo_ros" type="spawn_model" name="camera_right_urdf" args="-urdf -model camera_right -x 0 -y 6.4 -z 0 -param camera_right_description" />
   
   <node pkg="gazebo_ros" type="spawn_model" name="camera_left_top_urdf" args="-urdf -model camera_left_top -x -15 -y 0 -z 0 -param camera_left_top_description" />
-  <node pkg="gazebo_ros" type="spawn_model" name="camera_right_top_urdf" args="-urdf -model camera_right_top -x 15 -y 0 -z 0 -Y 3.14 -param camera_right_top_description" />
+  <!--node pkg="gazebo_ros" type="spawn_model" name="camera_right_top_urdf" args="-urdf -model camera_right_top -x 15 -y 0 -z 0 -Y 3.14 -param camera_right_top_description" /-->
   
 
   <!-- Run controller utils -->
@@ -64,5 +64,16 @@
                                       wheel_2_controller 
                                       wheel_3_controller 
                                       wheel_4_controller"/>
+
+
+  <!-- convert joint states to TF transforms for rviz, etc -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
+    <remap from="/joint_states" to="/mecanum_L/joint_states" />
+  </node>
+
+  <!-- Joystick node -->
+  <node name="joy" pkg="joy" type="joy_node"/>
+
+
 
 </launch>

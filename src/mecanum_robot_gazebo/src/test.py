@@ -15,6 +15,8 @@ if __name__ == '__main__' :
     mecanum_L = Make_mecanum_left('mecanum_L')
     mecanum_R = Make_mecanum_right('mecanum_R')
     
+    #mecanum_L.torque = [0, 0, 0]
+    #mecanum_L.torque = [0, 109000, 0]
     #mecanum_L.torque = [0, -209000, 0]
 
     mecanum_R.torque = [0, -209000, 0]
@@ -26,6 +28,8 @@ if __name__ == '__main__' :
 
     add_catch_point = 2.5
     add_catch_point = 3.5
+
+    time.sleep(1)
 
     while True:
         mecanum_L.spwan_ball("ball_left")

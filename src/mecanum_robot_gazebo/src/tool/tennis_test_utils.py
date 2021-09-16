@@ -30,12 +30,12 @@ class Make_mecanum_left():
         self.vel_forward = 1.5 #m/s
         self.vel_lateral = 5.5 #m/s
         
-        self.ball_fly_time = 0.45 #max height time [sec]
+        self.ball_fly_time = 0.50 #max height time [sec]
         self.vel_forward_apply = 0
         self.vel_lateral_apply = 0
         self.amax = 3
 
-        self.spawn_pos_z = 1.5
+        self.spawn_pos_z = 1.75
 
         self.ball_name = 'ball_left'
         self.away_ball_name = 'ball_right'
@@ -48,6 +48,7 @@ class Make_mecanum_left():
 
         self.twist = Twist()
         self.get_position()
+
         self.score = 0
 
         self.ball_preposition_list_z = [self.spawn_pos_z]
@@ -215,8 +216,8 @@ class Make_mecanum_left():
     def set_ball_target(self):
 
         #self.x_target = (np.random.randint(8, 10) + np.random.rand())
-        self.x_target = (np.random.randint(8, 12) + np.random.rand())
-        self.y_target = (np.random.randint(-3, 3) + np.random.rand())
+        self.x_target = (np.random.randint(11, 15) + np.random.rand())
+        self.y_target = (np.random.randint(-5, 5) + np.random.rand())
         
         #self.x_target = 12
         #self.y_target = 0
@@ -241,7 +242,7 @@ class Make_mecanum_left():
         self.ball_fly_time_plus = np.sqrt(2 * h / 9.8)
         v0 = self.s/(self.ball_fly_time + self.ball_fly_time_plus)
 
-        v0 = 25
+        #v0 = 22.5
 
         self.v = np.sqrt(v0**2 + vz0**2)
         self.launch_angle = np.arctan(vz0/v0)
@@ -360,6 +361,7 @@ class Make_mecanum_left():
         if self.check_gradient(self.pre_gradient_z[-1]) == False and self.check_gradient(self.current_gradient) == True:
             self.ball_preposition_list_z.append(self.away_ball_pose.position.z)
             self.pre_gradient_z.append(self.current_gradient)
+
             return True
 
         else:
@@ -397,14 +399,15 @@ class Make_mecanum_left():
         self.cd = 0.507
         self.cl = - 0.3 * 0.033 * self.away_ball_angular_xy / self.away_ball_vel_xy
 
-        if self.cl < -0.4:
-            self.cl = -0.4
+        if self.cl < -0.3:
+            self.cl = -0.3
 
         self.drag_force = -0.5 * self.cd * 1.2041 * np.pi * (0.033 ** 2) * self.away_ball_vel_xyz
         self.lift_force = 0.5 * self.cl * 1.2041 * np.pi * (0.033 ** 2) * self.away_ball_vel_xyz
         
         if self.away_ball_vel.linear.z < 0:
             down_motion = 1
+
 
         if down_motion == 0 : 
 
@@ -560,7 +563,7 @@ class Make_mecanum_right(Make_mecanum_left):
 
         self.ball_pre_vel_linear_x = self.away_ball_vel.linear.x 
         self.ball_pre_vel_linear_y = self.away_ball_vel.linear.y
-
+    
         if self.check_bounce() and self.away_ball_pose.position.z < 0.021 :
 
             self.gat_away_ball_stats()
@@ -672,14 +675,13 @@ class Make_mecanum_right(Make_mecanum_left):
         #print(self.drag_force, self.lift_force)
         #print("angle_xy, angle_x : {}, {}".format(np.rad2deg(angle_xy), np.rad2deg(angle_x)))
         #print("current_gradient :",self.current_gradient)
-        print("cl :",self.cl)
+        #print("cl :",self.cl)
         #print("drag force : {}, {}, {}".format(self.drag_force_x, self.drag_force_y, self.drag_force_z))
         #print("lift force : {}, {}, {}".format(self.lift_force_x, self.lift_force_y, self.lift_force_z))
         #print(np.round(self.liftdrag_force_x,5) , np.round(self.liftdrag_force_y,5)  ,np.round(self.liftdrag_force_z,5) )
         
         force = [np.round(self.liftdrag_force_x,5) / self.dt, np.round(self.liftdrag_force_y,5) / self.dt,np.round(self.liftdrag_force_z,5) / self.dt]
         self.ball_apply_force(self.away_ball_name, force, [0,0,0], self.dt)
-
 
 def return_home(home_mecanum):
 

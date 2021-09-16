@@ -12,6 +12,7 @@ from nav_msgs.msg import Odometry
 import time
 from tool.mecanum_utils import *
 
+
 roslib.load_manifest('mecanum_robot_gazebo')
 
 g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
@@ -105,7 +106,7 @@ def spwan_ball():
     del_ball()
     time.sleep(0.5)
 
-    file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/tennis_ball/ball_test.sdf'
+    file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/tennis_ball/ball_main.sdf'
     srv_spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
 
     robot_x, robot_y, robot_z = get_position()

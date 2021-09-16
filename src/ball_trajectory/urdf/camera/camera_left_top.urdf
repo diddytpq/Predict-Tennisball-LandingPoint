@@ -13,7 +13,7 @@
   <link name="body">
     <inertial>
       <origin
-        xyz="0 0 1"
+        xyz="0 0 0.05"
         rpy="0 0 0" />
       <mass
         value="1" />
@@ -28,10 +28,10 @@
     
     <visual>
       <origin
-          xyz="0 0 1"
+          xyz="0 0 0.05"
           rpy="0 0 0" />
       <geometry>
-        <cylinder length="2" radius="0.05"/>
+        <cylinder length="0.1" radius="0.05"/>
       </geometry>
       <material
         name="">
@@ -42,17 +42,17 @@
 
     <collision>
       <origin
-        xyz="0 0 1"
+        xyz="0 0 0.05"
         rpy="0 0 0" />
       <geometry>
-        <cylinder length="2" radius="0.05"/>
+        <cylinder length="0.1" radius="0.05"/>
       </geometry>
     </collision>
     </link>
 
 
     <joint name="camera_joint_0" type="fixed">
-        <origin xyz="0 0 2" rpy="0 0 0"/>
+        <origin xyz="0 0 0.1" rpy="0 0 0"/>
         <parent link="body"/>
         <child link="camera_link_0"/>
     </joint>
