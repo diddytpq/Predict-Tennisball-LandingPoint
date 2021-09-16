@@ -21,12 +21,6 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
 import cv2
-from kalman_utils.UKFilter import * 
-
-import matplotlib
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import tkinter
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -71,19 +65,7 @@ stride = int(model.stride.max())  # model stride
 imgsz = check_img_size(img_size, s=stride)  # check image size
 names = model.module.names if hasattr(model, 'module') else model.names  # get class names
 
-
-# perspective matrix setup
-camera_L_points = np.float32([[26,198],[318,181],[639,200],[177,316]])
-camera_R_points = np.float32([[317,181],[615,198],[442,316],[0,200]])
-
-court_img_L_points = np.float32([[0,600],[0,0],[638,0],[531,600]])
-court_img_R_points = np.float32([[0,600],[0,0],[531,0],[638,600]])
-
-h_L = cv2.getPerspectiveTransform(camera_L_points, court_img_L_points)
-h_R = cv2.getPerspectiveTransform(camera_R_points, court_img_R_points)
-
 # draw graph setup
-matplotlib.use('TkAgg')
 
 point_image = np.zeros([640,640,3], np.uint8) + 255
 trajectroy_image = np.zeros([640,640,3], np.uint8) + 255
@@ -98,8 +80,6 @@ esti_ball_landing_point_list = []
 save_flag = 0
 
 disappear_cnt = 0
-fig_3d = plt.figure()
-ax = plt.axes(projection="3d")
 
 time_list = []
 
@@ -118,6 +98,10 @@ class Image_converter:
         self.landingpoint = [0, 0]
 
         rospy.init_node('Image_converter', anonymous=True)
+
+        #send topic to landing point check.py
+        self.pub = rospy.Publisher('/esti_landing_point',Float64MultiArray, queue_size = 10)
+        self.array2data = Float64MultiArray()
         
         rospy.Subscriber("/camera_left_top_ir/depth/image_raw", Image, self.callback_left_top_depth)
         rospy.Subscriber("/camera_left_0/depth/image_raw",Image,self.callback_left_depth_0)
@@ -244,46 +228,6 @@ class Image_converter:
 
             return im0
 
-    def get_robot_pos(self, robot_bbox):
-
-        robot_pos_list = []
-        for x0, y0, x1, y1 in robot_bbox:
-
-            if y0 < (self.main_frame.shape[0]/2): #left camera robot position
-                
-                depth = self.get_depth(x0, y0, x1, y1)
-
-
-                for x_center, y_center in [[x0, y0], [x1, y0] ,[x0, y1], [x1, y1]]:
-
-                    robot_pos_court = h_L @ np.array([x_center, y_center, 1]).reshape(3,1)
-
-                    robot_pos_list.append([robot_pos_court[0]/robot_pos_court[2], robot_pos_court[1]/robot_pos_court[2]])
-
-                    cv2.circle(tennis_court_img, (int(robot_pos_court[0]/robot_pos_court[2]), int(robot_pos_court[1]/robot_pos_court[2])), 4, [0, 255, 255], -1)
-
-            else:  #right camera robot position
-                
-                depth = self.get_depth(x0, y0, x1, y1)
-
-
-                for x_center, y_center in [[x0, y0], [x1, y0] ,[x0, y1], [x1, y1]]:
-
-                    y_center = y_center - 320
-
-                    robot_pos_court = h_R @ np.array([x_center, y_center, 1]).reshape(3,1)
-
-
-
-                    robot_pos_list.append([robot_pos_court[0]/robot_pos_court[2], robot_pos_court[1]/robot_pos_court[2]])
-
-                    cv2.circle(tennis_court_img, (int(robot_pos_court[0]/robot_pos_court[2]), int(robot_pos_court[1]/robot_pos_court[2])), 4, [255, 51, 255], -1)
-                    
-                    #print((int(robot_pos_court[0]/robot_pos_court[2]), int(robot_pos_court[1]/robot_pos_court[2])))  
-
-        return [np.sum(np.array(robot_pos_list)[:,0])/len(robot_bbox) , np.sum(np.array(robot_pos_list)[:,1])/len(robot_bbox)]
-
-
     def check_iou(self, robot_box, ball_cand_box):
         no_ball_box = []
         centroid_ball = []
@@ -403,8 +347,6 @@ class Image_converter:
         real_pix_point_list = []
         predict_pix_point_list = []
 
-        #cv2.circle(tennis_court_img, (int(robot_pos_list[0]), int(robot_pos_list[1])), 4, [0, 212, 255], -1)
-
         if np.isnan(camera_predict_point_list[0]):
             return 0
 
@@ -444,7 +386,10 @@ class Image_converter:
 
                 if save_flag == 0 :
                     print("-----------------------")
-                    #esti_ball_landing_point_list.append(self.esti_ball_landing_point)
+                    if np.isnan(self.esti_ball_landing_point):
+                        self.array2data.data = self.esti_ball_landing_point
+                        self.pub.publish(self.array2data)
+                    
                     #print(esti_ball_landing_point_list)
                     save_flag = 1
                 
@@ -457,8 +402,6 @@ class Image_converter:
             estimation_ball_trajectory_list.append([np.round(self.ball_camera_list[0],3), np.round(self.ball_camera_list[1],3), np.round(self.ball_camera_list[2],3)])
             
             save_flag = 0
-            #print("real_ball_trajectory_list = ", real_ball_trajectory_list)
-            #print("estimation_ball_trajectory_list = ", estimation_ball_trajectory_list)
 
         return disappear_cnt
 
@@ -548,6 +491,7 @@ class Image_converter:
         self.ball_distance_list = [[0],[0]]
         self.ball_depth_list = [[0],[0]]
         self.esti_ball_val = [np.nan, np.nan, np.nan]
+        self.esti_ball_landing_point = [np.nan, np.nan, np.nan]
 
 
         self.get_ball_status()
@@ -614,11 +558,6 @@ class Image_converter:
 
                             self.ball_depth_list[1] = ball_depth
 
-                    
-                    #else:
-                    #    self.ball_height_list[2], self.ball_distance_list[2] = self.cal_ball_height(ball_depth, ball_x_pos, ball_y_pos)
-                    #    self.ball_centroid_list[2] = [ball_x_pos, ball_y_pos]
-            
             if min(self.ball_centroid_list) > [0, 0]:
                 
                 self.ball_camera_list  = self.cal_ball_position(self.ball_height_list, self.ball_distance_list)
@@ -627,7 +566,6 @@ class Image_converter:
                     self.ball_camera_list[0] = self.ball_camera_list[0] + 0.4
 
                 #print("------------------------------------------------------------------")
-                
                 # print("real_distance : ", np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (-6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3), 
                 #                         np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3))
                 # print("distance : ", np.round(self.ball_distance_list[0], 3), np.round(self.ball_distance_list[1], 3))
@@ -635,23 +573,6 @@ class Image_converter:
                 #print("real_ball_pos = [{}, {}, {}]".format(self.real_ball_pos_list[0], self.real_ball_pos_list[1], self.real_ball_pos_list[2]))
                 #print("camera_preadict_pos = " ,[np.round(self.ball_camera_list[0],3), np.round(self.ball_camera_list[1],3), np.round(self.ball_camera_list[2],3)])
 
-            
-            """ kalman filter
-            if np.isnan(self.ball_camera_list[0]):
-
-                uk_dir = ball_ukf.update([])
-
-            else:
-                
-                uk_dir = ball_ukf.update([self.ball_camera_list[0], self.ball_camera_list[0]])
-                #uk_dir = ball_ukf.update([ball_x_L, ball_y_L, ball_z_L])
-
-                
-            self.uk_ball_list = self.get_uk_pos(uk_dir)
-
-            self.draw_point_court(self.real_ball_pos_list, self.ball_camera_list, self.uk_ball_list)
-            """
-            
             
             self.esti_ball_val, self.real_ball_val = self.cal_ball_val()
             
