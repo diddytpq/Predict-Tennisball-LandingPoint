@@ -27,13 +27,18 @@ ball_name = 'ball_left'
 
 pre_z = np.nan
 pre_gradient = np.nan
-
-esti_ball_landing_point_list = []
+esti_ball_landing_point = []
 
 def callback_landing_point(data):
-    global esti_ball_landing_point_list
+    global esti_ball_landing_point
 
-    esti_ball_landing_point_list.append(data)
+    if len(data.data) < 1 :
+        return 0
+
+    esti_ball_landing_point = [data.data[0], data.data[1], data.data[2]]
+
+
+    
 
 
 
@@ -80,25 +85,35 @@ def check_grad(num):
         return True
 
 
+def empty(x):
+    pass
 
 if __name__ == "__main__" :
-    
+
+    esti_ball_landing_point_list = []
     real_ball_landing_point_list = []
+
+    rospy.init_node('check_landing_point', anonymous=True)
+
+    img = np.zeros((10,10,3), np.uint8)
+
 
     while True:
         ball_stats = gat_ball_stats()
-        rospy.Subscriber("/esti_landing_point", Float64MultiArray, callback_landing_point)
+        rospy.Subscriber("esti_landing_point", Float64MultiArray, callback_landing_point)
 
         if check_bounce(ball_stats.pose.position.z) :
             real_ball_landing_point_list.append([np.round(ball_stats.pose.position.x,3), np.round(ball_stats.pose.position.y,3), np.round(ball_stats.pose.position.z,3)])
+            esti_ball_landing_point_list.append(esti_ball_landing_point)
+            
+            print("real_ball_landing_point_list = " ,len(real_ball_landing_point_list))
+            print("esti_ball_landing_point_list = " ,len(esti_ball_landing_point_list))
 
-            print(len(real_ball_landing_point_list))
-            print(len(esti_ball_landing_point_list))
+        cv2.imshow("empty Windows",img)
 
+        key = cv2.waitKey(1)
 
-        key = cv2.watikey()
-
-        if key == ord('s'):
+        if key == ord('s') or len(real_ball_landing_point_list) == 100:
 
             with open('real_ball_list.bin', 'wb') as f:
                 pickle.dump(np.array(real_ball_landing_point_list),f)

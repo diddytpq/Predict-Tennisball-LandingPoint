@@ -67,14 +67,14 @@ set(ball_trajectory_CONFIG_INCLUDED TRUE)
 
 # set variables for source/devel/install prefixes
 if("TRUE" STREQUAL "TRUE")
-  set(ball_trajectory_SOURCE_PREFIX /home/yoseph/ros/Predict-Tennisball-LandingPoint/src/ball_trajectory)
-  set(ball_trajectory_DEVEL_PREFIX /home/yoseph/ros/Predict-Tennisball-LandingPoint/devel)
+  set(ball_trajectory_SOURCE_PREFIX /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/src/ball_trajectory)
+  set(ball_trajectory_DEVEL_PREFIX /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/devel)
   set(ball_trajectory_INSTALL_PREFIX "")
   set(ball_trajectory_PREFIX ${ball_trajectory_DEVEL_PREFIX})
 else()
   set(ball_trajectory_SOURCE_PREFIX "")
   set(ball_trajectory_DEVEL_PREFIX "")
-  set(ball_trajectory_INSTALL_PREFIX /home/yoseph/ros/Predict-Tennisball-LandingPoint/install)
+  set(ball_trajectory_INSTALL_PREFIX /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/install)
   set(ball_trajectory_PREFIX ${ball_trajectory_INSTALL_PREFIX})
 endif()
 
@@ -91,9 +91,9 @@ endif()
 # flag project as catkin-based to distinguish if a find_package()-ed project is a catkin project
 set(ball_trajectory_FOUND_CATKIN_PROJECT TRUE)
 
-if(NOT "/home/yoseph/ros/Predict-Tennisball-LandingPoint/src/ball_trajectory/include " STREQUAL " ")
+if(NOT "/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/src/ball_trajectory/include " STREQUAL " ")
   set(ball_trajectory_INCLUDE_DIRS "")
-  set(_include_dirs "/home/yoseph/ros/Predict-Tennisball-LandingPoint/src/ball_trajectory/include")
+  set(_include_dirs "/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/src/ball_trajectory/include")
   if(NOT " " STREQUAL " ")
     set(_report "Check the issue tracker '' and consider creating a ticket if the problem has not been reported yet.")
   elseif(NOT " " STREQUAL " ")
@@ -110,7 +110,7 @@ if(NOT "/home/yoseph/ros/Predict-Tennisball-LandingPoint/src/ball_trajectory/inc
         message(FATAL_ERROR "Project 'ball_trajectory' specifies '${idir}' as an include dir, which is not found.  It does not exist in '${include}'.  ${_report}")
       endif()
     else()
-      message(FATAL_ERROR "Project 'ball_trajectory' specifies '${idir}' as an include dir, which is not found.  It does neither exist as an absolute directory nor in '/home/yoseph/ros/Predict-Tennisball-LandingPoint/src/ball_trajectory/${idir}'.  ${_report}")
+      message(FATAL_ERROR "Project 'ball_trajectory' specifies '${idir}' as an include dir, which is not found.  It does neither exist as an absolute directory nor in '/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/src/ball_trajectory/${idir}'.  ${_report}")
     endif()
     _list_append_unique(ball_trajectory_INCLUDE_DIRS ${include})
   endforeach()
@@ -154,7 +154,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /home/yoseph/ros/Predict-Tennisball-LandingPoint/devel/lib;/opt/ros/noetic/lib)
+    foreach(path /home/drcl_yang/ros/Predict-Tennisball-LandingPoint/devel/lib;/opt/ros/noetic/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)

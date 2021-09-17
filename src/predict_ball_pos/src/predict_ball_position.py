@@ -85,8 +85,6 @@ time_list = []
 
 
 #kalman filter setup
-ball_ukf = Trajectory_ukf()
-
 color = tuple(np.random.randint(low=75, high = 255, size = 3).tolist())
 
 
@@ -379,19 +377,23 @@ class Image_converter:
 
             if disappear_cnt == 5 :
 
+                if save_flag == 0 :
+                    if len(esti_ball_landing_point_list):
+                        print("-----------------------")
+                        print("send meg : ", esti_ball_landing_point_list[-1])
+                        self.array2data.data = esti_ball_landing_point_list[-1]
+                        self.pub.publish(self.array2data)
+                
+                    print(esti_ball_landing_point_list)
+                    save_flag = 1
+
                 disappear_cnt = 0
                 real_ball_trajectory_list.clear()
                 estimation_ball_trajectory_list.clear()
+                esti_ball_landing_point_list.clear()
                 time_list.clear()
 
-                if save_flag == 0 :
-                    print("-----------------------")
-                    if np.isnan(self.esti_ball_landing_point):
-                        self.array2data.data = self.esti_ball_landing_point
-                        self.pub.publish(self.array2data)
-                    
-                    #print(esti_ball_landing_point_list)
-                    save_flag = 1
+                
                 
 
         else:
@@ -401,6 +403,9 @@ class Image_converter:
             real_ball_trajectory_list.append(self.real_ball_pos_list)
             estimation_ball_trajectory_list.append([np.round(self.ball_camera_list[0],3), np.round(self.ball_camera_list[1],3), np.round(self.ball_camera_list[2],3)])
             
+            if np.isnan(self.esti_ball_landing_point[0]) == False:
+                esti_ball_landing_point_list.append(self.esti_ball_landing_point)
+
             save_flag = 0
 
         return disappear_cnt
@@ -584,7 +589,7 @@ class Image_converter:
 
                 self.esti_ball_landing_point = self.cal_landing_point(self.ball_camera_list, self.esti_ball_val)
 
-                print("esti_ball_landing_point = ", [self.esti_ball_landing_point[0], self.esti_ball_landing_point[1], self.esti_ball_landing_point[2]])
+                #print("esti_ball_landing_point = ", [self.esti_ball_landing_point[0], self.esti_ball_landing_point[1], self.esti_ball_landing_point[2]])
                 #print([esti_ball_landing_point[0], esti_ball_landing_point[1], esti_ball_landing_point[2]], ",")
 
             disappear_cnt = self.check_ball_seq(disappear_cnt)
@@ -596,11 +601,11 @@ class Image_converter:
             t2 = time.time()
 
             #cv2.imshow("left_frame", self.left_frame)
-            cv2.imshow("main_depth_0", self.main_depth_frame)
+            #cv2.imshow("main_depth_0", self.main_depth_frame)
 
             #cv2.imshow("image_robot_tracking", robot_detect_img)
             
-            cv2.imshow("ball_detect_img", ball_detect_img)
+            #cv2.imshow("ball_detect_img", ball_detect_img)
             cv2.imshow("tennis_court", tennis_court_img)
 
             #cv2.imshow("trajectroy_image", trajectroy_image)

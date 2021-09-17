@@ -1,4 +1,4 @@
-prefix=/home/yoseph/ros/Predict-Tennisball-LandingPoint/install
+prefix=/home/drcl_yang/ros/Predict-Tennisball-LandingPoint/install
 
 Name: ball_trajectory
 Description: Description of ball_trajectory
