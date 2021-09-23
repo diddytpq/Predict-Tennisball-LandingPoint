@@ -30,7 +30,7 @@ class Make_mecanum_left():
         self.vel_forward = 1.5 #m/s
         self.vel_lateral = 5.5 #m/s
         
-        self.ball_fly_time = 0.50 #max height time [sec]
+        self.ball_fly_time = 0.55 #max height time [sec]
         self.vel_forward_apply = 0
         self.vel_lateral_apply = 0
         self.amax = 3
@@ -216,7 +216,7 @@ class Make_mecanum_left():
     def set_ball_target(self):
 
         #self.x_target = (np.random.randint(8, 10) + np.random.rand())
-        self.x_target = (np.random.randint(11, 15) + np.random.rand())
+        self.x_target = (np.random.randint(10, 15) + np.random.rand())
         self.y_target = (np.random.randint(-5, 5) + np.random.rand())
         
         #self.x_target = 12
@@ -238,7 +238,7 @@ class Make_mecanum_left():
         self.ror_matrix = rotation_matrix(self.yaw_z)
         vz0 = 9.8 * self.ball_fly_time
 
-        h = (self.object_pose.position.z + self.spawn_pos_z) + vz0 * self.ball_fly_time - (9.8 * self.ball_fly_time**2)/2
+        h = (self.object_pose.position.z + self.spawn_pos_z) + vz0 * self.ball_fly_time - (9.8 / 2 * self.ball_fly_time**2)
         self.ball_fly_time_plus = np.sqrt(2 * h / 9.8)
         v0 = self.s/(self.ball_fly_time + self.ball_fly_time_plus)
 
@@ -397,7 +397,7 @@ class Make_mecanum_left():
         angle_xy = np.arctan(self.away_ball_vel.linear.z/self.away_ball_vel_xy)
         
         self.cd = 0.507
-        self.cl = - 0.3 * 0.033 * self.away_ball_angular_xy / self.away_ball_vel_xy
+        self.cl = - 0.75 * 0.033 * self.away_ball_angular_xy / self.away_ball_vel_xy
 
         if self.cl < -0.3:
             self.cl = -0.3
@@ -600,7 +600,7 @@ class Make_mecanum_right(Make_mecanum_left):
         angle_xy = np.arctan(self.away_ball_vel.linear.z/self.away_ball_vel_xy)
 
         self.cd = 0.507
-        self.cl = - 0.9 * 0.033 * self.away_ball_angular_xy / self.away_ball_vel_xy
+        self.cl = - 0.75 * 0.033 * self.away_ball_angular_xy / self.away_ball_vel_xy
 
         if self.cl < -0.4:
             self.cl = -0.4

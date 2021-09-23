@@ -106,8 +106,8 @@ if __name__ == "__main__" :
             real_ball_landing_point_list.append([np.round(ball_stats.pose.position.x,3), np.round(ball_stats.pose.position.y,3), np.round(ball_stats.pose.position.z,3)])
             esti_ball_landing_point_list.append(esti_ball_landing_point)
             
-            print("real_ball_landing_point_list = " ,len(real_ball_landing_point_list))
-            print("esti_ball_landing_point_list = " ,len(esti_ball_landing_point_list))
+            print("real_ball_landing_point_list = " ,real_ball_landing_point_list[-1], len(real_ball_landing_point_list))
+            print("esti_ball_landing_point_list = " ,esti_ball_landing_point_list[-1], len(esti_ball_landing_point_list))
 
         cv2.imshow("empty Windows",img)
 

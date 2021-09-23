@@ -83,6 +83,10 @@ disappear_cnt = 0
 
 time_list = []
 
+ball_val_list = []
+real_ball_val_list = []
+esti_ball_val_list = []
+
 
 #kalman filter setup
 color = tuple(np.random.randint(low=75, high = 255, size = 3).tolist())
@@ -384,12 +388,17 @@ class Image_converter:
                         self.array2data.data = esti_ball_landing_point_list[-1]
                         self.pub.publish(self.array2data)
                 
-                    print(esti_ball_landing_point_list)
+                    #print(esti_ball_landing_point_list)
                     save_flag = 1
 
+                    print("real_ball_trajectory_list = np.array(", real_ball_trajectory_list ,")")
+                    print("estimation_ball_trajectory_list = np.array(", estimation_ball_trajectory_list,")")
+
                 disappear_cnt = 0
+                
                 real_ball_trajectory_list.clear()
                 estimation_ball_trajectory_list.clear()
+                
                 esti_ball_landing_point_list.clear()
                 time_list.clear()
 
@@ -451,9 +460,7 @@ class Image_converter:
         x0, y0, z0 = pos[0], pos[1], pos[2]
         vx, vy, vz = vel[0], vel[1], vel[2]
 
-        time = Symbol('t')
-
-        a = -((0.5 * 0.507 * 1.2041 * np.pi * (0.033 ** 2) * vz ** 2 ) / 0.057 + 9.8)
+        a = -((0.5 * 0.507 * 1.2041 * np.pi * (0.033 ** 2) * vz ** 2 ) / 0.057 + 9.8 / 2 )
         b = vz
         c = z0
 
@@ -464,7 +471,7 @@ class Image_converter:
         
         x = np.array(x0 + vx * t - (0.5 * 0.507 * 1.2041 * np.pi * (0.033 ** 2) * vx ** 2 ) * (t ** 2) / 0.057,float)
         y = np.array(y0 + vy * t - (0.5 * 0.507 * 1.2041 * np.pi * (0.033 ** 2) * vy ** 2 ) * (t ** 2) / 0.057,float)
-        z = np.array(z0 + vz * t - ((0.5 * 0.507 * 1.2041 * np.pi * (0.033 ** 2) * vz ** 2 ) / 0.057 + 9.8) * (t ** 2),float)
+        z = np.array(z0 + vz * t - ((0.5 * 0.507 * 1.2041 * np.pi * (0.033 ** 2) * vz ** 2 ) / 0.057 + 9.8 / 2) * (t ** 2),float)
         
         return [np.round(x,3), np.round(y,3), np.round(z,3)]
 
@@ -474,8 +481,6 @@ class Image_converter:
 
         global color
         global tennis_court_img
-
-        global ball_ukf
 
         global real_ball_trajectory_list
         global estimation_ball_trajectory_list
@@ -571,9 +576,9 @@ class Image_converter:
                     self.ball_camera_list[0] = self.ball_camera_list[0] + 0.4
 
                 #print("------------------------------------------------------------------")
-                # print("real_distance : ", np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (-6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3), 
+                #print("real_distance : ", np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (-6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3), 
                 #                         np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3))
-                # print("distance : ", np.round(self.ball_distance_list[0], 3), np.round(self.ball_distance_list[1], 3))
+                #print("distance : ", np.round(self.ball_distance_list[0], 3), np.round(self.ball_distance_list[1], 3))
                 
                 #print("real_ball_pos = [{}, {}, {}]".format(self.real_ball_pos_list[0], self.real_ball_pos_list[1], self.real_ball_pos_list[2]))
                 #print("camera_preadict_pos = " ,[np.round(self.ball_camera_list[0],3), np.round(self.ball_camera_list[1],3), np.round(self.ball_camera_list[2],3)])
@@ -581,20 +586,31 @@ class Image_converter:
             
             self.esti_ball_val, self.real_ball_val = self.cal_ball_val()
             
-            if np.isnan(self.ball_camera_list[0]) == False:
+            if np.isnan(self.ball_camera_list[0]) == False and np.isnan(self.esti_ball_val[0]) == False:
 
-                #print("ball_val = " , [np.round(self.ball_vel.linear.x,3), np.round(self.ball_vel.linear.y,3), np.round(self.ball_vel.linear.z,3)])
-                #print("real_ball_val = " ,[self.real_ball_val[0], self.real_ball_val[1], self.real_ball_val[2]])
-                #print("esti_ball_val = " ,[self.esti_ball_val[0], self.esti_ball_val[1], self.esti_ball_val[2]])
+               # print("ball_val = " ,[np.round(self.ball_vel.linear.x,3), np.round(self.ball_vel.linear.y,3), np.round(self.ball_vel.linear.z,3)])
+               # print("real_ball_val = " ,[self.real_ball_val[0], self.real_ball_val[1], self.real_ball_val[2]])
+               # print("esti_ball_val = " ,[self.esti_ball_val[0], self.esti_ball_val[1], self.esti_ball_val[2]])
+
+                """ball_val_list.append([np.round(self.ball_vel.linear.x,3), np.round(self.ball_vel.linear.y,3), np.round(self.ball_vel.linear.z,3)])
+                real_ball_val_list.append([self.real_ball_val[0], self.real_ball_val[1], self.real_ball_val[2]])
+                esti_ball_val_list.append([self.esti_ball_val[0], self.esti_ball_val[1], self.esti_ball_val[2]])
+
+                print("ball_val_list = np.array(", ball_val_list , ')')
+                print("real_ball_val_list = np.array(", real_ball_val_list , ')')
+                print("esti_ball_val_list = np.array(", esti_ball_val_list , ')')"""
+
 
                 self.esti_ball_landing_point = self.cal_landing_point(self.ball_camera_list, self.esti_ball_val)
 
-                #print("esti_ball_landing_point = ", [self.esti_ball_landing_point[0], self.esti_ball_landing_point[1], self.esti_ball_landing_point[2]])
-                #print([esti_ball_landing_point[0], esti_ball_landing_point[1], esti_ball_landing_point[2]], ",")
 
             disappear_cnt = self.check_ball_seq(disappear_cnt)
 
+
+
             self.draw_point_court(self.real_ball_pos_list, self.ball_camera_list)
+
+
 
             #trajectroy_image = cv2.hconcat([point_image[:320,:640,:],point_image[320:,:640,:]])
 
@@ -605,7 +621,7 @@ class Image_converter:
 
             #cv2.imshow("image_robot_tracking", robot_detect_img)
             
-            #cv2.imshow("ball_detect_img", ball_detect_img)
+            cv2.imshow("ball_detect_img", ball_detect_img)
             cv2.imshow("tennis_court", tennis_court_img)
 
             #cv2.imshow("trajectroy_image", trajectroy_image)
