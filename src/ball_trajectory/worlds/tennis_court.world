@@ -11,7 +11,7 @@
     <!-- A global light source -->
     <include>
       <uri>model://sun</uri>
-      <cast_shadows>false</cast_shadows>
+      <cast_shadows>true</cast_shadows>
     </include>
 
     <!-- A ground plane -->
