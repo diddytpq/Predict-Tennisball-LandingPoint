@@ -93,6 +93,9 @@ if __name__ == "__main__" :
     esti_ball_landing_point_list = []
     real_ball_landing_point_list = []
 
+    srv_delete_model = rospy.ServiceProxy('gazebo/delete_model', DeleteModel)
+    res = srv_delete_model("ball_left")
+
     rospy.init_node('check_landing_point', anonymous=True)
 
     img = np.zeros((10,10,3), np.uint8)
@@ -111,7 +114,7 @@ if __name__ == "__main__" :
 
         key = cv2.waitKey(1)
 
-        if key == ord('s'):
+        if key == ord('s') or ball_stats.pose.position.x > 15 :
 
             with open('real_ball_traj.bin', 'wb') as f:
                 pickle.dump(np.array(real_ball_landing_point_list),f)
