@@ -84,9 +84,6 @@ class Image_converter:
             #self.left_depth_0 = np.uint8(depth_data) 
             self.left_depth_0 = np.uint8(np.round(depth_data))
             
-            print(depth_data[223, 457])
-
-
         except CvBridgeError as e:
             print(e)
 
@@ -169,9 +166,6 @@ class Image_converter:
             self.left_top_frame = cv2.resize(self.left_top_data_0,(640,640),interpolation = cv2.INTER_AREA)
 
             self.main_frame = cv2.hconcat([self.left_frame,self.left_top_frame])
-            
-            print(self.left_frame.shape)
-            print(self.left_top_frame.shape)
 
             #self.main_frame = cv.
 
@@ -192,7 +186,7 @@ class Image_converter:
             #cv2.imshow("right_depth_0", self.right_depth_0)
             #cv2.imshow("right_depth_1", self.right_depth_1)
             
-            cv2.imshow("left_top_frame", self.main_frame)
+            #cv2.imshow("left_top_frame", self.main_frame)
 
 
             

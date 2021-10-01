@@ -40,7 +40,7 @@ def draw_point_3D(real_ball_trajectory_list, estimation_ball_trajectory_list, la
 
             ax.plot(real_x, real_y, real_z, c= 'red', zorder = 100)
 
-        ax.scatter(real_x[0], real_y[0], real_z[0],s = 250, c='#FF3333', zorder = 101, marker = '*')
+        ax.scatter(real_x[0], real_y[0], real_z[0],s = 180, c='#FF3333', zorder = 101, marker = '*')
         
 
 
@@ -52,12 +52,12 @@ def draw_point_3D(real_ball_trajectory_list, estimation_ball_trajectory_list, la
 
             ax.plot(esti_x, esti_y, esti_z, '#3336FF', zorder = 100)
 
-        ax.scatter(esti_x[0], esti_y[0], esti_z[0],s = 250, c='#3336FF', zorder = 101, marker = '*')
+        ax.scatter(esti_x[0], esti_y[0], esti_z[0],s = 180, c='#3336FF', zorder = 101, marker = '*')
 
 
         if label == True:
-            ax.plot(real_x[-1], real_y[-1], real_z[-1], 'red', zorder = 100, label = 'original trajectory')
-            ax.plot(esti_x[-1], esti_y[-1], esti_z[-1], '#3336FF', zorder = 100, label = 'predict trajectory')
+            ax.plot(real_x[-1], real_y[-1], real_z[-1], 'red', zorder = 100, label = 'Actual trajectory')
+            ax.plot(esti_x[-1], esti_y[-1], esti_z[-1], '#3336FF', zorder = 100, label = 'Predict trajectory')
 
 
 
@@ -74,7 +74,9 @@ def draw_point_3D(real_ball_trajectory_list, estimation_ball_trajectory_list, la
 #real_ball_trajectory_list =  [[-10.316, -3.72, 1.894], [-9.489, -3.72, 2.044], [-8.668, -3.72, 2.174], [-7.815, -3.72, 2.29], [-6.93, -3.72, 2.389], [-6.093, -3.72, 2.464], [-5.243, -3.72, 2.519], [-4.476, -3.72, 2.552], [-3.678, -3.72, 2.57], [-2.944, -3.72, 2.57], [-2.187, -3.72, 2.555]]
 #estimation_ball_trajectory_list =  [[-10.309, -3.711, 1.807], [-9.442, -3.709, 1.983], [-8.639, -3.71, 2.107], [-7.794, -3.715, 2.219], [-6.946, -3.719, 2.326], [-6.102, -3.715, 2.428], [-5.199, -3.712, 2.485], [-4.409, -3.713, 2.531], [-3.63, -3.7, 2.544], [-2.871, -3.708, 2.565], [-2.168, -3.711, 2.551]]
 
-with open('1.bin', 'rb') as f:
+
+#궤적
+"""with open('1.bin', 'rb') as f:
     real_ball_trajectory_list_1 = pickle.load(f)
 
 with open('2.bin', 'rb') as f:
@@ -87,7 +89,8 @@ with open('4.bin', 'rb') as f:
     real_ball_trajectory_list_4 = pickle.load(f)
 
 with open('5.bin', 'rb') as f:
-    real_ball_trajectory_list_5 = pickle.load(f)    
+    real_ball_trajectory_list_5 = pickle.load(f) 
+
 estimation_ball_trajectory_list_1 = np.array( [[-10.162, 3.305, 1.839], [-9.203, 3.305, 2.027], [-8.285, 3.299, 2.151], [-7.357, 3.301, 2.285], [-6.046, 3.289, 2.423], [-5.159, 3.293, 2.478], [-4.203, 3.291, 2.534], [-3.294, 3.281, 2.547], [-2.409, 3.284, 2.559]] )
 
 estimation_ball_trajectory_list_2 = np.array( [[-10.981, 2.225, 1.624], [-9.858, 2.17, 1.893], [-8.805, 2.172, 2.089], [-7.811, 2.169, 2.237], [-6.825, 2.172, 2.356], [-5.867, 2.168, 2.432], [-4.924, 2.165, 2.491], [-4.004, 2.16, 2.548], [-3.115, 2.156, 2.565], [-2.259, 2.163, 2.543], [-1.403, 2.157, 2.512], [-0.529, 2.155, 2.435]] )
@@ -98,17 +101,25 @@ estimation_ball_trajectory_list_4 = np.array( [[-11.054, -2.165, 1.669], [-9.95,
 
 estimation_ball_trajectory_list_5 = np.array( [[-10.098, -3.9, 1.857], [-9.15, -3.896, 2.032], [-8.209, -3.889, 2.178], [-7.254, -3.889, 2.295], [-6.413, -3.89, 2.377], [-5.16, -3.889, 2.497], [-4.201, -3.886, 2.533], [-3.303, -3.888, 2.554], [-2.513, -3.886, 2.548]] )
 
+real_ball_trajectory_list_1 = real_ball_trajectory_list_1[:150]
+real_ball_trajectory_list_2 = real_ball_trajectory_list_2[:150]
+#real_ball_trajectory_list_3 = real_ball_trajectory_list_3[:150]
+real_ball_trajectory_list_4 = real_ball_trajectory_list_4[:150]
+real_ball_trajectory_list_5 = real_ball_trajectory_list_5[:150]"""
+with open('5.bin', 'rb') as f:
+    real_ball_trajectory_list_5 = pickle.load(f) 
+estimation_ball_trajectory_list_5 = np.array( [[-10.098, -3.9, 1.857], [-9.15, -3.896, 2.032], [-8.209, -3.889, 2.178], [-7.254, -3.889, 2.295], [-6.413, -3.89, 2.377], [-5.16, -3.889, 2.497], [-4.201, -3.886, 2.533], [-3.303, -3.888, 2.554], [-2.513, -3.886, 2.548]] )
 
+#낙후지점
 """with open('real_ball_traj.bin', 'rb') as f:
     real_ball_trajectory_list = pickle.load(f)
 
-estimation_ball_trajectory_list = np.array( [[-11.816, 1.805, 1.759], [-10.329, 1.693, 2.134], [-9.501, 1.644, 2.296], [-8.694, 1.593, 2.437], [-7.887, 1.553, 2.526], [-7.101, 1.515, 2.585], [-6.329, 1.472, 2.628], [-5.514, 1.44, 2.639], [-4.556, 1.395, 2.591], [-3.871, 1.365, 2.557], [-3.27, 1.341, 2.499], [-2.656, 1.314, 2.403], [-0.394, 1.22, 1.892]] )
-"""
+estimation_ball_trajectory_list = np.array( [[-11.487, 2.185, 2.123], [-10.365, 2.185, 2.123], [-9.521, 2.126, 2.323], [-8.722, 2.087, 2.426], [-7.922, 2.064, 2.529], [-7.121, 2.037, 2.601], [-6.383, 2.011, 2.63], [-5.64, 1.954, 2.597], [-4.937, 1.974, 2.608], [-4.267, 1.908, 2.563], [-2.984, 1.913, 2.404], [-2.348, 1.899, 2.291], [-1.664, 1.88, 2.137], [-1.074, 1.861, 1.992], [-0.361, 1.84, 1.809]] )
 
-landing_point = [4.61, 0.974, 0.0]
+landing_point = [3.82, 1.692, 0.0]
 
 circle_radius_x = 2       # 원의 반지름
-circle_radius_y = 0.5       # 원의 반지름
+circle_radius_y = 0.5       # 원의 반지름"""
 
 
 plt.rcParams["figure.autolayout"] = True
@@ -145,19 +156,19 @@ ax.plot_surface(X1, Y1, np.ones(X1.shape) * -0.01,rstride=8, cstride=8, facecolo
 
 
 
-draw_point_3D(real_ball_trajectory_list_1, estimation_ball_trajectory_list_1)
+#draw_point_3D(real_ball_trajectory_list_1, estimation_ball_trajectory_list_1)
 
-draw_point_3D(real_ball_trajectory_list_2, estimation_ball_trajectory_list_2)
+#draw_point_3D(real_ball_trajectory_list_2, estimation_ball_trajectory_list_2)
 
-draw_point_3D(real_ball_trajectory_list_3, estimation_ball_trajectory_list_3)
+#draw_point_3D(real_ball_trajectory_list_3, estimation_ball_trajectory_list_3)
 
-draw_point_3D(real_ball_trajectory_list_4, estimation_ball_trajectory_list_4)
+#draw_point_3D(real_ball_trajectory_list_4, estimation_ball_trajectory_list_4)
 
 draw_point_3D(real_ball_trajectory_list_5, estimation_ball_trajectory_list_5,True)
 
 
 
-
+#낙하지점
 """draw_point_3D(real_ball_trajectory_list, estimation_ball_trajectory_list)
 
 p = Ellipse((landing_point[0], landing_point[1]),  height = circle_radius_y,  width= circle_radius_x, angle = 0, color = "blue", zorder = 21 )
@@ -171,6 +182,6 @@ art3d.pathpatch_2d_to_3d(p, z=0.01, zdir="z")"""
 
 ax.view_init(30, 45)
 
-#ax.legend()
+ax.legend()
 
 plt.show()

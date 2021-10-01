@@ -87,6 +87,8 @@ ball_val_list = []
 real_ball_val_list = []
 esti_ball_val_list = []
 
+a = []
+b = []
 
 #kalman filter setup
 color = tuple(np.random.randint(low=75, high = 255, size = 3).tolist())
@@ -271,45 +273,86 @@ class Image_converter:
 
         return False
     
-    def get_depth(self, x0, y0, x1, y1):
 
-        depth_list = self.main_depth_ori[y0 : y1, x0 : x1].flatten()
-        depth_list = depth_list[np.isfinite(depth_list)]
 
-        if depth_list.shape[0] != 0:
-            ball_depth = np.min(depth_list)
+    def get_depth(self, L_pos, R_pos):
+        
+        cx = 320
+        cy = 160
+        focal_length = 343.159
+        
+        x_L, y_L = L_pos[0] - cx, L_pos[1] - cy
+        x_R, y_R = R_pos[0] - cx, R_pos[1] - cy
+        
+        a_L = np.sqrt(focal_length ** 2 + x_L ** 2 + y_L ** 2)
+        b_L = np.sqrt(focal_length ** 2 + x_L ** 2)
 
-        else:
-            return False
+        if x_L < 0:
+            th_L = 0.785398 + np.arccos(focal_length / b_L)
 
-        return ball_depth
+        else :
+            th_L = 0.785398 - np.arccos(focal_length / b_L)
 
-    def cal_ball_height(self, depth, x_pos, y_pos):
 
-        if y_pos > 320:
-            y_pos -= 320
+        c_L = b_L * np.cos(th_L)
+        
+        a_R = np.sqrt(focal_length ** 2 + x_R ** 2 + y_R ** 2)
+        b_R = np.sqrt(focal_length ** 2 + x_R ** 2)
 
-        x = x_pos - 320
-        y = y_pos - 160
+        if x_R > 0:
+            th_R = 0.785398 + np.arccos(focal_length / b_R)
 
-        point_length = np.sqrt(x**2 + y**2)
-        theta_pix = np.arctan((point_length) / 343.159073)
+        else :
+            th_R = 0.785398 - np.arccos(focal_length / b_R)
 
-        distance = (depth / np.cos(theta_pix))
+        c_R = b_R * np.cos(th_R)
+        
+        theta_L = np.arccos(c_L/a_L)
+        theta_R = np.arccos(c_R/a_R)
+        
+        
+        D_L = 12.8 * np.sin(theta_R) / np.sin(3.14 - (theta_L + theta_R))
+        D_R = 12.8 * np.sin(theta_L) / np.sin(3.14 - (theta_L + theta_R))
 
-        focal2x_point_length = np.sqrt(x**2 + 343.159073**2)
+        return D_L, D_R
 
-        height_theta_pix = np.arctan(abs(y) / focal2x_point_length)
+    
 
-        height = distance * np.sin(height_theta_pix)
+    def cal_ball_height(self, ball_distance_list, ball_centroid_list):
 
-        if y_pos < 160:
+        x_pos_L, y_pos_L = ball_centroid_list[0]
+        x_pos_R, y_pos_R = ball_centroid_list[1]
+
+        distance_L = ball_distance_list[0]
+        distance_R = ball_distance_list[1]
+
+
+        if y_pos_R > 320:
+            y_pos_R -= 320
+
+
+        #Left camera
+        x_pos_L = x_pos_L - 320
+        y_pos_L = y_pos_L - 160
+
+        focal2x_point_length = np.sqrt(x_pos_L**2 + 343.159073**2)
+
+        height_theta_pix = np.arctan(abs(y_pos_L) / focal2x_point_length)
+
+        height = distance_L * np.sin(height_theta_pix)
+
+        if y_pos_L < 160:
             height += 1
         
         else:
             1 - height 
+
+        #rigth camera
+        #
+
+
         
-        return height , distance
+        return height, height
 
     def cal_ball_position(self, ball_height_list, ball_distance_list):
 
@@ -552,21 +595,24 @@ class Image_converter:
                     cv2.circle(point_image,(ball_x_pos, ball_y_pos), 4, color, -1)
 
                     #predict ball pos
-                    ball_depth = self.get_depth(x0, y0, x1, y1)
+                    #ball_depth = self.get_depth(x0, y0, x1, y1)
 
                     if ball_x_pos < 640:
 
                         if ball_y_pos < 320:
-                            self.ball_height_list[0], self.ball_distance_list[0] = self.cal_ball_height(ball_depth, ball_x_pos, ball_y_pos)
+                            #self.ball_height_list[0], self.ball_distance_list[0] = self.cal_ball_height(ball_depth, ball_x_pos, ball_y_pos)
                             self.ball_centroid_list[0] = [ball_x_pos, ball_y_pos]
 
-                            self.ball_depth_list[0] = ball_depth
+                            #self.ball_depth_list[0] = ball_depth
                             
                         else:
-                            self.ball_height_list[1], self.ball_distance_list[1] = self.cal_ball_height(ball_depth, ball_x_pos, ball_y_pos)
+                            #self.ball_height_list[1], self.ball_distance_list[1] = self.cal_ball_height(ball_depth, ball_x_pos, ball_y_pos)
                             self.ball_centroid_list[1] = [ball_x_pos, ball_y_pos - 320]
 
-                            self.ball_depth_list[1] = ball_depth
+                            #self.ball_depth_list[1] = ball_depth
+                
+                self.ball_distance_list[0], self.ball_distance_list[1] = self.get_depth(self.ball_centroid_list[0], self.ball_centroid_list[1])
+                self.ball_height_list[0], self.ball_height_list[1] = self.cal_ball_height(self.ball_distance_list, self.ball_centroid_list)
 
             if min(self.ball_centroid_list) > [0, 0]:
                 
@@ -575,15 +621,23 @@ class Image_converter:
                 if np.isnan(self.ball_camera_list[0]) == False:
                     self.ball_camera_list[0] = self.ball_camera_list[0] + 0.4
 
-                #print("------------------------------------------------------------------")
+                print("------------------------------------------------------------------")
                 #print("real_distance : ", np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (-6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3), 
                 #                         np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3))
                 #print("distance : ", np.round(self.ball_distance_list[0], 3), np.round(self.ball_distance_list[1], 3))
                 
-                #print("real_ball_pos = [{}, {}, {}]".format(self.real_ball_pos_list[0], self.real_ball_pos_list[1], self.real_ball_pos_list[2]))
-                #print("camera_preadict_pos = " ,[np.round(self.ball_camera_list[0],3), np.round(self.ball_camera_list[1],3), np.round(self.ball_camera_list[2],3)])
+                print("real_ball_pos = [{}, {}, {}]".format(self.real_ball_pos_list[0], self.real_ball_pos_list[1], self.real_ball_pos_list[2]))
+                print("camera_preadict_pos = " ,[np.round(self.ball_camera_list[0],3), np.round(self.ball_camera_list[1],3), np.round(self.ball_camera_list[2],3)])
 
-            
+                #a.append([np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (-6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3), 
+                #                         np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3)])
+
+                #b.append([np.round(self.ball_distance_list[0], 3), np.round(self.ball_distance_list[1], 3)])
+                #print("real_distance = np.array(",a,")")
+                #print("distance = np.array(",b,")")
+
+
+
             self.esti_ball_val, self.real_ball_val = self.cal_ball_val()
             
             if np.isnan(self.ball_camera_list[0]) == False and np.isnan(self.esti_ball_val[0]) == False:
@@ -604,7 +658,7 @@ class Image_converter:
                 self.esti_ball_landing_point = self.cal_landing_point(self.ball_camera_list, self.esti_ball_val)
 
 
-            disappear_cnt = self.check_ball_seq(disappear_cnt)
+            #disappear_cnt = self.check_ball_seq(disappear_cnt)
 
 
 
