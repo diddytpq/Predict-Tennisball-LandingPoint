@@ -27,9 +27,10 @@ if __name__ == '__main__' :
 
 
     while True:
+        
         mecanum_L.spwan_ball("ball_left")
         mecanum_L.throw_ball()
-        #time.sleep(0.05)
+        
         ball_landing_point = [mecanum_L.x_target + add_catch_point * np.cos(mecanum_L.yaw_z), mecanum_L.y_target + add_catch_point * np.sin(mecanum_L.yaw_z)]
         #print(ball_landing_point)
         #print(add_catch_point * np.cos(mecanum_0.yaw_z),add_catch_point * np.sin(mecanum_0.yaw_z))
@@ -40,7 +41,6 @@ if __name__ == '__main__' :
 
         mecanum_R.spwan_ball("ball_right")
         mecanum_R.throw_ball()  
-        #time.sleep(0.05)
         ball_landing_point = [mecanum_R.x_target - add_catch_point * np.cos(mecanum_R.yaw_z), mecanum_R.y_target - add_catch_point * np.sin(mecanum_R.yaw_z)]
         mecanum_L.move(ball_landing_point[0],ball_landing_point[1],mecanum_R)
 

@@ -30,7 +30,7 @@ class Make_mecanum_left():
         self.vel_forward = 1.5 #m/s
         self.vel_lateral = 5.5 #m/s
         
-        self.ball_fly_time = 0.45 #max height time [sec]
+        self.ball_fly_time = 0.55 #max height time [sec]
         self.vel_forward_apply = 0
         self.vel_lateral_apply = 0
         self.amax = 3
@@ -215,7 +215,7 @@ class Make_mecanum_left():
     def set_ball_target(self):
 
         #self.x_target = (np.random.randint(8, 10) + np.random.rand())
-        self.x_target = (np.random.randint(8, 12) + np.random.rand())
+        self.x_target = (np.random.randint(10, 12) + np.random.rand())
         self.y_target = (np.random.randint(-3, 3) + np.random.rand())
 
         self.get_position()
@@ -238,7 +238,10 @@ class Make_mecanum_left():
         self.ball_fly_time_plus = np.sqrt(2 * h / 9.8)
         v0 = self.s/(self.ball_fly_time + self.ball_fly_time_plus)
 
-        v0 = 25
+        if v0 > 0 :
+            v0 += 5
+        else:
+            v0 -= 5
 
         self.v = np.sqrt(v0**2 + vz0**2)
         self.launch_angle = np.arctan(vz0/v0)
@@ -247,12 +250,12 @@ class Make_mecanum_left():
         
         self.apply_force, self.apply_torque = get_wrench(self.force, self.torque, self.ror_matrix)
 
-        print("v0, vz0 : {}. {}".format(v0, vz0))
-
         self.ball_apply_force(self.ball_name, self.apply_force, self.apply_torque, duration)
 
         self.ball_pre_vel_linear_x = self.away_ball_vel.linear.x 
         self.ball_pre_vel_linear_y = self.away_ball_vel.linear.y  
+
+        print("v0, vz0 : ",v0, vz0)
 
 
     def ball_apply_force(self, target, force, torque, duration):
@@ -388,14 +391,19 @@ class Make_mecanum_left():
         else:
             self.away_ball_angular_xy = -np.sqrt((self.away_ball_vel.angular.x ** 2) + (self.away_ball_vel.angular.y ** 2))
 
+        if self.away_ball_vel.linear.x == 0 :
+            return 0
+
         angle_x = np.arctan(self.away_ball_vel.linear.y/self.away_ball_vel.linear.x)
         angle_xy = np.arctan(self.away_ball_vel.linear.z/self.away_ball_vel_xy)
         
         self.cd = 0.507
-        self.cl = - 0.5 * 0.033 * self.away_ball_angular_xy / self.away_ball_vel_xy
+        self.cl =  0.75 * 0.033 * self.away_ball_angular_xy / self.away_ball_vel_xy
 
         if self.cl < -0.4:
             self.cl = -0.4
+            return 0
+
 
         self.drag_force = -0.5 * self.cd * 1.2041 * np.pi * (0.033 ** 2) * self.away_ball_vel_xyz
         self.lift_force = 0.5 * self.cl * 1.2041 * np.pi * (0.033 ** 2) * self.away_ball_vel_xyz
@@ -460,16 +468,16 @@ class Make_mecanum_left():
         self.liftdrag_force_y = self.drag_force_y + self.lift_force_y
         self.liftdrag_force_z = self.drag_force_z + self.lift_force_z
         
-        """print("----------------------------------")
-        print("ball postion : {}, {}, {}".format(np.round(self.away_ball_pose.position.x,3),np.round(self.away_ball_pose.position.y,3),np.round(self.away_ball_pose.position.z,3)))
-        print(self.away_ball_vel_xy, self.away_ball_vel.linear.z, self.away_ball_angular_xy )
-        print(self.drag_force, self.lift_force)
-        print("angle_xy, angle_x : {}, {}".format(np.rad2deg(angle_xy), np.rad2deg(angle_x)))
+        #print("----------------------------------")
+        #print("ball postion : {}, {}, {}".format(np.round(self.away_ball_pose.position.x,3),np.round(self.away_ball_pose.position.y,3),np.round(self.away_ball_pose.position.z,3)))
+        #print(self.away_ball_vel_xy, self.away_ball_vel.linear.z, self.away_ball_angular_xy )
+        #print(self.drag_force, self.lift_force)
+        #print("angle_xy, angle_x : {}, {}".format(np.rad2deg(angle_xy), np.rad2deg(angle_x)))
         #print("current_gradient :",self.current_gradient)
         #print("cl :",self.cl)
-        print("drag force : {}, {}, {}".format(self.drag_force_x, self.drag_force_y, self.drag_force_z))
-        print("lift force : {}, {}, {}".format(self.lift_force_x, self.lift_force_y, self.lift_force_z))
-        print(np.round(self.liftdrag_force_x,5) , np.round(self.liftdrag_force_y,5)  ,np.round(self.liftdrag_force_z,5) )"""
+        #print("drag force : {}, {}, {}".format(self.drag_force_x, self.drag_force_y, self.drag_force_z))
+        #print("lift force : {}, {}, {}".format(self.lift_force_x, self.lift_force_y, self.lift_force_z))
+        #print(np.round(self.liftdrag_force_x,5) , np.round(self.liftdrag_force_y,5)  ,np.round(self.liftdrag_force_z,5) )
 
         force = [-np.round(self.liftdrag_force_x,5) / self.dt, -np.round(self.liftdrag_force_y,5) / self.dt, np.round(self.liftdrag_force_z,5) / self.dt]
         self.ball_apply_force(self.away_ball_name, force, [0,0,0], self.dt)
@@ -481,7 +489,7 @@ class Make_mecanum_right(Make_mecanum_left):
     def set_ball_target(self):
         #self.x_target = -(np.random.randint(8, 10) + np.random.rand())
         
-        self.x_target = -(np.random.randint(8, 12) + np.random.rand())
+        self.x_target = -(np.random.randint(12, 15) + np.random.rand())
         self.y_target = (np.random.randint(-3, 3) + np.random.rand())
 
         self.get_position()
@@ -594,7 +602,7 @@ class Make_mecanum_right(Make_mecanum_left):
         angle_xy = np.arctan(self.away_ball_vel.linear.z/self.away_ball_vel_xy)
 
         self.cd = 0.507
-        self.cl = - 0.5 * 0.033 * self.away_ball_angular_xy / self.away_ball_vel_xy
+        self.cl = - 0.75 * 0.033 * self.away_ball_angular_xy / self.away_ball_vel_xy
 
         if self.cl < -0.4:
             self.cl = -0.4
@@ -669,7 +677,7 @@ class Make_mecanum_right(Make_mecanum_left):
         #print(self.drag_force, self.lift_force)
         #print("angle_xy, angle_x : {}, {}".format(np.rad2deg(angle_xy), np.rad2deg(angle_x)))
         #print("current_gradient :",self.current_gradient)
-        print("cl :",self.cl)
+        #print("cl :",self.cl)
         #print("drag force : {}, {}, {}".format(self.drag_force_x, self.drag_force_y, self.drag_force_z))
         #print("lift force : {}, {}, {}".format(self.lift_force_x, self.lift_force_y, self.lift_force_z))
         #print(np.round(self.liftdrag_force_x,5) , np.round(self.liftdrag_force_y,5)  ,np.round(self.liftdrag_force_z,5) )

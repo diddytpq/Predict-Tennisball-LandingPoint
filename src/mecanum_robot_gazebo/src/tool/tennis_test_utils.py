@@ -242,8 +242,10 @@ class Make_mecanum_left():
         self.ball_fly_time_plus = np.sqrt(2 * h / 9.8)
         v0 = self.s/(self.ball_fly_time + self.ball_fly_time_plus)
 
-        #v0 = 22.5
-
+        # v0 = 25
+        # vz0 = 7
+        # self.ror_matrix = rotation_matrix(0)
+        
         self.v = np.sqrt(v0**2 + vz0**2)
         self.launch_angle = np.arctan(vz0/v0)
 
@@ -602,12 +604,13 @@ class Make_mecanum_right(Make_mecanum_left):
         self.cd = 0.507
         self.cl = - 0.75 * 0.033 * self.away_ball_angular_xy / self.away_ball_vel_xy
 
+
         if self.cl < -0.4:
             self.cl = -0.4
             return 0
 
         self.drag_force = -0.5 * self.cd * 1.2041 * np.pi * (0.033 ** 2) * self.away_ball_vel_xyz
-        self.lift_force = 0.5 * self.cl * 1.2041 * np.pi * (0.033 ** 2) * self.away_ball_vel_xyz
+        self.lift_force = 0.5 * self.cl * 1.2041 * np.pi * (0.033 ** 2) * self.away_ball_vel_xyz 
 
         if self.away_ball_vel.linear.z < 0:
             down_motion = 1
@@ -682,6 +685,7 @@ class Make_mecanum_right(Make_mecanum_left):
         
         force = [np.round(self.liftdrag_force_x,5) / self.dt, np.round(self.liftdrag_force_y,5) / self.dt,np.round(self.liftdrag_force_z,5) / self.dt]
         self.ball_apply_force(self.away_ball_name, force, [0,0,0], self.dt)
+
 
 def return_home(home_mecanum):
 
