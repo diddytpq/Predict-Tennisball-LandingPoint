@@ -293,8 +293,11 @@ class Image_converter:
         D_L = 12.8 * np.sin(self.theta_R) / np.sin(3.14 - (self.theta_L + self.theta_R))
         D_R = 12.8 * np.sin(self.theta_L) / np.sin(3.14 - (self.theta_L + self.theta_R))
 
-        height_L = abs(D_L * np.sin(np.arctan(y_L/a_L)))
-        height_R = abs(D_R * np.sin(np.arctan(y_R/a_R)))
+        height_L = abs(D_L * np.sin(np.arcsin(y_L/c_L)))
+        height_R = abs(D_R * np.sin(np.arcsin(y_R/c_R)))
+
+        #height_L = abs(D_L * np.sin(np.arctan(y_L/a_L)))
+        #height_R = abs(D_R * np.sin(np.arctan(y_R/a_R)))
 
         if y_L < 0:
             height_L += 1
@@ -454,7 +457,7 @@ class Image_converter:
 
         t_list = []
 
-        vel = self.check_vel_noise(estimation_ball_trajectory_list)
+        vel = self.check_vel_noise()
 
         x0, y0, z0 = pos[0], pos[1], pos[2]
         vx, vy, vz = vel[0], vel[1], vel[2]
@@ -474,33 +477,24 @@ class Image_converter:
         
         return [np.round(x,3), np.round(y,3), np.round(z,3)]
 
-    def check_vel_noise(self, pos_list):
+    def check_vel_noise(self):
 
-        vel_list = np.array(esti_ball_val_list)
-    
-        if len(pos_list) > 4 :
-            pos_list_n_2 = pos_list[-3]
-            pos_list_n_1 = pos_list[-2]
-            pos_list_n = pos_list[-1]
-
-            pos_grad_total_y = (sum(vel_list[:-2, 1])/(len(vel_list)-2))
-            #pos_n_21 = (pos_list_n_2[1] - pos_list_n_1[1]) / (pos_list_n_2[0] - pos_list_n_1[0])
-            #pos_n_10 = (pos_list_n_1[1] - pos_list_n[1]) / (pos_list_n_1[0] - pos_list_n[0])
-
-            pos_n_21 = vel_list[-2, 1]
-            pos_n_10 = vel_list[-1, 1]
+        y_vel_list = np.array(esti_ball_val_list)[:,1]
 
 
-            print("--------------------------")
-            print(vel_list)
-            print(pos_grad_total_y)
-            print(pos_n_21)
-            print(pos_n_10)
+        if len(y_vel_list) > 3 :
 
-            return vel_list[-1]
+            vel_mean = np.mean(y_vel_list)
+            
+            if abs(abs(vel_mean) - abs(y_vel_list[-1])) > 2:
+
+                vel_mean = np.mean(y_vel_list[:-1])
+                esti_ball_val_list[-1][1] = vel_mean
+
+            return esti_ball_val_list[-1]
 
         else:
-            return vel_list[-1]
+            return esti_ball_val_list[-1]
 
 
     def main(self, data):

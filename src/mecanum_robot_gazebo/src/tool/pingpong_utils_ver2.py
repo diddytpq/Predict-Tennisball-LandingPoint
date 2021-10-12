@@ -35,7 +35,7 @@ class Make_mecanum_left():
         self.vel_lateral_apply = 0
         self.amax = 3
 
-        self.spawn_pos_z = 1.5
+        self.spawn_pos_z = 1.3
 
         self.ball_name = 'ball_left'
         self.away_ball_name = 'ball_right'
@@ -147,6 +147,7 @@ class Make_mecanum_left():
             self.dt = t1 - t0
 
             self.cal_liftdrag()
+            
             t0 = time.time()
 
             #print("dt : ", self.dt)
@@ -232,21 +233,21 @@ class Make_mecanum_left():
 
         self.yaw_z = np.arctan(self.y_error/self.x_error)
         self.ror_matrix = rotation_matrix(self.yaw_z)
-        vz0 = 9.8 * self.ball_fly_time
+        self.vz0 = 9.8 * self.ball_fly_time
 
-        h = (self.object_pose.position.z + self.spawn_pos_z) + vz0 * self.ball_fly_time - (9.8 * self.ball_fly_time**2)/2
+        h = (self.object_pose.position.z + self.spawn_pos_z) + self.vz0 * self.ball_fly_time - (9.8 * self.ball_fly_time**2)/2
         self.ball_fly_time_plus = np.sqrt(2 * h / 9.8)
-        v0 = self.s/(self.ball_fly_time + self.ball_fly_time_plus)
+        self.v0 = self.s/(self.ball_fly_time + self.ball_fly_time_plus)
 
-        if v0 > 0 :
-            v0 += 5
+        if self.v0 > 0 :
+            self.v0 += 15
         else:
-            v0 -= 5
+            self.v0 -= 15
 
-        self.v = np.sqrt(v0**2 + vz0**2)
-        self.launch_angle = np.arctan(vz0/v0)
+        self.v = np.sqrt(self.v0**2 + self.vz0**2)
+        self.launch_angle = np.arctan(self.vz0/self.v0)
 
-        self.force = [v0 * 0.057 / duration, 0, vz0 * 0.057 / duration ]
+        self.force = [self.v0 * 0.057 / duration, 0, self.vz0 * 0.057 / duration ]
         
         self.apply_force, self.apply_torque = get_wrench(self.force, self.torque, self.ror_matrix)
 
@@ -255,7 +256,7 @@ class Make_mecanum_left():
         self.ball_pre_vel_linear_x = self.away_ball_vel.linear.x 
         self.ball_pre_vel_linear_y = self.away_ball_vel.linear.y  
 
-        print("v0, vz0 : ",v0, vz0)
+        print("v0, vz0 : ",self.v0, self.vz0)
 
 
     def ball_apply_force(self, target, force, torque, duration):
@@ -290,7 +291,7 @@ class Make_mecanum_left():
 
         #distance = np.sqrt((distance_x)**2 + (distance_y)**2 + (distance_z)**2)
 
-        if (abs(distance_x) < 0.6 and abs(distance_y) <0.6  and abs(distance_z) < 1) or abs(self.away_ball_pose.position.x) > 15:
+        if (abs(distance_x) < 0.6 and abs(distance_y) < 1  and abs(distance_z) < 2) or abs(self.away_ball_pose.position.x) > 15:
         #if (abs(distance_x) < 0.6 and abs(distance_y) <0.6  and abs(distance_z) < 1):
         
             self.del_ball()
@@ -393,6 +394,7 @@ class Make_mecanum_left():
 
         if self.away_ball_vel.linear.x == 0 :
             return 0
+
 
         angle_x = np.arctan(self.away_ball_vel.linear.y/self.away_ball_vel.linear.x)
         angle_xy = np.arctan(self.away_ball_vel.linear.z/self.away_ball_vel_xy)
@@ -580,7 +582,8 @@ class Make_mecanum_right(Make_mecanum_left):
 
             self.apply_torque = [-(self.away_ball_vel.angular.x  - w_x2) * 1000, -(self.away_ball_vel.angular.y - w_y2) * 1000, 0]
         
-            self.ball_apply_force(self.away_ball_name, force, self.apply_torque, duration)
+            #self.ball_apply_force(self.away_ball_name, force, self.apply_torque, duration)
+
 
 
     def cal_liftdrag(self):
@@ -597,6 +600,9 @@ class Make_mecanum_right(Make_mecanum_left):
 
         else:
             self.away_ball_angular_xy = -np.sqrt((self.away_ball_vel.angular.x ** 2) + (self.away_ball_vel.angular.y ** 2))
+
+        if self.away_ball_vel.linear.x == 0 :
+            return 0
 
         angle_x = np.arctan(self.away_ball_vel.linear.y/self.away_ball_vel.linear.x)
         angle_xy = np.arctan(self.away_ball_vel.linear.z/self.away_ball_vel_xy)
@@ -728,4 +734,6 @@ def return_home(home_mecanum):
 
     if abs(x_error) <0.1 and abs(y_error)< 0.1 :
         home_mecanum.stop()
+
+
 

@@ -18,6 +18,8 @@ if __name__ == '__main__' :
 
     mecanum_R.torque = [0, -209000, 0]
 
+
+
     mecanum_R.ball_name = 'ball_right'
     mecanum_R.away_ball_name = "ball_left"
     mecanum_L.del_ball()
@@ -36,12 +38,12 @@ if __name__ == '__main__' :
         #print(add_catch_point * np.cos(mecanum_0.yaw_z),add_catch_point * np.sin(mecanum_0.yaw_z))
 
 
-        mecanum_R.move(ball_landing_point[0],ball_landing_point[1],mecanum_L)
+        mecanum_R.move(ball_landing_point[0],ball_landing_point[1] ,mecanum_L)
 
 
         mecanum_R.spwan_ball("ball_right")
         mecanum_R.throw_ball()  
         ball_landing_point = [mecanum_R.x_target - add_catch_point * np.cos(mecanum_R.yaw_z), mecanum_R.y_target - add_catch_point * np.sin(mecanum_R.yaw_z)]
-        mecanum_L.move(ball_landing_point[0],ball_landing_point[1],mecanum_R)
+        mecanum_L.move(ball_landing_point[0],ball_landing_point[1] ,mecanum_R)
 
 
