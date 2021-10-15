@@ -412,9 +412,6 @@ class Image_converter:
             real_ball_trajectory_list.append(self.real_ball_pos_list)
             estimation_ball_trajectory_list.append([np.round(self.ball_camera_list[0],3), np.round(self.ball_camera_list[1],3), np.round(self.ball_camera_list[2],3)])
             
-            if np.isnan(self.esti_ball_landing_point[0]) == False:
-                esti_ball_landing_point_list.append(self.esti_ball_landing_point)
-
             save_flag = 0
 
         return disappear_cnt
@@ -619,6 +616,8 @@ class Image_converter:
 
 
                 self.esti_ball_landing_point = self.cal_landing_point(self.ball_camera_list)
+
+                esti_ball_landing_point_list.append(self.esti_ball_landing_point[:2])
 
                 if self.esti_ball_landing_point:
                     #print("-----------------------")

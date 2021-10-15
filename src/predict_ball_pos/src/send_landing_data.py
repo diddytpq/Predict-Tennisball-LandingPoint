@@ -39,7 +39,7 @@ roslib.load_manifest('ball_trajectory')
 # ball_tracking setup
 fgbg = cv2.createBackgroundSubtractorMOG2(100, 16, False)
 kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-kernel_dilation_2 = cv2.getStructuringElement(cv2.MORPH_RECT,(15,15))
+kernel_dilation_2 = cv2.getStructuringElement(cv2.MORPH_RECT,(5,5))
 kernel_erosion_1 = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
 
 # yolov5 setup
@@ -107,14 +107,12 @@ class Image_converter:
         self.pub = rospy.Publisher('/esti_landing_point',Float64MultiArray, queue_size = 10)
         self.array2data = Float64MultiArray()
         
-        rospy.Subscriber("/camera_left_top_ir/depth/image_raw", Image, self.callback_left_top_depth)
-        rospy.Subscriber("/camera_left_0/depth/image_raw",Image,self.callback_left_depth_0)
         rospy.Subscriber("/camera_right_0_ir/camera_right_0/color/image_raw",Image,self.callback_right_0)
 
-        rospy.Subscriber("/camera_right_0/depth/image_raw",Image,self.callback_right_depth_0)
         rospy.Subscriber("/camera_left_0_ir/camera_left_0/color/image_raw",Image,self.callback_left_0)
         rospy.Subscriber("/camera_left_top_ir/camera_left_top_ir/color/image_raw", Image, self.callback_left_top_ir)
         rospy.Subscriber("/camera_right_1_ir/camera_right_1/color/image_raw",Image,self.main)
+
 
     def callback_left_top_ir(self, data):
         try:
@@ -139,25 +137,6 @@ class Image_converter:
         except CvBridgeError as e:
             print(e)
 
-    def callback_left_top_depth(self, data):
-        try:
-            self.left_top_depth_ori =self.bridge.imgmsg_to_cv2(data, "passthrough")
-
-        except CvBridgeError as e:
-            print(e)
-
-    def callback_left_depth_0(self, data):
-        try:
-            self.left_depth_0_ori =self.bridge.imgmsg_to_cv2(data, "passthrough")
-            
-        except CvBridgeError as e:
-            print(e)
-
-    def callback_right_depth_0(self, data):
-        try:
-            self.right_depth_0_ori =self.bridge.imgmsg_to_cv2(data, "passthrough")
-        except CvBridgeError as e:
-            print(e)
 
     def ball_tracking(self, image):
 
@@ -275,7 +254,7 @@ class Image_converter:
     
 
 
-    def get_depth(self, L_pos, R_pos):
+    def get_depth_height(self, L_pos, R_pos):
         
         cx = 320
         cy = 160
@@ -284,107 +263,93 @@ class Image_converter:
         x_L, y_L = L_pos[0] - cx, L_pos[1] - cy
         x_R, y_R = R_pos[0] - cx, R_pos[1] - cy
         
-        a_L = np.sqrt(focal_length ** 2 + x_L ** 2 + y_L ** 2)
-        b_L = np.sqrt(focal_length ** 2 + x_L ** 2)
+        c_L = np.sqrt(focal_length ** 2 + x_L ** 2 + y_L ** 2)
+        a_L = np.sqrt(focal_length ** 2 + x_L ** 2)
 
         if x_L < 0:
-            th_L = 0.785398 + np.arccos(focal_length / b_L)
+            th_L = 0.785398 + np.arccos(focal_length / a_L)
 
         else :
-            th_L = 0.785398 - np.arccos(focal_length / b_L)
+            th_L = 0.785398 - np.arccos(focal_length / a_L)
 
 
-        c_L = b_L * np.cos(th_L)
+        b_L = a_L * np.cos(th_L)
         
-        a_R = np.sqrt(focal_length ** 2 + x_R ** 2 + y_R ** 2)
-        b_R = np.sqrt(focal_length ** 2 + x_R ** 2)
+        c_R = np.sqrt(focal_length ** 2 + x_R ** 2 + y_R ** 2)
+        a_R = np.sqrt(focal_length ** 2 + x_R ** 2)
 
         if x_R > 0:
-            th_R = 0.785398 + np.arccos(focal_length / b_R)
+            th_R = 0.785398 + np.arccos(focal_length / a_R)
 
         else :
-            th_R = 0.785398 - np.arccos(focal_length / b_R)
+            th_R = 0.785398 - np.arccos(focal_length / a_R)
 
-        c_R = b_R * np.cos(th_R)
+        b_R = a_R * np.cos(th_R)
         
-        theta_L = np.arccos(c_L/a_L)
-        theta_R = np.arccos(c_R/a_R)
+        self.theta_L = np.arccos(b_L/c_L)
+        self.theta_R = np.arccos(b_R/c_R)
         
         
-        D_L = 12.8 * np.sin(theta_R) / np.sin(3.14 - (theta_L + theta_R))
-        D_R = 12.8 * np.sin(theta_L) / np.sin(3.14 - (theta_L + theta_R))
+        D_L = 12.8 * np.sin(self.theta_R) / np.sin(3.14 - (self.theta_L + self.theta_R))
+        D_R = 12.8 * np.sin(self.theta_L) / np.sin(3.14 - (self.theta_L + self.theta_R))
 
-        return D_L, D_R
+        height_L = abs(D_L * np.sin(np.arcsin(y_L/c_L)))
+        height_R = abs(D_R * np.sin(np.arcsin(y_R/c_R)))
 
-    
+        #height_L = abs(D_L * np.sin(np.arctan(y_L/a_L)))
+        #height_R = abs(D_R * np.sin(np.arctan(y_R/a_R)))
 
-    def cal_ball_height(self, ball_distance_list, ball_centroid_list):
-
-        x_pos_L, y_pos_L = ball_centroid_list[0]
-        x_pos_R, y_pos_R = ball_centroid_list[1]
-
-        distance_L = ball_distance_list[0]
-        distance_R = ball_distance_list[1]
-
-
-        if y_pos_R > 320:
-            y_pos_R -= 320
-
-
-        #Left camera
-        x_pos_L = x_pos_L - 320
-        y_pos_L = y_pos_L - 160
-
-        focal2x_point_length = np.sqrt(x_pos_L**2 + 343.159073**2)
-
-        height_theta_pix = np.arctan(abs(y_pos_L) / focal2x_point_length)
-
-        height = distance_L * np.sin(height_theta_pix)
-
-        if y_pos_L < 160:
-            height += 1
+        if y_L < 0:
+            height_L += 1
         
         else:
-            1 - height 
-
-        #rigth camera
-        #
+            height_L -= 1  
 
 
+        if y_R < 0:
+            height_R += 1
         
-        return height, height
+        else:
+            height_R -= 1  
+
+
+        return D_L, D_R, height_L, height_R
+
 
     def cal_ball_position(self, ball_height_list, ball_distance_list):
 
         height = sum(ball_height_list) / 2 - 1
         
-        #삼각형 결정조건 검증
-        triangle_length = [ball_distance_list[0], ball_distance_list[1], 12.8]
-        triangle_max_length = triangle_length[np.argmax(triangle_length)]
-        del triangle_length[np.argmax(triangle_length)]
-
-        if sum(triangle_length) < triangle_max_length :
+        if sum(ball_distance_list) < 13:
             return [np.nan, np.nan, np.nan]
         
-        th_L = np.arccos((ball_distance_list[0] ** 2 + 12.8 ** 2 - ball_distance_list[1]**2) / (2 * 12.8 * ball_distance_list[0]))
-        
-        ball2net_length_x_L = ball_distance_list[0] * np.sin(th_L)
-        ball_position_y_L = ball_distance_list[0] * np.cos(th_L)
+        ball2net_length_x_L = ball_distance_list[0] * np.sin(self.theta_L)
+        ball_position_y_L = ball_distance_list[0] * np.cos(self.theta_L)
 
-        ball_plate_angle_L = np.sin(height / ball2net_length_x_L)
+        ball_plate_angle_L = np.arcsin(height / ball2net_length_x_L)
         
         ball_position_x_L = ball2net_length_x_L * np.cos(ball_plate_angle_L)
         
-        #th_R = np.arccos((ball_depth_list[1] ** 2 + 12.8 ** 2 - ball_depth_list[0]**2) / (2 * 12.8 * ball_depth_list[1]))
+        ball2net_length_x_R = ball_distance_list[1] * np.sin(self.theta_R)
+        ball_position_y_R = ball_distance_list[1] * np.cos(self.theta_R)
         
-        #ball2net_length_x_R = ball_depth_list[1] * np.sin(th_R)
-        #ball_position_y_R = ball_depth_list[1] * np.cos(th_R)
+        ball_plate_angle_R = np.arcsin(height / ball2net_length_x_R)
         
-        #ball_plate_angle_R = np.sin(height / ball2net_length_x_R)
-        
-        #ball_position_x_R = ball2net_length_x_R * np.cos(ball_plate_angle_R)
+        ball_position_x_R = ball2net_length_x_R * np.cos(ball_plate_angle_R)
 
-        return [-ball_position_x_L, ball_position_y_L - 6.4, height + 1]
+
+        """print("theta_L, theta_R : ", np.rad2deg(self.theta_L), np.rad2deg(self.theta_R))
+        print("ball_plate_angle_L, ball_plate_angle_R : ", np.rad2deg(ball_plate_angle_L), np.rad2deg(ball_plate_angle_R))
+        print([-ball_position_x_L, ball_position_y_L - 6.4, height + 1])
+        print([-ball_position_x_R, 6.4 - ball_position_y_R, height + 1])"""
+
+        if self.theta_L > self.theta_R:
+            ball_position_y = ball_position_y_L - 6.4
+
+        else :
+            ball_position_y = 6.4 - ball_position_y_R
+
+        return [-ball_position_x_L, ball_position_y, height + 1]
 
     
     def draw_point_court(self, real_point_list, camera_predict_point_list):
@@ -412,6 +377,8 @@ class Image_converter:
         real_pix_point_xy = real_pix_point_list[0:2]
         predict_pix_point = predict_pix_point_list[0:2]
 
+        a.append(real_pix_point_xy)
+
         cv2.circle(tennis_court_img,real_pix_point_xy, 4, [0, 0, 255], -1)
         cv2.circle(tennis_court_img,predict_pix_point, 4, [0, 255, 0], -1)
 
@@ -425,28 +392,34 @@ class Image_converter:
             if disappear_cnt == 5 :
 
                 if save_flag == 0 :
-                    if len(esti_ball_landing_point_list):
-                        print("-----------------------")
-                        print("send meg : ", esti_ball_landing_point_list[-1])
-                        self.array2data.data = esti_ball_landing_point_list[-1]
-                        self.pub.publish(self.array2data)
-                
                     #print(esti_ball_landing_point_list)
                     save_flag = 1
 
-                    print("real_ball_trajectory_list = np.array(", real_ball_trajectory_list ,")")
-                    print("estimation_ball_trajectory_list = np.array(", estimation_ball_trajectory_list,")")
+                    #print("real_ball_trajectory_list = np.array(", real_ball_trajectory_list ,")")
+                    #print("estimation_ball_trajectory_list = np.array(", estimation_ball_trajectory_list,")")
+
+
+                    # 낙하지점 데이터 보내기
+                    landing_matrix = np.array(esti_ball_landing_point_list)
+                    landing_matrix= landing_matrix.reshape(-1).tolist()
+
+                    self.array2data.data = landing_matrix
+                    self.pub.publish(self.array2data)
+                    #
+                    print(a)
+                    print(len(a))
+
+                a.clear()
 
                 disappear_cnt = 0
-                
+
+
                 real_ball_trajectory_list.clear()
                 estimation_ball_trajectory_list.clear()
-                
+                esti_ball_val_list.clear()
+
                 esti_ball_landing_point_list.clear()
                 time_list.clear()
-
-                
-                
 
         else:
             disappear_cnt = 0
@@ -455,8 +428,7 @@ class Image_converter:
             real_ball_trajectory_list.append(self.real_ball_pos_list)
             estimation_ball_trajectory_list.append([np.round(self.ball_camera_list[0],3), np.round(self.ball_camera_list[1],3), np.round(self.ball_camera_list[2],3)])
             
-            if np.isnan(self.esti_ball_landing_point[0]) == False:
-                esti_ball_landing_point_list.append(self.esti_ball_landing_point)
+
 
             save_flag = 0
 
@@ -496,9 +468,11 @@ class Image_converter:
         self.ball_vel.angular.y = float(self.ball_state.twist.angular.y)
         self.ball_vel.angular.z = float(self.ball_state.twist.angular.z)
 
-    def cal_landing_point(self, pos, vel):
+    def cal_landing_point(self, pos):
 
         t_list = []
+
+        vel = self.check_vel_noise()
 
         x0, y0, z0 = pos[0], pos[1], pos[2]
         vx, vy, vz = vel[0], vel[1], vel[2]
@@ -517,6 +491,26 @@ class Image_converter:
         z = np.array(z0 + vz * t - ((0.5 * 0.507 * 1.2041 * np.pi * (0.033 ** 2) * vz ** 2 ) / 0.057 + 9.8 / 2) * (t ** 2),float)
         
         return [np.round(x,3), np.round(y,3), np.round(z,3)]
+
+    def check_vel_noise(self):
+
+        y_vel_list = np.array(esti_ball_val_list)[:,1]
+
+
+        if len(y_vel_list) > 3 :
+
+            vel_mean = np.mean(y_vel_list)
+            
+            if abs(abs(vel_mean) - abs(y_vel_list[-1])) > 2:
+
+                vel_mean = np.mean(y_vel_list[:-1])
+                esti_ball_val_list[-1][1] = vel_mean
+
+            return esti_ball_val_list[-1]
+
+        else:
+            return esti_ball_val_list[-1]
+
 
     def main(self, data):
 
@@ -565,19 +559,7 @@ class Image_converter:
             ball_detect_img = self.main_frame.copy()
             robot_detect_img = self.main_frame.copy()
             
-            self.left_top_depth = cv2.resize(self.left_top_depth_ori,(640,640),interpolation = cv2.INTER_AREA)
-            
-            self.left_depth_ori = cv2.vconcat([self.left_depth_0_ori, self.right_depth_0_ori])
-            self.main_depth_ori = cv2.hconcat([self.left_depth_ori, self.left_top_depth])
-
-            self.main_depth = np.float32(self.main_depth_ori)
-
-            self.main_depth_frame = cv2.normalize(self.main_depth, None, 0, 255, cv2.NORM_MINMAX)
-            self.main_depth_frame = np.uint8(np.round(self.main_depth_frame))
-
             robot_detect_img = self.robot_tracking(self.left_frame.copy()) #get robot bbox
-
-            #robot_pos = self.get_robot_pos(self.robot_box)  # robot bbox 3개
 
             self.ball_tracking(self.left_frame.copy())  #get ball cand bbox list
                    
@@ -600,35 +582,29 @@ class Image_converter:
                     if ball_x_pos < 640:
 
                         if ball_y_pos < 320:
-                            #self.ball_height_list[0], self.ball_distance_list[0] = self.cal_ball_height(ball_depth, ball_x_pos, ball_y_pos)
                             self.ball_centroid_list[0] = [ball_x_pos, ball_y_pos]
 
-                            #self.ball_depth_list[0] = ball_depth
-                            
                         else:
-                            #self.ball_height_list[1], self.ball_distance_list[1] = self.cal_ball_height(ball_depth, ball_x_pos, ball_y_pos)
                             self.ball_centroid_list[1] = [ball_x_pos, ball_y_pos - 320]
-
-                            #self.ball_depth_list[1] = ball_depth
                 
-                self.ball_distance_list[0], self.ball_distance_list[1] = self.get_depth(self.ball_centroid_list[0], self.ball_centroid_list[1])
-                self.ball_height_list[0], self.ball_height_list[1] = self.cal_ball_height(self.ball_distance_list, self.ball_centroid_list)
+                self.ball_distance_list[0], self.ball_distance_list[1], self.ball_height_list[0], self.ball_height_list[1] = self.get_depth_height(self.ball_centroid_list[0], self.ball_centroid_list[1])
 
             if min(self.ball_centroid_list) > [0, 0]:
                 
                 self.ball_camera_list  = self.cal_ball_position(self.ball_height_list, self.ball_distance_list)
                 
                 if np.isnan(self.ball_camera_list[0]) == False:
-                    self.ball_camera_list[0] = self.ball_camera_list[0]
+                    self.ball_camera_list[0] = self.ball_camera_list[0] + 0.3
 
-                print("------------------------------------------------------------------")
+                """print("------------------------------------------------------------------")
                 print("real_distance : ", np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (-6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3), 
-                                         np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3))
+                                          np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3))
                 print("distance : ", np.round(self.ball_distance_list[0], 3), np.round(self.ball_distance_list[1], 3))
                 
-                #print("real_ball_pos = [{}, {}, {}]".format(self.real_ball_pos_list[0], self.real_ball_pos_list[1], self.real_ball_pos_list[2]))
-                #print("camera_preadict_pos = " ,[np.round(self.ball_camera_list[0],3), np.round(self.ball_camera_list[1],3), np.round(self.ball_camera_list[2],3)])
-
+                print("real_ball_pos = [{}, {}, {}]".format(self.real_ball_pos_list[0], self.real_ball_pos_list[1], self.real_ball_pos_list[2]))
+                print("camera_preadict_pos = " ,[np.round(self.ball_camera_list[0],3), np.round(self.ball_camera_list[1],3), np.round(self.ball_camera_list[2],3)])
+                """
+                
                 #a.append([np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (-6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3), 
                 #                         np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3)])
 
@@ -636,31 +612,40 @@ class Image_converter:
                 #print("real_distance = np.array(",a,")")
                 #print("distance = np.array(",b,")")
 
-
+            disappear_cnt = self.check_ball_seq(disappear_cnt)
 
             self.esti_ball_val, self.real_ball_val = self.cal_ball_val()
             
             if np.isnan(self.ball_camera_list[0]) == False and np.isnan(self.esti_ball_val[0]) == False:
 
-               # print("ball_val = " ,[np.round(self.ball_vel.linear.x,3), np.round(self.ball_vel.linear.y,3), np.round(self.ball_vel.linear.z,3)])
-               # print("real_ball_val = " ,[self.real_ball_val[0], self.real_ball_val[1], self.real_ball_val[2]])
-               # print("esti_ball_val = " ,[self.esti_ball_val[0], self.esti_ball_val[1], self.esti_ball_val[2]])
+                #print("ball_val = " ,[np.round(self.ball_vel.linear.x,3), np.round(self.ball_vel.linear.y,3), np.round(self.ball_vel.linear.z,3)])
+                #print("real_ball_val = " ,[self.real_ball_val[0], self.real_ball_val[1], self.real_ball_val[2]])
+                #print("esti_ball_val = " ,[self.esti_ball_val[0], self.esti_ball_val[1], self.esti_ball_val[2]])
 
-                """ball_val_list.append([np.round(self.ball_vel.linear.x,3), np.round(self.ball_vel.linear.y,3), np.round(self.ball_vel.linear.z,3)])
-                real_ball_val_list.append([self.real_ball_val[0], self.real_ball_val[1], self.real_ball_val[2]])
+                #ball_val_list.append([np.round(self.ball_vel.linear.x,3), np.round(self.ball_vel.linear.y,3), np.round(self.ball_vel.linear.z,3)])
+                #real_ball_val_list.append([self.real_ball_val[0], self.real_ball_val[1], self.real_ball_val[2]])
+                
                 esti_ball_val_list.append([self.esti_ball_val[0], self.esti_ball_val[1], self.esti_ball_val[2]])
-
+                
+                """
                 print("ball_val_list = np.array(", ball_val_list , ')')
                 print("real_ball_val_list = np.array(", real_ball_val_list , ')')
                 print("esti_ball_val_list = np.array(", esti_ball_val_list , ')')"""
 
 
-                self.esti_ball_landing_point = self.cal_landing_point(self.ball_camera_list, self.esti_ball_val)
+                self.esti_ball_landing_point = self.cal_landing_point(self.ball_camera_list)
 
 
-            #disappear_cnt = self.check_ball_seq(disappear_cnt)
+                esti_ball_landing_point_list.append(self.esti_ball_landing_point[:2])
 
+                if self.esti_ball_landing_point:
+                    #print("-----------------------")
+                    print("send meg : ", self.esti_ball_landing_point)
+                    
+                    #self.array2data.data = self.esti_ball_landing_point
+                    #self.pub.publish(self.array2data)
 
+                #print("esti_ball_landing_point : ",self.esti_ball_landing_point)
 
             self.draw_point_court(self.real_ball_pos_list, self.ball_camera_list)
 

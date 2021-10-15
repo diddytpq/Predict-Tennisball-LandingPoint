@@ -35,8 +35,9 @@ def callback_landing_point(data):
     if len(data.data) < 1 :
         return 0
 
-    esti_ball_landing_point = [data.data[0], data.data[1], data.data[2]]
+    #esti_ball_landing_point = [data.data[0], data.data[1], data.data[2]]
 
+    esti_ball_landing_point = list(data.data)
 
     
 
@@ -103,7 +104,8 @@ if __name__ == "__main__" :
         rospy.Subscriber("esti_landing_point", Float64MultiArray, callback_landing_point)
 
         if check_bounce(ball_stats.pose.position.z) :
-            real_ball_landing_point_list.append([np.round(ball_stats.pose.position.x,3), np.round(ball_stats.pose.position.y,3), np.round(ball_stats.pose.position.z,3)])
+            #real_ball_landing_point_list.append([np.round(ball_stats.pose.position.x,3), np.round(ball_stats.pose.position.y,3), np.round(ball_stats.pose.position.z,3)])
+            real_ball_landing_point_list.append([np.round(ball_stats.pose.position.x,3), np.round(ball_stats.pose.position.y,3)])
             esti_ball_landing_point_list.append(esti_ball_landing_point)
             
             print("real_ball_landing_point_list = " ,real_ball_landing_point_list[-1], len(real_ball_landing_point_list))

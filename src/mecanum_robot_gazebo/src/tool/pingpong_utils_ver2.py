@@ -240,9 +240,9 @@ class Make_mecanum_left():
         self.v0 = self.s/(self.ball_fly_time + self.ball_fly_time_plus)
 
         if self.v0 > 0 :
-            self.v0 += 15
+            self.v0 += 20
         else:
-            self.v0 -= 15
+            self.v0 -= 20
 
         self.v = np.sqrt(self.v0**2 + self.vz0**2)
         self.launch_angle = np.arctan(self.vz0/self.v0)
@@ -291,7 +291,7 @@ class Make_mecanum_left():
 
         #distance = np.sqrt((distance_x)**2 + (distance_y)**2 + (distance_z)**2)
 
-        if (abs(distance_x) < 0.6 and abs(distance_y) < 1  and abs(distance_z) < 2) or abs(self.away_ball_pose.position.x) > 15:
+        if (abs(distance_x) < 0.6 and abs(distance_y) < 1  and abs(distance_z) < 2) or abs(self.away_ball_pose.position.x) > 18:
         #if (abs(distance_x) < 0.6 and abs(distance_y) <0.6  and abs(distance_z) < 1):
         
             self.del_ball()
