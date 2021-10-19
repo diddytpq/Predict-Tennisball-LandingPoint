@@ -11,7 +11,7 @@ if os.name == 'nt':
 else:
   import tty, termios
 
-from tool.tennis_sim_utils import *
+from tool.mecanum_key_utils import *
 
 roslib.load_manifest('mecanum_robot_gazebo')
 
