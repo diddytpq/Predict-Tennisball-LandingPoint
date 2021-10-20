@@ -7,7 +7,7 @@ import numpy as np
 import math
 import roslib
 from std_msgs.msg import Empty as EmptyMsg
-from std_msgs.msg import Float64
+from std_msgs.msg import Float64, Float64MultiArray
 from nav_msgs.msg import Odometry
 import time
 from tool.mecanum_utils import *
@@ -132,8 +132,6 @@ class Make_mecanum_left():
 
         while True:
             return_home(away_mecanum)
-
-            #self.break_ball_rolling()
 
             if self.ball_catch_check():
 
@@ -330,54 +328,17 @@ class Make_mecanum_left():
         if self.away_ball_vel.linear.y > self.away_ball_vel_max_y:
             self.away_ball_vel_max_y = self.away_ball_vel.linear.y
 
-    def break_ball_rolling(self):
 
-        self.gat_away_ball_stats()
-        self.ball_pre_vel_linear_x = self.away_ball_vel.linear.x 
-        self.ball_pre_vel_linear_y = self.away_ball_vel.linear.y
-
-        if self.check_bounce() and self.away_ball_pose.position.z < 0.021 :
-
-            self.gat_away_ball_stats()
-
-            w_y2 = self.away_ball_vel.angular.y - 1.5 * 0.033 * (self.away_ball_vel.linear.x - self.away_ball_vel_max_x) / 0.03 ** 2
-            w_x2 = self.away_ball_vel.angular.x - 1.5 * 0.033 * (self.away_ball_vel.linear.y - self.away_ball_vel_max_y) / 0.03 ** 2
-
-            self.away_ball_vel_max_x = self.away_ball_vel.linear.x
-            self.away_ball_vel_max_y = self.away_ball_vel.linear.y
-
-            force = [0, 0, 0]
-
-            self.apply_torque = [(self.away_ball_vel.angular.x  - w_x2) * 1000, (self.away_ball_vel.angular.y - w_y2) * 1000, 0]
-        
-            #self.ball_apply_force(self.away_ball_name, force, self.apply_torque, self.duration)
-
-    def check_bounce(self):
-
-        self.gat_away_ball_stats()
-
-        self.current_gradient = self.away_ball_pose.position.z - self.ball_preposition_list_z[-1]
-
-        if self.check_gradient(self.pre_gradient_z[-1]) == False and self.check_gradient(self.current_gradient) == True:
-            self.ball_preposition_list_z.append(self.away_ball_pose.position.z)
-            self.pre_gradient_z.append(self.current_gradient)
-            return True
-
-        else:
-            self.ball_preposition_list_z.append(self.away_ball_pose.position.z) 
-            self.pre_gradient_z.append(self.current_gradient)
-            return False
-        
-    def check_gradient(self, gradient): 
-
-        if gradient < 0: 
-            return False
-        
-        else: 
-            return True
 
 
 class Make_mecanum_right(Make_mecanum_left):
+
+    def __init__(self, model_name):
+        Make_mecanum_left.__init__(self, model_name)
+        
+        self.x_move_target = np.nan
+        self.y_move_target = np.nan
+        self.esti_ball_landing_point = [np.nan]
 
     def set_ball_target(self):
         #self.x_target = -(np.random.randint(8, 10) + np.random.rand())
@@ -397,8 +358,6 @@ class Make_mecanum_right(Make_mecanum_left):
 
         while True:
             return_home(away_mecanum)
-
-            self.break_ball_rolling()
 
             if self.ball_catch_check():
 
@@ -450,30 +409,79 @@ class Make_mecanum_right(Make_mecanum_left):
                 self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
                 self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
 
+    def callback_landing_point(self, data):
 
-    def break_ball_rolling(self):
+        if len(data.data) < 1 :
+            self.esti_ball_landing_point = [np.nan]
+            return 0
 
-        self.gat_away_ball_stats()
-        duration = 0.001
+        self.esti_ball_landing_point = [data.data[0], data.data[1], data.data[2]]
+        print(self.esti_ball_landing_point)
+    
+    def move_base_camera(self, add_catch_point,away_mecanum):
+            t0 = time.time()
 
-        self.ball_pre_vel_linear_x = self.away_ball_vel.linear.x 
-        self.ball_pre_vel_linear_y = self.away_ball_vel.linear.y
+            while True:
 
-        if self.check_bounce() and self.away_ball_pose.position.z < 0.021 :
+                rospy.Subscriber("esti_landing_point", Float64MultiArray, self.callback_landing_point)
 
-            self.gat_away_ball_stats()
+                return_home(away_mecanum)
 
-            w_y2 = self.away_ball_vel.angular.y - 1.5 * 0.033 * (self.away_ball_vel.linear.x - self.away_ball_vel_max_x) / 0.03 ** 2
-            w_x2 = self.away_ball_vel.angular.x - 1.5 * 0.033 * (self.away_ball_vel.linear.y - self.away_ball_vel_max_y) / 0.03 ** 2
+                if self.ball_catch_check():
+                    self.stop()
+                    away_mecanum.stop()
+                    self.x_move_target = np.nan
+                    break 
 
-            self.away_ball_vel_max_x = self.away_ball_vel.linear.x
-            self.away_ball_vel_max_y = self.away_ball_vel.linear.y
+                self.get_position()
 
-            force = [0, 0, 0]
+                t1 = time.time()
+                self.dt = t1 - t0
 
-            self.apply_torque = [-(self.away_ball_vel.angular.x  - w_x2) * 1000, -(self.away_ball_vel.angular.y - w_y2) * 1000, 0]
-        
-            #self.ball_apply_force(self.away_ball_name, force, self.apply_torque, duration)
+                #self.cal_liftdrag()
+                t0 = time.time()
+
+                #print("dt : ", self.dt)
+
+                if np.isnan(self.esti_ball_landing_point[0]) == False :
+                    self.x_move_target = self.esti_ball_landing_point[0]
+                    self.y_move_target = self.esti_ball_landing_point[1]
+
+                if np.isnan(self.x_move_target) == False :
+
+                    self.x_error = self.object_pose.position.x -  (self.x_move_target + add_catch_point) 
+                    self.y_error = self.object_pose.position.y -  self.y_move_target
+                    
+                    #print(self.x_error, self.y_error)
+                    if (abs(self.x_error) <0.1 and abs(self.y_error)< 0.1) :
+                        self.stop()
+                        away_mecanum.stop()
+                        self.x_move_target = np.nan
+
+                    else:
+                        self.set_x_velocity(self.dt)
+                        self.set_y_velocity(self.dt)
+                        if abs(self.x_error) < 0.1:
+                            self.vel_forward_apply = 0
+
+                        if abs(self.y_error) < 0.1:
+                            self.vel_lateral_apply = 0
+
+
+                        self.twist = Twist()
+                        #print(self.vel_forward_apply, self.vel_lateral_apply)
+                        
+                        self.twist.linear.x = self.vel_forward_apply
+                        self.twist.linear.y = self.vel_lateral_apply
+                        self.twist.linear.z = 0
+
+                        self.wheel_vel = mecanum_wheel_velocity(self.twist.linear.x, self.twist.linear.y, self.twist.angular.z)
+
+                        self.pub.publish(self.twist)
+                        self.pub_wheel_vel_1.publish(self.wheel_vel[0,:])
+                        self.pub_wheel_vel_2.publish(self.wheel_vel[1,:])
+                        self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
+                        self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
 
 
 def return_home(home_mecanum):

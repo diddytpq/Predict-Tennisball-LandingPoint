@@ -273,7 +273,7 @@ def main(args):
     rospy.init_node('ball_airdynamic', anonymous=True)
 
     rospy.loginfo("###########################################################################") 
-    rospy.loginfo(sys.version) 
+    rospy.loginfo("start ball air dynamic plugin") 
 
     ball_left_name = 'ball_left'
     ball_right_name = 'ball_right'
@@ -283,7 +283,6 @@ def main(args):
     try:
         while True:
             ball_check_flag = check_ball_exist(ball_name_list)
-
 
 
             if ball_check_flag:
@@ -299,3 +298,98 @@ def main(args):
 
 if __name__ == '__main__':
     main(sys.argv)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# left
+
+
+"""    def break_ball_rolling(self):
+
+        self.gat_away_ball_stats()
+        self.ball_pre_vel_linear_x = self.away_ball_vel.linear.x 
+        self.ball_pre_vel_linear_y = self.away_ball_vel.linear.y
+
+        if self.check_bounce() and self.away_ball_pose.position.z < 0.021 :
+
+            self.gat_away_ball_stats()
+
+            w_y2 = self.away_ball_vel.angular.y - 1.5 * 0.033 * (self.away_ball_vel.linear.x - self.away_ball_vel_max_x) / 0.03 ** 2
+            w_x2 = self.away_ball_vel.angular.x - 1.5 * 0.033 * (self.away_ball_vel.linear.y - self.away_ball_vel_max_y) / 0.03 ** 2
+
+            self.away_ball_vel_max_x = self.away_ball_vel.linear.x
+            self.away_ball_vel_max_y = self.away_ball_vel.linear.y
+
+            force = [0, 0, 0]
+
+            self.apply_torque = [(self.away_ball_vel.angular.x  - w_x2) * 1000, (self.away_ball_vel.angular.y - w_y2) * 1000, 0]
+        
+            #self.ball_apply_force(self.away_ball_name, force, self.apply_torque, self.duration)
+
+    def check_bounce(self):
+
+        self.gat_away_ball_stats()
+
+        self.current_gradient = self.away_ball_pose.position.z - self.ball_preposition_list_z[-1]
+
+        if self.check_gradient(self.pre_gradient_z[-1]) == False and self.check_gradient(self.current_gradient) == True:
+            self.ball_preposition_list_z.append(self.away_ball_pose.position.z)
+            self.pre_gradient_z.append(self.current_gradient)
+            return True
+
+        else:
+            self.ball_preposition_list_z.append(self.away_ball_pose.position.z) 
+            self.pre_gradient_z.append(self.current_gradient)
+            return False
+        
+    def check_gradient(self, gradient): 
+
+        if gradient < 0: 
+            return False
+        
+        else: 
+            return True
+
+"""
+
+
+
+
+
+"""    #right
+    def break_ball_rolling(self):
+
+    self.gat_away_ball_stats()
+    duration = 0.001
+
+    self.ball_pre_vel_linear_x = self.away_ball_vel.linear.x 
+    self.ball_pre_vel_linear_y = self.away_ball_vel.linear.y
+
+    if self.check_bounce() and self.away_ball_pose.position.z < 0.021 :
+
+        self.gat_away_ball_stats()
+
+        w_y2 = self.away_ball_vel.angular.y - 1.5 * 0.033 * (self.away_ball_vel.linear.x - self.away_ball_vel_max_x) / 0.03 ** 2
+        w_x2 = self.away_ball_vel.angular.x - 1.5 * 0.033 * (self.away_ball_vel.linear.y - self.away_ball_vel_max_y) / 0.03 ** 2
+
+        self.away_ball_vel_max_x = self.away_ball_vel.linear.x
+        self.away_ball_vel_max_y = self.away_ball_vel.linear.y
+
+        force = [0, 0, 0]
+
+        self.apply_torque = [-(self.away_ball_vel.angular.x  - w_x2) * 1000, -(self.away_ball_vel.angular.y - w_y2) * 1000, 0]
+    
+        #self.ball_apply_force(self.away_ball_name, force, self.apply_torque, duration)
+"""

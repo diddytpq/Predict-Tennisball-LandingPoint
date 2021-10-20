@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#! /home/drcl_yang/anaconda3/envs/py36/bin/python
+
 from pathlib import Path
 import sys
 
@@ -621,9 +622,10 @@ class Image_converter:
 
                 if self.esti_ball_landing_point:
                     #print("-----------------------")
-                    print("send meg : ", self.esti_ball_landing_point)
-                    self.array2data.data = self.esti_ball_landing_point
-                    self.pub.publish(self.array2data)
+                    if self.esti_ball_landing_point[0] > 0:
+                        print("send meg : ", self.esti_ball_landing_point)
+                        self.array2data.data = self.esti_ball_landing_point
+                        self.pub.publish(self.array2data)
                 #print("esti_ball_landing_point : ",self.esti_ball_landing_point)
 
 
