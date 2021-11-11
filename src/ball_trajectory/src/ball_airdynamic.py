@@ -1,5 +1,6 @@
 #! /home/drcl_yang/anaconda3/envs/py36/bin/python
 
+
 import rospy
 import sys
 from gazebo_msgs.srv import *
@@ -66,7 +67,6 @@ def gat_ball_stats(ball_name):
     """object_pose.position.x = float(robot_state.pose.position.x)
     object_pose.position.y = float(robot_state.pose.position.y)
     object_pose.position.z = float(robot_state.pose.position.z)
-
     object_pose.orientation.x = float(robot_state.pose.orientation.x)
     object_pose.orientation.y = float(robot_state.pose.orientation.y)
     object_pose.orientation.z = float(robot_state.pose.orientation.z)
@@ -151,6 +151,8 @@ def cal_drag_lift_force(down_motion, drag_force, lift_force, angle_xy, angle_x, 
     liftdrag_force_y = drag_force_y + lift_force_y
     liftdrag_force_z = drag_force_z + lift_force_z
 
+
+
     return liftdrag_force_x, liftdrag_force_y, liftdrag_force_z
 
 def ball_apply_force(target, force, torque, duration):
@@ -218,6 +220,7 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
         if left_ball_state.twist.linear.z < 0:
             down_motion = 1
 
+
         liftdrag_force_x, liftdrag_force_y, liftdrag_force_z = cal_drag_lift_force(down_motion, drag_force, lift_force, angle_xy, angle_x, cl)
 
         force = [np.round(liftdrag_force_x,5) / (dt * dt_gain), np.round(liftdrag_force_y,5) / (dt * dt_gain),np.round(liftdrag_force_z,5) / (dt * dt_gain)]
@@ -256,11 +259,10 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
         if right_ball_state.twist.linear.z < 0:
             down_motion = 1
 
+
         liftdrag_force_x, liftdrag_force_y, liftdrag_force_z = cal_drag_lift_force(down_motion, drag_force, lift_force, angle_xy, angle_x, cl)
 
         force = [-np.round(liftdrag_force_x,5) / (dt * dt_gain), -np.round(liftdrag_force_y,5) / (dt * dt_gain), np.round(liftdrag_force_z,5) / (dt * dt_gain)]
-
-
 
     ball_apply_force(ball_name, force, [0,0,0], dt)
 
@@ -268,7 +270,7 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
 
 def main(args):
 
-    time.sleep(10)
+    time.sleep(5)
 
     rospy.init_node('ball_airdynamic', anonymous=True)
 
@@ -317,51 +319,37 @@ if __name__ == '__main__':
 
 
 """    def break_ball_rolling(self):
-
         self.gat_away_ball_stats()
         self.ball_pre_vel_linear_x = self.away_ball_vel.linear.x 
         self.ball_pre_vel_linear_y = self.away_ball_vel.linear.y
-
         if self.check_bounce() and self.away_ball_pose.position.z < 0.021 :
-
             self.gat_away_ball_stats()
-
             w_y2 = self.away_ball_vel.angular.y - 1.5 * 0.033 * (self.away_ball_vel.linear.x - self.away_ball_vel_max_x) / 0.03 ** 2
             w_x2 = self.away_ball_vel.angular.x - 1.5 * 0.033 * (self.away_ball_vel.linear.y - self.away_ball_vel_max_y) / 0.03 ** 2
-
             self.away_ball_vel_max_x = self.away_ball_vel.linear.x
             self.away_ball_vel_max_y = self.away_ball_vel.linear.y
-
             force = [0, 0, 0]
-
             self.apply_torque = [(self.away_ball_vel.angular.x  - w_x2) * 1000, (self.away_ball_vel.angular.y - w_y2) * 1000, 0]
         
             #self.ball_apply_force(self.away_ball_name, force, self.apply_torque, self.duration)
-
     def check_bounce(self):
-
         self.gat_away_ball_stats()
-
         self.current_gradient = self.away_ball_pose.position.z - self.ball_preposition_list_z[-1]
-
         if self.check_gradient(self.pre_gradient_z[-1]) == False and self.check_gradient(self.current_gradient) == True:
             self.ball_preposition_list_z.append(self.away_ball_pose.position.z)
             self.pre_gradient_z.append(self.current_gradient)
             return True
-
         else:
             self.ball_preposition_list_z.append(self.away_ball_pose.position.z) 
             self.pre_gradient_z.append(self.current_gradient)
             return False
         
     def check_gradient(self, gradient): 
-
         if gradient < 0: 
             return False
         
         else: 
             return True
-
 """
 
 
@@ -370,25 +358,17 @@ if __name__ == '__main__':
 
 """    #right
     def break_ball_rolling(self):
-
     self.gat_away_ball_stats()
     duration = 0.001
-
     self.ball_pre_vel_linear_x = self.away_ball_vel.linear.x 
     self.ball_pre_vel_linear_y = self.away_ball_vel.linear.y
-
     if self.check_bounce() and self.away_ball_pose.position.z < 0.021 :
-
         self.gat_away_ball_stats()
-
         w_y2 = self.away_ball_vel.angular.y - 1.5 * 0.033 * (self.away_ball_vel.linear.x - self.away_ball_vel_max_x) / 0.03 ** 2
         w_x2 = self.away_ball_vel.angular.x - 1.5 * 0.033 * (self.away_ball_vel.linear.y - self.away_ball_vel_max_y) / 0.03 ** 2
-
         self.away_ball_vel_max_x = self.away_ball_vel.linear.x
         self.away_ball_vel_max_y = self.away_ball_vel.linear.y
-
         force = [0, 0, 0]
-
         self.apply_torque = [-(self.away_ball_vel.angular.x  - w_x2) * 1000, -(self.away_ball_vel.angular.y - w_y2) * 1000, 0]
     
         #self.ball_apply_force(self.away_ball_name, force, self.apply_torque, duration)

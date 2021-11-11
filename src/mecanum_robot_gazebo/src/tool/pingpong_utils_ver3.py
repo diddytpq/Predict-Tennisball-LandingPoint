@@ -238,9 +238,9 @@ class Make_mecanum_left():
         self.v0 = self.s/(self.ball_fly_time + self.ball_fly_time_plus)
 
         if self.v0 > 0 :
-            self.v0 += 20
+            self.v0 += 17
         else:
-            self.v0 -= 20
+            self.v0 -= 17
 
         self.v = np.sqrt(self.v0**2 + self.vz0**2)
         self.launch_angle = np.arctan(self.vz0/self.v0)
@@ -416,7 +416,8 @@ class Make_mecanum_right(Make_mecanum_left):
             return 0
 
         self.esti_ball_landing_point = [data.data[0], data.data[1], data.data[2]]
-        print(self.esti_ball_landing_point)
+        
+        #print(self.esti_ball_landing_point)
     
     def move_base_camera(self, add_catch_point,away_mecanum):
             t0 = time.time()

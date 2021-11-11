@@ -644,7 +644,7 @@ class Image_converter:
             #cv2.imshow("left_frame", self.left_frame)
             #cv2.imshow("main_depth_0", self.main_depth_frame)
 
-            #cv2.imshow("image_robot_tracking", robot_detect_img)
+            cv2.imshow("image_robot_tracking", robot_detect_img)
             
             cv2.imshow("ball_detect_img", ball_detect_img)
             cv2.imshow("tennis_court", tennis_court_img)
