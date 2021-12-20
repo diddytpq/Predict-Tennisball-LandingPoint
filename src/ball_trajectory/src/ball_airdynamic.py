@@ -183,9 +183,9 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
 
     dt = t1 - t0
 
-    dt_gain = 1.5
+    dt_gain = 1
 
-    #print(dt)
+    print(dt)
 
     if ball_check_flag == 1:
         left_ball_state = gat_ball_stats(ball_name)
@@ -223,7 +223,7 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
 
         liftdrag_force_x, liftdrag_force_y, liftdrag_force_z = cal_drag_lift_force(down_motion, drag_force, lift_force, angle_xy, angle_x, cl)
 
-        force = [np.round(liftdrag_force_x,5) / (dt * dt_gain), np.round(liftdrag_force_y,5) / (dt * dt_gain),np.round(liftdrag_force_z,5) / (dt * dt_gain)]
+        force = [np.round(liftdrag_force_x,5) / (dt * dt_gain), np.round(liftdrag_force_y,5) / (dt * (dt_gain + 1) ),np.round(liftdrag_force_z,5) / (dt * dt_gain)]
 
     if ball_check_flag == 2:
         right_ball_state = gat_ball_stats(ball_name)
@@ -262,7 +262,10 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
 
         liftdrag_force_x, liftdrag_force_y, liftdrag_force_z = cal_drag_lift_force(down_motion, drag_force, lift_force, angle_xy, angle_x, cl)
 
-        force = [-np.round(liftdrag_force_x,5) / (dt * dt_gain), -np.round(liftdrag_force_y,5) / (dt * dt_gain), np.round(liftdrag_force_z,5) / (dt * dt_gain)]
+        force = [-np.round(liftdrag_force_x,5) / (dt * dt_gain), -np.round(liftdrag_force_y,5) / (dt * (dt_gain + 1)), np.round(liftdrag_force_z,5) / (dt * dt_gain)]
+    
+    
+    #force = [force[0],0,force[2]]
 
     ball_apply_force(ball_name, force, [0,0,0], dt)
 
@@ -270,9 +273,11 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
 
 def main(args):
 
-    time.sleep(5)
+    time.sleep(3)
 
     rospy.init_node('ball_airdynamic', anonymous=True)
+
+    rate = rospy.Rate(100)
 
     rospy.loginfo("###########################################################################") 
     rospy.loginfo("start ball air dynamic plugin") 
@@ -289,6 +294,8 @@ def main(args):
 
             if ball_check_flag:
                 ball_apply_airdyanmic(ball_name_list[ball_check_flag - 1], ball_check_flag)
+
+            rate.sleep()
 
 
     except KeyboardInterrupt:

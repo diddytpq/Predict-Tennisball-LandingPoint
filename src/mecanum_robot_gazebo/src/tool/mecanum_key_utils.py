@@ -22,7 +22,7 @@ max_vel_lateral = 5.5 # m/s
 
 ball_spawn_z = 1.5 # m
 ball_init_vel_x = 40 #m/s
-ball_init_vel_z = 5 #m/s
+ball_init_vel_z = 3 #m/s
 
 torque = [0, 209*1000, 0]
 
@@ -169,12 +169,12 @@ def throw_ball():
 
     print("vx, vz :", ball_init_vel_x, ball_init_vel_z)
 
-    while gat_ball_stats().pose.position.z > 0.02 :
+    """while gat_ball_stats().pose.position.z > 0.02 :
         t1 = time.time()
         dt = t1 - t0
         cal_liftdrag(dt)
 
-        t0 = time.time()
+        t0 = time.time()"""
 
 
 def gat_ball_stats():
@@ -185,6 +185,7 @@ def gat_ball_stats():
 def cal_liftdrag(dt):
 
     dt = 0.05
+    dt_gain = 1.5
 
     ball_state = gat_ball_stats()
 
@@ -203,7 +204,11 @@ def cal_liftdrag(dt):
     angle_xy = np.arctan(ball_state.twist.linear.z / ball_vel_xy)
 
     cd = 0.507
-    cl = -0.645 * 0.033 * ball_angular_xy / ball_vel_xy
+    cl = -0.75 * 0.033 * ball_angular_xy / ball_vel_xy
+
+    if cl < -0.4:
+        cl = -0.4
+        return 0
 
     drag_force = -0.5 * cd * 1.2041 * np.pi * (0.033 ** 2) * ball_vel_xyz
     lift_force = 0.5 * cl * 1.2041 * np.pi * (0.033 ** 2) * ball_vel_xyz
@@ -275,6 +280,6 @@ def cal_liftdrag(dt):
     print("lift force : {}, {}, {}".format(np.round(lift_force_x,3), np.round(lift_force_y,3), np.round(lift_force_z,3)))
     print("liftdrag force : {}, {}, {}".format(np.round(liftdrag_force_x,5), np.round(liftdrag_force_y,5), np.round(liftdrag_force_z,5)))"""
 
-    force = [np.round(liftdrag_force_x,5) / dt, np.round(liftdrag_force_y,5) / dt, np.round(liftdrag_force_z,5) / dt]
+    force = [np.round(liftdrag_force_x,5) / (dt * dt_gain), np.round(liftdrag_force_y,5) / (dt * dt_gain), np.round(liftdrag_force_z,5) / (dt * dt_gain)]
     
     ball_apply_force("ball_left", force, [0,0,0], dt)

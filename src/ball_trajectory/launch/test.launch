@@ -4,7 +4,7 @@
   <arg name="z_pos" default="0.0"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find ball_trajectory)/worlds/tennis_court.world"/>
+    <arg name="world_name" value="$(find ball_trajectory)/worlds/empty.world"/>
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="true"/>
@@ -14,28 +14,15 @@
 
 
 
-  <param name="ball_description_0" textfile="$(find ball_trajectory)/urdf/ball.urdf"/>
-  <param name="ball_description_1" textfile="$(find ball_trajectory)/urdf/ball_main.sdf"/>
+  <param name="ball_default" textfile="$(find ball_trajectory)/urdf/tennis_ball/kp/ball.urdf"/>
+  <param name="ball_kp100" textfile="$(find ball_trajectory)/urdf/tennis_ball/kp/ball_100.urdf"/>
+  <param name="ball_kp1000" textfile="$(find ball_trajectory)/urdf/tennis_ball/kp/ball_1000.urdf"/>
 
 
 
+  <node pkg="gazebo_ros" type="spawn_model" name="ball_default"  args="-urdf -model ball_default -x 0 -y 0 -z 5  -param ball_default" />
+  <node pkg="gazebo_ros" type="spawn_model" name="ball_kp100"  args="-urdf -model ball_kp100 -x 0 -y 1 -z 5  -param ball_kp100" />
+  <node pkg="gazebo_ros" type="spawn_model" name="ball_kp1000"  args="-urdf -model ball_kp1000 -x 0 -y 2 -z 5  -param ball_kp1000" />
 
-
-
-  <node pkg="gazebo_ros" type="spawn_model" name="ball_0"  args="-urdf -model ball_0 -x 0 -y 0 -z 10  -param ball_description_0" />
-  <node pkg="gazebo_ros" type="spawn_model" name="ball_5"  args="-sdf -model ball_5 -x 0 -y 2 -z 10  -param ball_description_5" />
-
-
-
-  <param name="camera_left_description" textfile="$(find ball_trajectory)/urdf/camera_left.urdf"/>
-  <param name="camera_right_description" textfile="$(find ball_trajectory)/urdf/camera_right.urdf"/>
-
-  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find ball_trajectory)/urdf/turtlebot3_waffle.urdf.xacro" />
-
-
-  <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model turtlebot3_waffle -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
-
-  <node pkg="gazebo_ros" type="spawn_model" name="camera_left_urdf" args="-urdf -model camera_left -x 0 -y -5.5 -z 0 -param camera_left_description" />
-  <node pkg="gazebo_ros" type="spawn_model" name="camera_right_urdf" args="-urdf -model camera_right -x 0 -y 5.5 -z 0 -param camera_right_description" />
 
 </launch>

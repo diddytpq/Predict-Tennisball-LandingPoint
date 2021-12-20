@@ -19,10 +19,11 @@
 		<joint name="summit_base_footprint_joint" type="fixed">
 		  <origin xyz="0 0 ${base_offset}" rpy="0 0 0" /> <!-- ${wheel_radius} property must be defined inside wheel description -->
 		  <parent link="summit_base_footprint"/>
-		  <child link="frame" />
+		  <child link="frame_left" />
 		</joint>
 
-        <link name="frame">
+
+        <link name="frame_left">
             <visual>
                 <origin xyz="0.0 0.0 0.0" rpy="${pi/2} 0.0 0"/> <!--xyz="0.0 0.0 0.0" rpy="${pi/2} 0.0 ${-pi/2}" -->
                 <geometry>
@@ -33,10 +34,9 @@
                 </material>
             </visual>
             <collision>
-                <origin xyz="0 0 0" rpy="$0.0 0.0 0.0"/>
+                <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
                 <geometry>
                     <box size="0.64 0.598 0.2"/>
-                    <!--mesh filename="package://omni_manipulator/meshes/frame_c.stl" scale="0.001 0.001 0.001"/!-->       
                 </geometry>
             </collision>
             <inertial>
@@ -46,13 +46,15 @@
             </inertial>
         </link>
 
-        <gazebo reference="frame">
+
+
+        <gazebo reference="frame_left">
             <mu1 value="1.0"/>
             <mu2 value="1.0"/>
             <kp value="10000000.0" />
             <kd value="1.0" />
             <maxVel>0.001</maxVel>
-            <minDepth>0.0001</minDepth>
+            <minDepth>0.001</minDepth>
             <turnGravityOff>false</turnGravityOff>
             <material>Gazebo/White</material>
         </gazebo>

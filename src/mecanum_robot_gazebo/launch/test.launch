@@ -24,7 +24,7 @@
 
   <!-- Load the URDF into ROS parameter server -->
   <param name="robot_description" command="$(find xacro)/xacro  '$(find mecanum_robot_description)/urdf/mecanum_left_ver2/mecanum.urdf.xacro'"/>
-  <param name="robot_description_1" command="$(find xacro)/xacro  '$(find mecanum_robot_description)/urdf/mecanum_right_ver2/mecanum_1.urdf.xacro'"/>
+  <param name="robot_description_1" command="$(find xacro)/xacro  '$(find mecanum_robot_description)/urdf/mecanum_right_ver3/mecanum_1.urdf.xacro'"/>
 
   <param name="camera_left_description" textfile="$(find ball_trajectory)/urdf/camera/camera_left.urdf"/>
   <param name="camera_right_description" textfile="$(find ball_trajectory)/urdf/camera/camera_right.urdf"/>
@@ -36,44 +36,41 @@
 
 
   <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+
   <node pkg="gazebo_ros" type="spawn_model" name="mecanum_urdf_0" respawn="false" output="screen"
-    args="-urdf -x -10 -y 0 -z 0 -R 0 -P 0 -Y 0  -model mecanum_L -param robot_description"/>
+    args="-urdf -x -11.5 -y 0 -z 0 -R 0 -P 0 -Y 0  -model mecanum_L -param robot_description"/>
 
   <node pkg="gazebo_ros" type="spawn_model" name="mecanum_urdf_1" respawn="false" output="screen"
-    args="-urdf -x 10 -y 0 -z 0 -Y 3.14 -model mecanum_R -param robot_description_1"/>
+    args="-urdf -x 11.5 -y 0 -z 0 -Y 3.14 -model mecanum_R -param robot_description_1"/>
 
   <node pkg="gazebo_ros" type="spawn_model" name="camera_left_urdf" args="-urdf -model camera_left -x 0 -y -6.4 -z 0 -param camera_left_description" />
   <node pkg="gazebo_ros" type="spawn_model" name="camera_right_urdf" args="-urdf -model camera_right -x 0 -y 6.4 -z 0 -param camera_right_description" />
   
   <node pkg="gazebo_ros" type="spawn_model" name="camera_left_top_urdf" args="-urdf -model camera_left_top -x -20 -y 0 -z 0 -param camera_left_top_description" />
-  <!--node pkg="gazebo_ros" type="spawn_model" name="camera_right_top_urdf" args="-urdf -model camera_right_top -x 15 -y 0 -z 0 -Y 3.14 -param camera_right_top_description" /-->
   
 
   <!-- Run controller utils -->
 
-  <node name="controller_spawner_L" pkg="controller_manager" type="spawner" respawn="false"
+  <!--node name="controller_spawner_L" pkg="controller_manager" type="spawner" respawn="false"
     output="screen" ns="/mecanum_L" args=" joint_state_controller 
                                        wheel_1_controller 
                                       wheel_2_controller 
                                       wheel_3_controller 
-                                      wheel_4_controller"/>
+                                      wheel_4_controller"/-->
 
-  <node name="controller_spawner_R" pkg="controller_manager" type="spawner" respawn="false"
+  <!--node name="controller_spawner_R" pkg="controller_manager" type="spawner" respawn="false"
     output="screen" ns="/mecanum_R" args=" joint_state_controller 
                                        wheel_1_controller 
                                       wheel_2_controller 
                                       wheel_3_controller 
-                                      wheel_4_controller"/>
+                                      wheel_4_controller"/-->
 
-  <!--node pkg="ball_trajectory" name="ball_airdynamic" type="ball_airdynamic.py" output="screen"/--> 
+  <node pkg="ball_trajectory" name="ball_airdynamic" type="ball_airdynamic.py" output="screen"/> 
 
   <!-- convert joint states to TF transforms for rviz, etc -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
     <remap from="/joint_states" to="/mecanum_L/joint_states" />
   </node>
-
-  <!-- Joystick node -->
-  <node name="joy" pkg="joy" type="joy_node"/>
 
 
 

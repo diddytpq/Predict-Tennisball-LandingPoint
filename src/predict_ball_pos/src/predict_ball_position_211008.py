@@ -396,7 +396,7 @@ class Image_converter:
                     #print(esti_ball_landing_point_list)
                     save_flag = 1
 
-                    #print("real_ball_trajectory_list = np.array(", real_ball_trajectory_list ,")")
+                    print("real_ball_trajectory_list = np.array(", real_ball_trajectory_list ,")")
                     #print("estimation_ball_trajectory_list = np.array(", estimation_ball_trajectory_list,")")
 
                 disappear_cnt = 0

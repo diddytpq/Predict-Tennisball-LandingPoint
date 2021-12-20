@@ -38,7 +38,7 @@ if __name__ == '__main__' :
     mecanum_L.del_ball()
     mecanum_R.del_ball() 
 
-    add_catch_point = 3
+    add_catch_point = 1
 
     if mod == 0:
         while True:

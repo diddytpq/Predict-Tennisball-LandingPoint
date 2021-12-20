@@ -353,7 +353,7 @@ class Image_converter:
         return [-ball_position_x_L, ball_position_y, height + 1]
 
     
-    def draw_point_court(self, real_point_list, camera_predict_point_list):
+    def draw_point_court(self, real_point_list, camera_predict_point_list, draw_landing_point = False):
 
         real_pix_point_list = []
         predict_pix_point_list = []
@@ -363,6 +363,8 @@ class Image_converter:
 
         x_pred = camera_predict_point_list[0]
         y_pred = camera_predict_point_list[1]
+        
+        print()
 
         y_pix_length, x_pix_length = tennis_court_img.shape[0], tennis_court_img.shape[1]
 
@@ -370,16 +372,28 @@ class Image_converter:
         y_meter2pix = 10.97 / y_pix_length
 
         real_pix_point_list.append(int(np.round((11.885 + real_point_list[0]) / x_meter2pix)))
-        predict_pix_point_list.append(int(np.round((11.885 + x_pred) / x_meter2pix)))
-
         real_pix_point_list.append(int(np.round((5.485 - real_point_list[1]) / y_meter2pix)))
+
+        predict_pix_point_list.append(int(np.round((11.885 + x_pred) / x_meter2pix)))
         predict_pix_point_list.append(int(np.round((5.485 - y_pred) / y_meter2pix)))
 
         real_pix_point_xy = real_pix_point_list[0:2]
         predict_pix_point = predict_pix_point_list[0:2]
 
+
         cv2.circle(tennis_court_img,real_pix_point_xy, 4, [0, 0, 255], -1)
         cv2.circle(tennis_court_img,predict_pix_point, 4, [0, 255, 0], -1)
+
+        if draw_landing_point and (np.isnan(self.esti_ball_landing_point[0]) == False) and self.esti_ball_landing_point[0] > 0:
+            landing_point_list = []
+            landing_point_list.append(int(np.round((11.885 + self.esti_ball_landing_point[0]) / x_meter2pix)))
+            landing_point_list.append(int(np.round((5.485 - self.esti_ball_landing_point[1]) / y_meter2pix)))
+            landing_point = landing_point_list[0:2]
+
+            print("landing_point = ",self.esti_ball_landing_point)
+            
+            cv2.circle(tennis_court_img,landing_point, 4, [0, 255, 255], -1)
+
 
     def check_ball_seq(self, disappear_cnt):
 
@@ -633,7 +647,7 @@ class Image_converter:
 
 
 
-            self.draw_point_court(self.real_ball_pos_list, self.ball_camera_list)
+            self.draw_point_court(self.real_ball_pos_list, self.ball_camera_list, draw_landing_point = True)
 
 
 
@@ -644,14 +658,14 @@ class Image_converter:
             #cv2.imshow("left_frame", self.left_frame)
             #cv2.imshow("main_depth_0", self.main_depth_frame)
 
-            cv2.imshow("image_robot_tracking", robot_detect_img)
+            #cv2.imshow("image_robot_tracking", robot_detect_img)
             
             cv2.imshow("ball_detect_img", ball_detect_img)
             cv2.imshow("tennis_court", tennis_court_img)
 
             #cv2.imshow("trajectroy_image", trajectroy_image)
 
-            #print(1/(t2-t1))
+            print("FPS :",1/(t2-t1))
             
             key = cv2.waitKey(1)
 
