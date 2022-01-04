@@ -25,7 +25,7 @@ if __name__ == '__main__' :
 
     rospy.init_node('pingpong')
 
-    mod = 1
+    mod = 0
 
     mecanum_L = Make_mecanum_left('mecanum_L')
     mecanum_R = Make_mecanum_right('mecanum_R')
