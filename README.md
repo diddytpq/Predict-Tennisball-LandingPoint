@@ -29,14 +29,21 @@ start tennis court env in gazebo
 ```bash
 roslaunch mecanum_robot_gazebo tennis_ver2.launch
 ```
-![Screenshot from 2022-01-20 21-36-34](https://user-images.githubusercontent.com/67572161/150340231-d0544252-7ce5-41a9-9792-74f94f3a1bcc.png)
 
+<p align="center">
+<img width="80%" src="https://user-images.githubusercontent.com/67572161/150340231-d0544252-7ce5-41a9-9792-74f94f3a1bcc.png"/>
+  
+</p>
 
 this command begin robot tennis match 
 ```bash
 python src/mecanum_robot_gazebo/src/tennis_match_ver3.py
 ```
-#### 공주고 받는거 영상 추가
+<p align="center">
+<img width="80%" src="https://user-images.githubusercontent.com/67572161/150342985-c95a5374-c96e-47d2-811c-0695e3465e9b.gif"/>
+</p>
+
+
 
 
 ## Camera-based ball tracking installed on the net post
