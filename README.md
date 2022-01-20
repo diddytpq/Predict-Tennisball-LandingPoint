@@ -22,7 +22,7 @@ catkin_make
 source ./devel/setup.bash
 ```
 
-### air dynamic.py 
+### air dynamic.py_환경변수_변경_설명
 
 ## Run Demo:
 
