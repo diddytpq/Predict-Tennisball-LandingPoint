@@ -22,6 +22,8 @@ catkin_make
 source ./devel/setup.bash
 ```
 
+### air dynamic.py 
+
 ## Run Demo:
 
 start tennis court env in gazebo
