@@ -82,14 +82,17 @@ def check_ball_exist(ball_name_list):
     global t0
 
     t0 = time.time()
+    try:
+        if g_get_state(model_name = ball_name_list[0]).success:
+            return 1
+        
+        elif g_get_state(model_name = ball_name_list[1]).success:
+            return 2
 
-    if g_get_state(model_name = ball_name_list[0]).success:
-        return 1
-    
-    elif g_get_state(model_name = ball_name_list[1]).success:
-        return 2
-
-    else:
+        else:
+            return 0
+        
+    except rospy.ROSInterruptException:
         return 0
 
 
@@ -181,11 +184,11 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
 
     t1 = time.time()
 
-    dt = t1 - t0
+    dt = 1/100
 
     dt_gain = 1
 
-    print(dt)
+    #print(dt)
 
     if ball_check_flag == 1:
         left_ball_state = gat_ball_stats(ball_name)
@@ -289,6 +292,7 @@ def main(args):
 
     try:
         while True:
+            t0 = time.time()
             ball_check_flag = check_ball_exist(ball_name_list)
 
 
@@ -297,7 +301,7 @@ def main(args):
 
             rate.sleep()
 
-
+            print(time.time() - t0)
     except KeyboardInterrupt:
         print("Shutting down")
 

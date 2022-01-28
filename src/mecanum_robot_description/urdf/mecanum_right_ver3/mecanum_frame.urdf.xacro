@@ -132,8 +132,8 @@
               <camera>
                 <horizontal_fov>1.50098</horizontal_fov>
                 <image>
-                  <width>640</width>
-                  <height>480</height>
+                  <width>1280</width>
+                  <height>720</height>
                   <format>R8G8B8</format>
                 </image>
                 <clip>
@@ -160,8 +160,8 @@
                 <distortionT1>0.00000001</distortionT1>
                 <distortionT2>0.00000001</distortionT2>
                 <CxPrime>0</CxPrime>
-                <Cx>320</Cx>
-                <Cy>240</Cy>
+                <Cx>640</Cx>
+                <Cy>360</Cy>
                 <focalLength>0</focalLength>
                 <hackBaseline>0</hackBaseline>
               </plugin>

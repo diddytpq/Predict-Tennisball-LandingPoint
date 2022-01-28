@@ -23,7 +23,7 @@ import time
 from pathlib import Path
 
 import cv2
-import torch
+"""import torch
 import torch.backends.cudnn as cudnn
 
 from models.experimental import attempt_load
@@ -32,7 +32,7 @@ from utils.general import check_img_size, check_requirements, check_imshow, colo
     apply_classifier, scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path, save_one_box
 from utils.plots import colors, plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized
-from utils.augmentations import letterbox
+from utils.augmentations import letterbox"""
 
 FILE = Path(__file__).absolute()
 sys.path.append(FILE.parents[0].as_posix())  # add yolov5/ to path
@@ -45,7 +45,7 @@ kernel_dilation_2 = cv2.getStructuringElement(cv2.MORPH_RECT,(5,5))
 kernel_erosion_1 = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
 
 # yolov5 setup
-conf_thres = 0.25
+"""conf_thres = 0.25
 iou_thres=0.45
 classes = None # filter by class: --class 0, or --class 0 2 3
 agnostic_nms = False # class-agnostic NMS
@@ -65,9 +65,9 @@ model = attempt_load(weights, map_location=device)  # load FP32 model
 
 stride = int(model.stride.max())  # model stride
 imgsz = check_img_size(img_size, s=stride)  # check image size
-names = model.module.names if hasattr(model, 'module') else model.names  # get class names
+names = model.module.names if hasattr(model, 'module') else model.names  # get class names"""
 
-record = False
+record = True
 
 class Image_converter:
 
@@ -88,8 +88,8 @@ class Image_converter:
 
         if record == True:
             self.codec = cv2.VideoWriter_fourcc(*'XVID')
-            self.out_0 = cv2.VideoWriter("train_video.mp4", self.codec, 35, (1280,640))
-            #self.out_1 = cv2.VideoWriter("right.mp4", self.codec, 60, (640,640))
+            #self.out_0 = cv2.VideoWriter("train_video.mp4", self.codec, 35, (1280,640))
+            self.out_0 = cv2.VideoWriter("record_video.mp4", self.codec, 30, (1280,720))
 
     def callback_camera(self, data):
         try:
@@ -109,7 +109,7 @@ class Image_converter:
             print(e)
 
 
-    def ball_tracking(self, image):
+    """def ball_tracking(self, image):
 
             self.ball_cand_box = []
 
@@ -180,7 +180,7 @@ class Image_converter:
                         x0, y0, x1, y1 = int(xyxy[0]), int(xyxy[1]), int(xyxy[2]), int(xyxy[3])
                         self.robot_box.append([x0, y0, x1, y1])
 
-            return im0        
+            return im0        """
 
     def main(self, data):
         (rows,cols,channels) = self.camera_data.shape
@@ -189,35 +189,40 @@ class Image_converter:
             t1 = time.time()
 
             #self.camera_data = cv2.resize(self.camera_data,(0,0),fx = 0.5, fy = 0.5, interpolation = cv2.INTER_AREA)
-
-            self.camera_depth = cv2.applyColorMap(self.camera_depth, cv2.COLORMAP_JET)
-
+            
+            self.camera_depth = cv2.applyColorMap(self.camera_depth * 20, cv2.COLORMAP_JET)
+            
             #self.main_frame = cv2.hconcat([self.camera_data,self.camera_depth])
 
-            ball_image = self.ball_tracking(self.camera_data.copy()) 
+            #ball_image = self.ball_tracking(self.camera_data.copy()) 
 
-            robot_detect_img = self.robot_tracking(self.camera_data.copy()) #get robot bbox
+            #robot_detect_img = self.robot_tracking(self.camera_data.copy()) #get robot bbox
 
             #self.frame_recode = self.main_frame
 
             t2 = time.time()
 
-            self.main_frame = cv2.hconcat([self.camera_data, robot_detect_img, ball_image])
+            #self.main_frame = cv2.hconcat([self.camera_data, robot_detect_img, ball_image])
+            self.main_frame = cv2.hconcat([self.camera_data, self.camera_depth])
+
+            cv2.imshow("main_frame", self.camera_data)
 
             cv2.imshow("main_frame", self.main_frame)
             #cv2.imshow("camera_frame", self.camera_data)
             #cv2.imshow("fgmask_dila", self.fgmask_dila)
 
             #cv2.imshow("ball_image", ball_image)
+            
 
             print("FPS : ",1 / (t2 - t1))
 
             if record == True:
-                self.out_0.write(self.main_frame)
+                self.out_0.write(self.camera_data)
+                #self.out_0.write(self.main_frame)
                 #self.out_1.write(self.right_frame)
 
             #print((t2-t1))
-            key = cv2.waitKey(30)
+            key = cv2.waitKey(33)
 
             if key == 27 : 
                 cv2.destroyAllWindows()

@@ -25,7 +25,7 @@ if __name__ == '__main__' :
 
     rospy.init_node('pingpong')
 
-    mod = 0
+    mod = 0 
 
     mecanum_L = Make_mecanum_left('mecanum_L')
     mecanum_R = Make_mecanum_right('mecanum_R')
@@ -40,7 +40,7 @@ if __name__ == '__main__' :
 
     add_catch_point = 1
 
-    if mod == 0:
+    if mod == 0: # check mecanum move and ball launch
         while True:
             
             mecanum_L.spwan_ball("ball_left")
@@ -60,7 +60,7 @@ if __name__ == '__main__' :
             mecanum_L.move(ball_landing_point[0],ball_landing_point[1] ,mecanum_R)
 
 
-    if mod == 1:
+    if mod == 1: #predict ball pos by camera
         while True:
             mecanum_L.spwan_ball("ball_left")
             mecanum_L.throw_ball()

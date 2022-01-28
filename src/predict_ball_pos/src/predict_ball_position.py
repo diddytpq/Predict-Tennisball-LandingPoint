@@ -364,7 +364,6 @@ class Image_converter:
         x_pred = camera_predict_point_list[0]
         y_pred = camera_predict_point_list[1]
         
-        print()
 
         y_pix_length, x_pix_length = tennis_court_img.shape[0], tennis_court_img.shape[1]
 

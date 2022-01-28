@@ -21,3 +21,7 @@ rosservice call gazebo/apply_body_wrench '{body_name: "ball::base_link" , wrench
 
 rosservice call gazebo/apply_body_wrench '{body_name: "ball_0::base_link" , wrench: { force: { x: -3832, y: 19629, z: 0 } , torque: { x: 0, y: 0 , z: 0.0 } }, start_time: 10000000000, duration: 1000000000 }'
 
+
+rosservice call gazebo/apply_body_wrench '{body_name: "mecanum_L::summit_base_footprint" , reference_frame: "world", wrench: { force: { x: 0.3, y: 0, z: 0.7 } , torque: { x: 0, y: 10000 , z: 0.0 } }, start_time: 10000000000, duration: 1000000000 }'
+
+
