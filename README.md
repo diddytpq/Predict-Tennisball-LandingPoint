@@ -7,7 +7,7 @@ Predict Tennisball  LandingPoint in gazebo
 
 OS : Ubunut 20.04
 CUDA :
-Graphic Card : GTX 1880ti
+GPU : GTX 1880ti
 Ros Version : noetic
 
 You must install ros before next step
@@ -16,7 +16,7 @@ You must install ros before next step
 
 ```bash
 conda create -n tennis_project python=3.7
-conda env update -n tennis_project -f env.yml
+conda env update -f tennis_project.yaml
 
 catkin_make
 source ./devel/setup.bash
