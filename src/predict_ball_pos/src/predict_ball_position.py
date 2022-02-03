@@ -407,8 +407,8 @@ class Image_converter:
                     #print(esti_ball_landing_point_list)
                     save_flag = 1
 
-                    #print("real_ball_trajectory_list = np.array(", real_ball_trajectory_list ,")")
-                    #print("estimation_ball_trajectory_list = np.array(", estimation_ball_trajectory_list,")")
+                    print("real_ball_trajectory_list = np.array(", real_ball_trajectory_list ,")")
+                    print("estimation_ball_trajectory_list = np.array(", estimation_ball_trajectory_list,")")
 
                 disappear_cnt = 0
 
@@ -598,15 +598,15 @@ class Image_converter:
                 print("distance : ", np.round(self.ball_distance_list[0], 3), np.round(self.ball_distance_list[1], 3))
                 
                 print("real_ball_pos = [{}, {}, {}]".format(self.real_ball_pos_list[0], self.real_ball_pos_list[1], self.real_ball_pos_list[2]))
-                print("camera_preadict_pos = " ,[np.round(self.ball_camera_list[0],3), np.round(self.ball_camera_list[1],3), np.round(self.ball_camera_list[2],3)])
-                """
+                print("camera_preadict_pos = " ,[np.round(self.ball_camera_list[0],3), np.round(self.ball_camera_list[1],3), np.round(self.ball_camera_list[2],3)])"""
                 
-                #a.append([np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (-6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3), 
-                #                         np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3)])
+                
+                """a.append([np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (-6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3), 
+                                         np.round(np.sqrt(self.real_ball_pos_list[0] **2 + (self.real_ball_pos_list[1] - (6.4)) ** 2 + (self.real_ball_pos_list[2] - 1) ** 2), 3)])
 
-                #b.append([np.round(self.ball_distance_list[0], 3), np.round(self.ball_distance_list[1], 3)])
-                #print("real_distance = np.array(",a,")")
-                #print("distance = np.array(",b,")")
+                b.append([np.round(self.ball_distance_list[0], 3), np.round(self.ball_distance_list[1], 3)])
+                print("real_distance = np.array(",a,")")
+                print("distance = np.array(",b,")")"""
 
             disappear_cnt = self.check_ball_seq(disappear_cnt)
 
@@ -618,15 +618,14 @@ class Image_converter:
                 #print("real_ball_val = " ,[self.real_ball_val[0], self.real_ball_val[1], self.real_ball_val[2]])
                 #print("esti_ball_val = " ,[self.esti_ball_val[0], self.esti_ball_val[1], self.esti_ball_val[2]])
 
-                #ball_val_list.append([np.round(self.ball_vel.linear.x,3), np.round(self.ball_vel.linear.y,3), np.round(self.ball_vel.linear.z,3)])
-                #real_ball_val_list.append([self.real_ball_val[0], self.real_ball_val[1], self.real_ball_val[2]])
-                
+                ball_val_list.append([np.round(self.ball_vel.linear.x,3), np.round(self.ball_vel.linear.y,3), np.round(self.ball_vel.linear.z,3)])
+                real_ball_val_list.append([self.real_ball_val[0], self.real_ball_val[1], self.real_ball_val[2]])
                 esti_ball_val_list.append([self.esti_ball_val[0], self.esti_ball_val[1], self.esti_ball_val[2]])
+            
                 
-                """
                 print("ball_val_list = np.array(", ball_val_list , ')')
                 print("real_ball_val_list = np.array(", real_ball_val_list , ')')
-                print("esti_ball_val_list = np.array(", esti_ball_val_list , ')')"""
+                print("esti_ball_val_list = np.array(", esti_ball_val_list , ')')
 
 
                 self.esti_ball_landing_point = self.cal_landing_point(self.ball_camera_list)
@@ -664,7 +663,7 @@ class Image_converter:
 
             #cv2.imshow("trajectroy_image", trajectroy_image)
 
-            print("FPS :",1/(t2-t1))
+            #print("FPS :",1/(t2-t1))
             
             key = cv2.waitKey(1)
 

@@ -137,7 +137,7 @@
           <vertical_fov>0.7417649</vertical_fov>
           <image>
             <width>640</width>
-            <height>320</height>
+            <height>360</height>
             <format>R8G8B8</format>
           </image>
           <clip>
@@ -165,7 +165,7 @@
           <distortionT2>0.00000001</distortionT2>
           <CxPrime>0</CxPrime>
           <Cx>320</Cx>
-          <Cy>160</Cy>
+          <Cy>180</Cy>
           <focalLength>343.159073</focalLength>
           <hackBaseline>0</hackBaseline>
         </plugin>
@@ -209,7 +209,7 @@
           <horizontal_fov>1.3962634</horizontal_fov>
           <image>
             <width>640</width>
-            <height>320</height>
+            <height>360</height>
             <format>R8G8B8</format>
           </image>
           <clip>
@@ -237,7 +237,7 @@
           <distortionT2>0.00000001</distortionT2>
           <CxPrime>0</CxPrime>
           <Cx>320</Cx>
-          <Cy>160</Cy>
+          <Cy>180</Cy>
           <focalLength>0</focalLength>
           <hackBaseline>0</hackBaseline>
         </plugin>
