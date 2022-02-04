@@ -222,7 +222,7 @@ class Ball_Pos_Estimation():
 
 
 
-                ball_pos.append([-ball_position_x_L + 0.4, ball_position_y, height + post_hegith_avg])
+                ball_pos.append([-ball_position_x_L , ball_position_y, height + post_hegith_avg])
 
         return ball_pos
 
@@ -533,17 +533,17 @@ def cal_landing_point(pos_list, t0):
     y = np.array(y0 + vy * t - drag_y * (t ** 2) / 0.057,float)
     z = np.array(z0 + vz * t - (drag_z / 0.057 + 9.8 / 2) * (t ** 2),float)
 
-    print("x0, y0, z0 : ",x0, y0, z0)
-    print("vx, vy, vz : ",vx, vy, vz)
+    #print("x0, y0, z0 : ",x0, y0, z0)
+    #print("vx, vy, vz : ",vx, vy, vz)
     
     return [np.round(x,3), np.round(y,3), np.round(z,3)]
 
 
 def get_velocity(pos_list, dT):
 
-    print(dT)
-    dT += 0.02
-    print(dT)
+    dT = 0.055
+
+    print('dT',dT)
 
     np_pos_list = np.array(pos_list)
 
@@ -555,9 +555,9 @@ def get_velocity(pos_list, dT):
     vel_y_list = np.diff(y_pos_list) / dT
     vel_z_list = np.diff(z_pos_list) / dT
 
-    print("vel_x_list", vel_x_list)
+    """print("vel_x_list", vel_x_list)
     print("vel_y_list", vel_y_list)
-    print("vel_z_list", vel_z_list)
+    print("vel_z_list", vel_z_list)"""
 
 
     return vel_x_list[-1], vel_y_list[-1], vel_z_list[-1]

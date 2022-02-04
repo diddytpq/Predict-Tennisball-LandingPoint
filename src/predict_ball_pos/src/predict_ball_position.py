@@ -258,7 +258,7 @@ class Image_converter:
     def get_depth_height(self, L_pos, R_pos):
         
         cx = 320
-        cy = 160
+        cy = 180
         focal_length = 343.159
         
         x_L, y_L = L_pos[0] - cx, L_pos[1] - cy
@@ -547,17 +547,17 @@ class Image_converter:
             self.real_ball_pos_list = [np.round(self.ball_pose.position.x,3), np.round(self.ball_pose.position.y,3), np.round(self.ball_pose.position.z,3)]
 
 
-            self.left_top_frame = cv2.resize(self.left_top_data_0,(640,640),interpolation = cv2.INTER_AREA)
-            self.left_frame = cv2.vconcat([self.left_data_0,self.right_data_0])
+            #self.left_top_frame = cv2.resize(self.left_top_data_0,(640,640),interpolation = cv2.INTER_AREA)
+            self.main_frame = cv2.vconcat([self.left_data_0,self.right_data_0])
 
-            self.main_frame = cv2.hconcat([self.left_frame, self.left_top_frame])
+            #self.main_frame = cv2.hconcat([self.left_frame, self.left_top_frame])
 
             ball_detect_img = self.main_frame.copy()
             robot_detect_img = self.main_frame.copy()
             
-            robot_detect_img = self.robot_tracking(self.left_frame.copy()) #get robot bbox
+            robot_detect_img = self.robot_tracking(self.main_frame.copy()) #get robot bbox
 
-            self.ball_tracking(self.left_frame.copy())  #get ball cand bbox list
+            self.ball_tracking(self.main_frame.copy())  #get ball cand bbox list
                    
             if self.ball_cand_box:
                 self.check_iou(self.robot_box, self.ball_cand_box) # get ball bbox list

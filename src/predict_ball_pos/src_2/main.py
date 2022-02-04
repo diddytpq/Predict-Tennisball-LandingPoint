@@ -155,7 +155,7 @@ class Predict_ball_landing_point():
 
     def callback_left_top_ir(self, data):
         try:
-            self.t0 = time.time()
+            #self.t0 = time.time()
             self.left_top_data_0 = self.bridge.imgmsg_to_cv2(data, "bgr8")
 
         except CvBridgeError as e:
@@ -163,7 +163,6 @@ class Predict_ball_landing_point():
 
     def callback_left_0(self, data):
         try:
-            self.t0 = time.time()
             self.left_data_0 = self.bridge.imgmsg_to_cv2(data, "bgr8")
         
         except CvBridgeError as e:
@@ -176,6 +175,7 @@ class Predict_ball_landing_point():
             print(e)
 
     def get_ball_status(self):
+            self.t0 = time.time()
             self.g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
             self.ball_state = self.g_get_state(model_name = 'ball_left')
@@ -215,12 +215,13 @@ class Predict_ball_landing_point():
         frame_right = frame_main[360:,50:,:]"""
 
         (rows,cols,channels) = self.left_data_0.shape
+
+        self.get_ball_status()
         
         if cols > 60 and rows > 60 :
             print("-----------------------------------------------------------------")
             t1 = time.time()
 
-            self.get_ball_status()
 
             frame_left = self.left_data_0
             frame_right = self.right_data_0
@@ -286,10 +287,10 @@ class Predict_ball_landing_point():
 
                 
 
-            print("ball_cen_left = ",ball_cen_left)
-            print("ball_cen_right = ",ball_cen_right)
+            #print("ball_cen_left = ",ball_cen_left)
+            #print("ball_cen_right = ",ball_cen_right)
 
-            print("KF_flag : ",estimation_ball.kf_flag)
+            #print("KF_flag : ",estimation_ball.kf_flag)
 
             if len(ball_cen_left) and len(ball_cen_right): #2개의 카메라에서 ball이 검출 되었는가?
                 fly_check = estimation_ball.check_ball_flying(ball_cen_left, ball_cen_right)
@@ -416,22 +417,20 @@ class Predict_ball_landing_point():
                     ball_pos_jrajectory.clear()
 
             if len(ball_pos):
-                print("ball_pos_jrajectory = ",ball_pos_jrajectory)
+                #print("ball_pos_jrajectory = ",ball_pos_jrajectory)
 
                 ball_landing_point = cal_landing_point(ball_pos_jrajectory, t1)
 
                 draw_point_court(tennis_court_img, ball_pos, padding_x, padding_y)
                 draw_landing_point_court(tennis_court_img, ball_landing_point, padding_x, padding_y)
 
-                print("ball_pos = ",ball_pos)
-                print("real_ball_pos = ", self.ball_pose.position.x, self.ball_pose.position.y, self.ball_pose.position.z)
-                print("real_ball_vel = ", self.ball_vel.linear.x, self.ball_vel.linear.y, self.ball_vel.linear.z)
+                #print("ball_pos = ",ball_pos)
+                #print("real_ball_pos = ", self.ball_pose.position.x, self.ball_pose.position.y, self.ball_pose.position.z)
+                #print("real_ball_vel = ", self.ball_vel.linear.x, self.ball_vel.linear.y, self.ball_vel.linear.z)
 
-                print("ball_landing_point = ",ball_landing_point)
-
+                #print("ball_landing_point = ",ball_landing_point)
                 self.array2data.data = ball_landing_point
                 self.pub.publish(self.array2data)
-
 
             t2 = time.time()
 
