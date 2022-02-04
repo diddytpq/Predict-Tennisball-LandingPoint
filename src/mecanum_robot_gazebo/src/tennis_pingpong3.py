@@ -2,11 +2,16 @@ import rospy
 import sys, select, os
 import roslib
 import time
+import argparse
 
 from tool.pingpong_utils_ver3 import *
 
 roslib.load_manifest('mecanum_robot_gazebo')
 
+parser = argparse.ArgumentParser(description = 'tennis_match')
+
+parser.add_argument('--mod', type = str, default='0', help = 'set tennis match mod')
+args = parser.parse_args()
 
 """def callback_landing_point(data):
     global esti_ball_landing_point
@@ -25,8 +30,6 @@ if __name__ == '__main__' :
 
     rospy.init_node('pingpong')
 
-    mod = 1
-
     mecanum_L = Make_mecanum_left('mecanum_L')
     mecanum_R = Make_mecanum_right('mecanum_R')
     
@@ -40,7 +43,7 @@ if __name__ == '__main__' :
 
     add_catch_point = 1
 
-    if mod == 0: # check mecanum move and ball launch
+    if args.mod == 0: # check mecanum move and ball launch
         while True:
             
             mecanum_L.spwan_ball("ball_left")
@@ -60,7 +63,7 @@ if __name__ == '__main__' :
             mecanum_L.move(ball_landing_point[0],ball_landing_point[1] ,mecanum_R)
 
 
-    if mod == 1: #predict ball pos by camera
+    if args.mod == 1: #predict ball pos by camera
         while True:
             mecanum_L.spwan_ball("ball_left")
             mecanum_L.throw_ball()
