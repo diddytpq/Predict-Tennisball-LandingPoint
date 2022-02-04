@@ -168,11 +168,13 @@ class Ball_Pos_Estimation():
                 theta_R = np.arccos(b_R/c_R)
 
 
-                D_L = net_length * np.sin(theta_R) / np.sin(3.14 - (theta_L + theta_R))
-                D_R = net_length * np.sin(theta_L) / np.sin(3.14 - (theta_L + theta_R))
+                D_L = net_length * np.sin(theta_R) / np.sin(3.14 - (theta_L + theta_R)) + 0.033
+                D_R = net_length * np.sin(theta_L) / np.sin(3.14 - (theta_L + theta_R)) + 0.033
 
                 height_L = abs(D_L * np.sin(np.arcsin(y_L/c_L)))
                 height_R = abs(D_R * np.sin(np.arcsin(y_R/c_R)))
+
+                print("height",height_L ,height_R)
 
                 #height_L = abs(D_L * np.sin(np.arctan(y_L/a_L)))
                 #height_R = abs(D_R * np.sin(np.arctan(y_R/a_R)))
@@ -520,7 +522,8 @@ def cal_landing_point(pos_list, t0):
     t_list.append((-b - np.sqrt(b ** 2 - 4 * a * c))/(2 * a))
 
     t = max(t_list)
-
+    print(t_list)
+    
     drag_x = (0.5 * 0.507 * 1.2041 * np.pi * (0.033 ** 2) * vx ** 2 )
     drag_y = (0.5 * 0.507 * 1.2041 * np.pi * (0.033 ** 2) * vy ** 2 )
     drag_z = (0.5 * 0.507 * 1.2041 * np.pi * (0.033 ** 2) * vz ** 2 )
@@ -529,12 +532,12 @@ def cal_landing_point(pos_list, t0):
     #drag_y = 0
     #drag_z = 0
 
-    x = np.array(x0 + vx * t - drag_x * (t ** 2) / 0.057,float)
-    y = np.array(y0 + vy * t - drag_y * (t ** 2) / 0.057,float)
-    z = np.array(z0 + vz * t - (drag_z / 0.057 + 9.8 / 2) * (t ** 2),float)
+    x = np.array(x0 + vx * t - (drag_x * (t ** 2) / 0.057 / 2)  ,float)
+    y = np.array(y0 + vy * t - (drag_y * (t ** 2) / 0.057 / 2) ,float)
+    z = np.array(z0 + vz * t - ((drag_z / 0.057 + 9.8) * (t ** 2) / 2) ,float)
 
-    #print("x0, y0, z0 : ",x0, y0, z0)
-    #print("vx, vy, vz : ",vx, vy, vz)
+    print("x0, y0, z0 : ",x0, y0, z0)
+    print("vx, vy, vz : ",vx, vy, vz)
     
     return [np.round(x,3), np.round(y,3), np.round(z,3)]
 
@@ -542,8 +545,6 @@ def cal_landing_point(pos_list, t0):
 def get_velocity(pos_list, dT):
 
     dT = 0.055
-
-    print('dT',dT)
 
     np_pos_list = np.array(pos_list)
 

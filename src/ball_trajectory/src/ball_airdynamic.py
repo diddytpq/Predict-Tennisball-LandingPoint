@@ -1,4 +1,5 @@
-#! /home/drcl_yang/anaconda3/envs/py36/bin/python
+#!/home/drcl_yang/anaconda3/envs/tennis_project/bin/python3
+
 
 
 import rospy
@@ -15,7 +16,7 @@ from nav_msgs.msg import Odometry
 import time
 
 
-roslib.load_manifest('mecanum_robot_gazebo')
+roslib.load_manifest('ball_description')
 
 
 g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
@@ -82,17 +83,14 @@ def check_ball_exist(ball_name_list):
     global t0
 
     t0 = time.time()
-    try:
-        if g_get_state(model_name = ball_name_list[0]).success:
-            return 1
-        
-        elif g_get_state(model_name = ball_name_list[1]).success:
-            return 2
 
-        else:
-            return 0
-        
-    except rospy.ROSInterruptException:
+    if g_get_state(model_name = ball_name_list[0]).success:
+        return 1
+    
+    elif g_get_state(model_name = ball_name_list[1]).success:
+        return 2
+
+    else:
         return 0
 
 
@@ -188,7 +186,7 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
 
     dt_gain = 1
 
-    #print(dt)
+    print(dt)
 
     if ball_check_flag == 1:
         left_ball_state = gat_ball_stats(ball_name)
@@ -213,8 +211,8 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
         cd = 0.507
         cl = - 0.75 * 0.033 * left_ball_angular_xy / left_ball_state_xy
 
-        if cl < -0.4:
-            cl = -0.4
+        if cl < -0.3:
+            cl = -0.3
             return 0
 
         drag_force = -0.5 * cd * 1.2041 * np.pi * (0.033 ** 2) * left_ball_state_xyz
@@ -251,8 +249,8 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
         cd = 0.507
         cl =  0.75 * 0.033 * right_ball_angular_xy / right_ball_state_xy
 
-        if cl < -0.4:
-            cl = -0.4
+        if cl < -0.3:
+            cl = -0.3
             return 0
 
 
@@ -292,7 +290,6 @@ def main(args):
 
     try:
         while True:
-            t0 = time.time()
             ball_check_flag = check_ball_exist(ball_name_list)
 
 
@@ -301,7 +298,7 @@ def main(args):
 
             rate.sleep()
 
-            print(time.time() - t0)
+
     except KeyboardInterrupt:
         print("Shutting down")
 

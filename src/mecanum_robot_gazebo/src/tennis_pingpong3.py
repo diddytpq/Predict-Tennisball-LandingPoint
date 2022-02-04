@@ -10,7 +10,7 @@ roslib.load_manifest('mecanum_robot_gazebo')
 
 parser = argparse.ArgumentParser(description = 'tennis_match')
 
-parser.add_argument('--mod', type = str, default='0', help = 'set tennis match mod')
+parser.add_argument('--mod', type = int, default='0', help = 'set tennis match mod')
 args = parser.parse_args()
 
 """def callback_landing_point(data):

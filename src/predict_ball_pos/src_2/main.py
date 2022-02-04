@@ -123,7 +123,7 @@ def person_tracking(model, img, img_ori, device):
 
                     plot_one_box(xyxy, im0, label=label, color=colors(c, True), line_thickness=3)
 
-                    x0, y0, x1, y1 = int(xyxy[0]), int(xyxy[1]), int(xyxy[2]), int(xyxy[3])
+                    x0, y0, x1, y1 = int(xyxy[0]) - 10, int(xyxy[1]) - 10, int(xyxy[2]) + 10, int(xyxy[3] + 10)
 
                     if y0 < (img_ori.shape[0] / 2) :
                         person_box_left.append([x0, y0, x1, y1])
@@ -425,10 +425,10 @@ class Predict_ball_landing_point():
                 draw_landing_point_court(tennis_court_img, ball_landing_point, padding_x, padding_y)
 
                 #print("ball_pos = ",ball_pos)
-                #print("real_ball_pos = ", self.ball_pose.position.x, self.ball_pose.position.y, self.ball_pose.position.z)
-                #print("real_ball_vel = ", self.ball_vel.linear.x, self.ball_vel.linear.y, self.ball_vel.linear.z)
+                print("real_ball_pos = ", self.ball_pose.position.x, self.ball_pose.position.y, self.ball_pose.position.z)
+                print("real_ball_vel = ", self.ball_vel.linear.x, self.ball_vel.linear.y, self.ball_vel.linear.z)
 
-                #print("ball_landing_point = ",ball_landing_point)
+                print("ball_landing_point = ",ball_landing_point)
                 self.array2data.data = ball_landing_point
                 self.pub.publish(self.array2data)
 
