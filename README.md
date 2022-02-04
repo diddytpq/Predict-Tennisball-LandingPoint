@@ -29,7 +29,7 @@ source ./devel/setup.bash
 start tennis court env in gazebo
 
 ```bash
-roslaunch mecanum_robot_gazebo tennis_ver2.launch
+roslaunch mecanum_robot_gazebo tennis_world.launch
 ```
 
 <p align="center">
@@ -39,7 +39,7 @@ roslaunch mecanum_robot_gazebo tennis_ver2.launch
 
 this command begin robot tennis match 
 ```bash
-python src/mecanum_robot_gazebo/src/tennis_match_ver3.py
+python src/mecanum_robot_gazebo/src/tennis_match.py --mod=0
 ```
 <p align="center">
 <img width="80%" src="https://user-images.githubusercontent.com/67572161/150342985-c95a5374-c96e-47d2-811c-0695e3465e9b.gif"/>
@@ -51,10 +51,14 @@ python src/mecanum_robot_gazebo/src/tennis_match_ver3.py
 ## Camera-based ball tracking installed on the net post
 
 ```bash
-python src/predict_ball_pos/src/predict_ball_position.py
+python src/predict_ball_pos/src_2/main.py
 ```
-#### 카메라 화면과 테니스 코트 탑뷰 이미지 추가
+<p align="center">
+<img width="80%" src="https://user-images.githubusercontent.com/67572161/152483052-1c883b3b-7c0b-41f0-89ac-419f4b21a409.gif"/>
+</p>
+
 
 ```bash
-python src/mecanum_robot_gazebo/src/tennis_match_ver3.py --mod=1
+python src/mecanum_robot_gazebo/src/tennis_match.py --mod=1
 ```
+

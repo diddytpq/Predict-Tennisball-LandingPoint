@@ -4,7 +4,7 @@ import roslib
 import time
 import argparse
 
-from tool.pingpong_utils_ver3 import *
+from tool.tennis_match_utils import *
 
 roslib.load_manifest('mecanum_robot_gazebo')
 
