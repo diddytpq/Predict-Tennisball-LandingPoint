@@ -22,8 +22,8 @@ g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
 
 
-#ball_name = 'ball_left'
-ball_name = 'ball_right'
+ball_name = 'ball_left'
+#ball_name = 'ball_right'
 
 
 pre_z = np.nan
@@ -116,7 +116,7 @@ if __name__ == "__main__" :
 
         key = cv2.waitKey(1)
 
-        if key == ord('s') or len(real_ball_landing_point_list) == 100:
+        """if key == ord('s') or len(real_ball_landing_point_list) == 100:
 
             with open('real_ball_list.bin', 'wb') as f:
                 pickle.dump(np.array(real_ball_landing_point_list),f)
@@ -125,4 +125,4 @@ if __name__ == "__main__" :
                 pickle.dump(np.array(esti_ball_landing_point_list),f)
             
 
-            break
+            break"""

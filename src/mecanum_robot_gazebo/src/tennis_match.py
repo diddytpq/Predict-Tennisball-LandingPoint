@@ -44,7 +44,10 @@ if __name__ == '__main__' :
     add_catch_point = 1
 
     if args.mod == 0: # check mecanum move and ball launch
+
         while True:
+
+            add_catch_point = 3
             
             mecanum_L.spwan_ball("ball_left")
             mecanum_L.throw_ball()
@@ -63,7 +66,9 @@ if __name__ == '__main__' :
             mecanum_L.move(ball_landing_point[0],ball_landing_point[1] ,mecanum_R)
 
 
+
     if args.mod == 1: #predict ball pos by camera
+
         while True:
             mecanum_L.spwan_ball("ball_left")
             mecanum_L.throw_ball()
@@ -81,5 +86,6 @@ if __name__ == '__main__' :
             mecanum_R.throw_ball()  
 
             ball_landing_point = [mecanum_R.x_target - add_catch_point * np.cos(mecanum_R.yaw_z), mecanum_R.y_target - add_catch_point * np.sin(mecanum_R.yaw_z)]
-           
+        
             mecanum_L.move(ball_landing_point[0],ball_landing_point[1] ,mecanum_R)
+

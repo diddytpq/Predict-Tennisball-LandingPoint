@@ -30,7 +30,7 @@ class Make_mecanum_left():
         self.vel_forward = 1.5 #m/s
         self.vel_lateral = 5.5 #m/s
         
-        self.ball_fly_time = 0.55 #max height time [sec]
+        self.ball_fly_time = 0.45 #max height time [sec]
         self.vel_forward_apply = 0
         self.vel_lateral_apply = 0
         self.amax = 3
@@ -238,9 +238,9 @@ class Make_mecanum_left():
         self.v0 = self.s/(self.ball_fly_time + self.ball_fly_time_plus)
 
         if self.v0 > 0 :
-            self.v0 += 17
+            self.v0 += 12
         else:
-            self.v0 -= 17
+            self.v0 -= 12
 
         self.v = np.sqrt(self.v0**2 + self.vz0**2)
         self.launch_angle = np.arctan(self.vz0/self.v0)

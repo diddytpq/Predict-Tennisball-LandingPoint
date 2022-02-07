@@ -1,7 +1,3 @@
-#!/home/drcl_yang/anaconda3/envs/tennis_project/bin/python3
-
-
-
 import rospy
 import sys
 from gazebo_msgs.srv import *
@@ -98,55 +94,27 @@ def cal_drag_lift_force(down_motion, drag_force, lift_force, angle_xy, angle_x, 
 
     if down_motion == 0 : 
 
-        if cl < 0:
-
-            drag_force_z = drag_force * np.sin(angle_xy)
-            drag_force_xy = drag_force * np.cos(angle_xy)
-            drag_force_x = drag_force_xy * np.cos(angle_x)
-            drag_force_y = drag_force_xy * np.sin(angle_x)
-            
-            lift_force_z = lift_force * np.sin(angle_xy)
-            lift_force_xy = lift_force * np.cos(angle_xy)
-            lift_force_x = -lift_force_xy * np.cos(angle_x)
-            lift_force_y = lift_force_xy * np.sin(angle_x)
-                
-        else:
-
-            drag_force_z = drag_force * np.sin(angle_xy)
-            drag_force_xy = drag_force * np.cos(angle_xy)
-            drag_force_x = drag_force_xy * np.cos(angle_x)
-            drag_force_y = drag_force_xy * np.sin(angle_x)
-            
-            lift_force_z = lift_force * np.sin(angle_xy)
-            lift_force_xy = lift_force * np.cos(angle_xy)
-            lift_force_x = -lift_force_xy * np.cos(angle_x)
-            lift_force_y = lift_force_xy * np.sin(angle_x)
+        drag_force_z = drag_force * np.sin(angle_xy)
+        drag_force_xy = drag_force * np.cos(angle_xy)
+        drag_force_x = drag_force_xy * np.cos(angle_x)
+        drag_force_y = drag_force_xy * np.sin(angle_x)
+        
+        lift_force_z = lift_force * np.sin(angle_xy)
+        lift_force_xy = lift_force * np.cos(angle_xy)
+        lift_force_x = -lift_force_xy * np.cos(angle_x)
+        lift_force_y = -lift_force_xy * np.sin(angle_x)
         
     else:
 
-        if cl < 0:
-
-            drag_force_z = drag_force * np.sin(angle_xy)
-            drag_force_xy = drag_force * np.cos(angle_xy)
-            drag_force_x = drag_force_xy * np.cos(angle_x)
-            drag_force_y = drag_force_xy * np.sin(angle_x)
-            
-            lift_force_z = - lift_force * np.sin(angle_xy)
-            lift_force_xy = lift_force * np.cos(angle_xy)
-            lift_force_x = lift_force_xy * np.cos(angle_x)
-            lift_force_y = lift_force_xy * np.sin(angle_x)
-
-        else:
-
-            drag_force_z = drag_force * np.sin(angle_xy)
-            drag_force_xy = drag_force * np.cos(angle_xy)
-            drag_force_x = drag_force_xy * np.cos(angle_x)
-            drag_force_y = drag_force_xy * np.sin(angle_x)
-            
-            lift_force_z = -lift_force * np.sin(angle_xy)
-            lift_force_xy = lift_force * np.cos(angle_xy)
-            lift_force_x = lift_force_xy * np.cos(angle_x)
-            lift_force_y = -lift_force_xy * np.sin(angle_x)
+        drag_force_z = drag_force * np.sin(angle_xy)
+        drag_force_xy = drag_force * np.cos(angle_xy)
+        drag_force_x = drag_force_xy * np.cos(angle_x)
+        drag_force_y = drag_force_xy * np.sin(angle_x)
+        
+        lift_force_z = - lift_force * np.sin(angle_xy)
+        lift_force_xy = lift_force * np.cos(angle_xy)
+        lift_force_x = lift_force_xy * np.cos(angle_x)
+        lift_force_y = lift_force_xy * np.sin(angle_x)
 
     liftdrag_force_x = drag_force_x + lift_force_x
     liftdrag_force_y = drag_force_y + lift_force_y
@@ -175,23 +143,24 @@ def ball_apply_force(target, force, torque, duration):
 
 
 
-def ball_apply_airdyanmic(ball_name, ball_check_flag):
+def ball_apply_airdyanmic(ball_name, ball_check_flag, dt):
     global left_ball_state
     global right_ball_state
-    global t0, t1, dt
 
-    t1 = time.time()
-
-    dt = 1/100
-
-    dt_gain = 1
-
-    print(dt)
+    #print(dt)
 
     if ball_check_flag == 1:
         left_ball_state = gat_ball_stats(ball_name)
 
+        if abs(left_ball_state.twist.linear.x) < 10 :
+            return 0
+
+        
+
         down_motion = 0
+
+        if left_ball_state.twist.linear.z < 0:
+            down_motion = 1
 
         left_ball_state_xy = np.sqrt((left_ball_state.twist.linear.x ** 2) + (left_ball_state.twist.linear.y ** 2))
         left_ball_state_xyz =  np.sqrt((left_ball_state.twist.linear.x ** 2) + (left_ball_state.twist.linear.y ** 2 + (left_ball_state.twist.linear.z ** 2)))
@@ -202,34 +171,33 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
         else:
             left_ball_angular_xy = -np.sqrt((left_ball_state.twist.angular.x ** 2) + (left_ball_state.twist.angular.y ** 2))
 
-        if left_ball_state.twist.linear.x == 0 :
-            return 0
-
         angle_x = np.arctan(left_ball_state.twist.linear.y/left_ball_state.twist.linear.x)
         angle_xy = np.arctan(left_ball_state.twist.linear.z/left_ball_state_xy)
 
         cd = 0.507
-        cl = - 0.75 * 0.033 * left_ball_angular_xy / left_ball_state_xy
+        cl = -0.033 * left_ball_angular_xy / left_ball_state_xy
 
-        if cl < -0.26:
-            cl = -0.26
+        if cl < -0.45:
             return 0
 
         drag_force = -0.5 * cd * 1.2041 * np.pi * (0.033 ** 2) * left_ball_state_xyz
         lift_force = 0.5 * cl * 1.2041 * np.pi * (0.033 ** 2) * left_ball_state_xyz
-
-        if left_ball_state.twist.linear.z < 0:
-            down_motion = 1
-
-
+        
         liftdrag_force_x, liftdrag_force_y, liftdrag_force_z = cal_drag_lift_force(down_motion, drag_force, lift_force, angle_xy, angle_x, cl)
 
-        force = [np.round(liftdrag_force_x,5) / (dt * dt_gain), np.round(liftdrag_force_y,5) / (dt * (dt_gain + 1) ),np.round(liftdrag_force_z,5) / (dt * dt_gain)]
+        force = [np.round(liftdrag_force_x,5) / dt / 1.6 , np.round(liftdrag_force_y,5) / dt / 1.6 , np.round(liftdrag_force_z,5) / dt ]
+
 
     if ball_check_flag == 2:
         right_ball_state = gat_ball_stats(ball_name)
 
+        if abs(right_ball_state.twist.linear.x) < 10 :
+            return 0
+
         down_motion = 0
+
+        if right_ball_state.twist.linear.z < 0:
+            down_motion = 1
 
         right_ball_state_xy = np.sqrt((right_ball_state.twist.linear.x ** 2) + (right_ball_state.twist.linear.y ** 2))
         right_ball_state_xyz =  np.sqrt((right_ball_state.twist.linear.x ** 2) + (right_ball_state.twist.linear.y ** 2 + (right_ball_state.twist.linear.z ** 2)))
@@ -240,37 +208,32 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
         else:
             right_ball_angular_xy = -np.sqrt((right_ball_state.twist.angular.x ** 2) + (right_ball_state.twist.angular.y ** 2))
 
-        if right_ball_state.twist.linear.x == 0 :
-            return 0
-
         angle_x = np.arctan(right_ball_state.twist.linear.y/right_ball_state.twist.linear.x)
         angle_xy = np.arctan(right_ball_state.twist.linear.z/right_ball_state_xy)
         
         cd = 0.507
-        cl =  0.75 * 0.033 * right_ball_angular_xy / right_ball_state_xy
+        cl = 0.033 * right_ball_angular_xy / right_ball_state_xy
 
-        if cl < -0.26:
-            cl = -0.26
+        if cl < -0.45:
             return 0
-
 
         drag_force = -0.5 * cd * 1.2041 * np.pi * (0.033 ** 2) * right_ball_state_xyz
         lift_force = 0.5 * cl * 1.2041 * np.pi * (0.033 ** 2) * right_ball_state_xyz
         
-        if right_ball_state.twist.linear.z < 0:
-            down_motion = 1
-
 
         liftdrag_force_x, liftdrag_force_y, liftdrag_force_z = cal_drag_lift_force(down_motion, drag_force, lift_force, angle_xy, angle_x, cl)
 
-        force = [-np.round(liftdrag_force_x,5) / (dt * dt_gain), -np.round(liftdrag_force_y,5) / (dt * (dt_gain + 1)), np.round(liftdrag_force_z,5) / (dt * dt_gain)]
-    
+        force = [-np.round(liftdrag_force_x,5) / dt / 1.6 , -np.round(liftdrag_force_y,5) / dt / 1.6 , np.round(liftdrag_force_z,5) / dt ]
+        
+
     
     ball_apply_force(ball_name, force, [0,0,0], dt)
 
 
 
 def main(args):
+
+    global t0
 
     time.sleep(3)
 
@@ -288,12 +251,18 @@ def main(args):
 
     try:
         while True:
+            dt = time.time() - t0
+            t0 = time.time()
+            
+            #print(dt)
+
             ball_check_flag = check_ball_exist(ball_name_list)
 
             if ball_check_flag:
-                ball_apply_airdyanmic(ball_name_list[ball_check_flag - 1], ball_check_flag)
+                ball_apply_airdyanmic(ball_name_list[ball_check_flag - 1], ball_check_flag, dt)
 
             rate.sleep()
+            
 
 
     except KeyboardInterrupt:
