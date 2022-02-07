@@ -16,7 +16,7 @@ from nav_msgs.msg import Odometry
 import time
 
 
-roslib.load_manifest('ball_description')
+roslib.load_manifest('ball_trajectory')
 
 
 g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
@@ -211,8 +211,8 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
         cd = 0.507
         cl = - 0.75 * 0.033 * left_ball_angular_xy / left_ball_state_xy
 
-        if cl < -0.3:
-            cl = -0.3
+        if cl < -0.26:
+            cl = -0.26
             return 0
 
         drag_force = -0.5 * cd * 1.2041 * np.pi * (0.033 ** 2) * left_ball_state_xyz
@@ -249,8 +249,8 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
         cd = 0.507
         cl =  0.75 * 0.033 * right_ball_angular_xy / right_ball_state_xy
 
-        if cl < -0.3:
-            cl = -0.3
+        if cl < -0.26:
+            cl = -0.26
             return 0
 
 
@@ -266,8 +266,6 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
         force = [-np.round(liftdrag_force_x,5) / (dt * dt_gain), -np.round(liftdrag_force_y,5) / (dt * (dt_gain + 1)), np.round(liftdrag_force_z,5) / (dt * dt_gain)]
     
     
-    #force = [force[0],0,force[2]]
-
     ball_apply_force(ball_name, force, [0,0,0], dt)
 
 
@@ -291,7 +289,6 @@ def main(args):
     try:
         while True:
             ball_check_flag = check_ball_exist(ball_name_list)
-
 
             if ball_check_flag:
                 ball_apply_airdyanmic(ball_name_list[ball_check_flag - 1], ball_check_flag)

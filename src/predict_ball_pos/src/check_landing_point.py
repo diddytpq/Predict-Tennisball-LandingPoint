@@ -22,7 +22,8 @@ g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
 
 
-ball_name = 'ball_left'
+#ball_name = 'ball_left'
+ball_name = 'ball_right'
 
 
 pre_z = np.nan
@@ -44,7 +45,7 @@ def callback_landing_point(data):
 
 
 def gat_ball_stats():
-    ball_state = g_get_state(model_name = "ball_left")
+    ball_state = g_get_state(model_name = ball_name)
 
     return ball_state
 
