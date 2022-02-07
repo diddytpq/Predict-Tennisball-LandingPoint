@@ -24,7 +24,7 @@ ball_spawn_z = 1.5 # m
 ball_init_vel_x = 40 #m/s
 ball_init_vel_z = 3 #m/s
 
-torque = [0, -209*1000, 0]
+torque = [0, 209*1000, 0]
 
 def get_position():
 
