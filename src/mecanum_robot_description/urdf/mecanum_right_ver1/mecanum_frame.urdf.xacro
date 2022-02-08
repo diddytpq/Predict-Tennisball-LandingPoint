@@ -4,7 +4,6 @@
 
     <xacro:macro name="frame">
 
-        <!--xacro:include filename="$(find mecanum_robot_description)/urdf/omni_manipulator.gazebo.xacro" /!-->
         <xacro:property name="base_offset" value="0.19458"/> <!-- 0.193608 !-->
 		
         <link name="summit_base_footprint">
@@ -17,7 +16,7 @@
 		</link>
 
 		<joint name="summit_base_footprint_joint" type="fixed">
-		  <origin xyz="0 0 ${base_offset}" rpy="0 0 0" /> <!-- ${wheel_radius} property must be defined inside wheel description -->
+		  <origin xyz="0 0 ${base_offset}" rpy="0 0 0" /> 
 		  <parent link="summit_base_footprint"/>
 		  <child link="frame" />
 		</joint>
@@ -36,7 +35,6 @@
                 <origin xyz="0 0 0" rpy="$0.0 0.0 0.0"/>
                 <geometry>
                     <box size="0.64 0.598 0.2"/>
-                    <!--mesh filename="package://omni_manipulator/meshes/frame_c.stl" scale="0.001 0.001 0.001"/!-->       
                 </geometry>
             </collision>
             <inertial>

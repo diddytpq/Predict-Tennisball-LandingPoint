@@ -46,7 +46,7 @@
 
 
         <joint name="camera_body_joint" type="fixed">
-            <origin xyz="0 0 0" rpy="0 0 0" /> <!-- ${wheel_radius} property must be defined inside wheel description -->
+            <origin xyz="0 0 0" rpy="0 0 0" />
             <parent link="frame"/>
             <child link="camera_body" />
           </joint>

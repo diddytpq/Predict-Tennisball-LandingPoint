@@ -12,8 +12,6 @@ from nav_msgs.msg import Odometry
 import time
 from tool.mecanum_utils import *
 
-roslib.load_manifest('mecanum_robot_gazebo')
-
 class Make_mecanum_left():
 
     def __init__(self, model_name):

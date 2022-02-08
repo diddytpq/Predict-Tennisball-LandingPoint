@@ -4,7 +4,7 @@
   <arg name="z_pos" default="0.0"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find ball_trajectory)/worlds/tennis_court.world"/>
+    <arg name="world_name" value="$(find ball_description)/worlds/tennis_court.world"/>
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="true"/>
@@ -26,11 +26,11 @@
   <param name="robot_description" command="$(find xacro)/xacro  '$(find mecanum_robot_description)/urdf/mecanum_left_ver2/mecanum.urdf.xacro'"/>
   <param name="robot_description_1" command="$(find xacro)/xacro  '$(find mecanum_robot_description)/urdf/mecanum_right_ver3/mecanum_1.urdf.xacro'"/>
 
-  <param name="camera_left_description" textfile="$(find ball_trajectory)/urdf/camera/camera_left.urdf"/>
-  <param name="camera_right_description" textfile="$(find ball_trajectory)/urdf/camera/camera_right.urdf"/>
+  <param name="camera_left_description" textfile="$(find ball_description)/urdf/camera/camera_left.urdf"/>
+  <param name="camera_right_description" textfile="$(find ball_description)/urdf/camera/camera_right.urdf"/>
   
-  <param name="camera_left_top_description" textfile="$(find ball_trajectory)/urdf/camera/camera_left_top.urdf"/>
-  <!--param name="camera_right_top_description" textfile="$(find ball_trajectory)/urdf/camera/camera_right_top.urdf"/-->
+  <param name="camera_left_top_description" textfile="$(find ball_description)/urdf/camera/camera_left_top.urdf"/>
+  <!--param name="camera_right_top_description" textfile="$(find ball_description)/urdf/camera/camera_right_top.urdf"/-->
   
 
 
@@ -51,21 +51,21 @@
 
   <!-- Run controller utils -->
 
-  <!--node name="controller_spawner_L" pkg="controller_manager" type="spawner" respawn="false"
+  <node name="controller_spawner_L" pkg="controller_manager" type="spawner" respawn="false"
     output="screen" ns="/mecanum_L" args=" joint_state_controller 
                                        wheel_1_controller 
                                       wheel_2_controller 
                                       wheel_3_controller 
-                                      wheel_4_controller"/-->
+                                      wheel_4_controller"/>
 
-  <!--node name="controller_spawner_R" pkg="controller_manager" type="spawner" respawn="false"
+  <node name="controller_spawner_R" pkg="controller_manager" type="spawner" respawn="false"
     output="screen" ns="/mecanum_R" args=" joint_state_controller 
                                        wheel_1_controller 
                                       wheel_2_controller 
                                       wheel_3_controller 
-                                      wheel_4_controller"/-->
+                                      wheel_4_controller"/>
 
-  <node pkg="ball_trajectory" name="ball_airdynamic" type="ball_airdynamic.py" output="screen"/> 
+  <node pkg="ball_description" name="ball_airdynamic" type="ball_airdynamic.py" output="screen"/> 
 
   <!-- convert joint states to TF transforms for rviz, etc -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">

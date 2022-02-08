@@ -47,13 +47,11 @@
             <xacro:if value="${reflect}">
                 <geometry>
                     <cylinder length="${length}" radius="${radius}"/>
-                    <!--mesh filename="package://omni_manipulator/meshes/mecanum_left.stl" scale="0.001 0.001 0.001" /!-->
                 </geometry>
                 </xacro:if>
                 <xacro:unless value="${reflect}">
                 <geometry>
                     <cylinder length="${length}" radius="${radius}"/>
-                    <!--mesh filename="package://omni_manipulator/meshes/mecanum_right.stl" scale="0.001 0.001 0.001" /!-->
                     </geometry>
                 </xacro:unless>
             </collision>

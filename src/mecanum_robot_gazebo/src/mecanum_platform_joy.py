@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-"""
-Node converts joystick inputs into commands for Turtlesim
-"""
 import rospy
 import numpy as np
 from std_msgs.msg import Float64
@@ -27,11 +24,13 @@ def mecanum_wheel_velocity(vx, vy, wz):
 
 def tj_callback(data):
     # start publisher of cmd_vel to control Turtlesim
-    pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
-    pub_wheel_vel_1 = rospy.Publisher("/mecanum/wheel_1/command", Float64, queue_size=10)
-    pub_wheel_vel_2 = rospy.Publisher("/mecanum/wheel_2/command", Float64, queue_size=10)
-    pub_wheel_vel_3 = rospy.Publisher("/mecanum/wheel_3/command", Float64, queue_size=10)
-    pub_wheel_vel_4 = rospy.Publisher("/mecanum/wheel_4/command", Float64, queue_size=10)
+    
+    pub = rospy.Publisher("/mecanum_L_vel", Twist, queue_size=10)
+    pub_wheel_vel_1 = rospy.Publisher("/mecanum_L/wheel_1_controller/command", Float64, queue_size=10)
+    pub_wheel_vel_2 = rospy.Publisher("/mecanum_L/wheel_2_controller/command", Float64, queue_size=10)
+    pub_wheel_vel_3 = rospy.Publisher("/mecanum_L/wheel_3_controller/command", Float64, queue_size=10)
+    pub_wheel_vel_4 = rospy.Publisher("/mecanum_L/wheel_4_controller/command", Float64, queue_size=10)
+    
     
     vbx = 5.5 #km/h
     vby = 1.5 #km/h

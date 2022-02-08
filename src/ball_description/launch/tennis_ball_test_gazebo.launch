@@ -1,0 +1,28 @@
+<launch>
+  <arg name="x_pos" default="-10.55"/>
+  <arg name="y_pos" default="1.915"/>
+  <arg name="z_pos" default="0.0"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find ball_description)/worlds/empty.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+
+
+  <param name="ball_default" textfile="$(find ball_description)/urdf/tennis_ball/kp/ball.urdf"/>
+  <param name="ball_kp100" textfile="$(find ball_description)/urdf/tennis_ball/kp/ball_100.urdf"/>
+  <param name="ball_kp1000" textfile="$(find ball_description)/urdf/tennis_ball/kp/ball_1000.urdf"/>
+
+
+
+  <node pkg="gazebo_ros" type="spawn_model" name="ball_default"  args="-urdf -model ball_default -x 0 -y 0 -z 5  -param ball_default" />
+  <node pkg="gazebo_ros" type="spawn_model" name="ball_kp100"  args="-urdf -model ball_kp100 -x 0 -y 1 -z 5  -param ball_kp100" />
+  <node pkg="gazebo_ros" type="spawn_model" name="ball_kp1000"  args="-urdf -model ball_kp1000 -x 0 -y 2 -z 5  -param ball_kp1000" />
+
+
+</launch>

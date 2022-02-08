@@ -1,0 +1,8 @@
+prefix=/home/drcl_yang/workspace/Predict-Tennisball-LandingPoint/devel
+
+Name: ball_description
+Description: Description of ball_description
+Version: 0.0.0
+Cflags: -I/home/drcl_yang/workspace/Predict-Tennisball-LandingPoint/src/ball_description/include
+Libs: -L${prefix}/lib -lball_description
+Requires: gazebo_ros geometry_msgs nav_msgs roscpp sensor_msgs std_msgs tf

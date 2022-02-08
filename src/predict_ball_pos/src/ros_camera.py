@@ -48,10 +48,7 @@ class Image_converter:
 
         self.frame_recode = np.zeros([360,1280,3], np.uint8)
 
-        
-
-
-
+       
 
         if record == True:
             self.codec = cv2.VideoWriter_fourcc(*'XVID')

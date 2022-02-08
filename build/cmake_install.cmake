@@ -132,7 +132,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/drcl_yang/workspace/Predict-Tennisball-LandingPoint/build/gtest/cmake_install.cmake")
   include("/home/drcl_yang/workspace/Predict-Tennisball-LandingPoint/build/mecanum_robot_gazebo/cmake_install.cmake")
-  include("/home/drcl_yang/workspace/Predict-Tennisball-LandingPoint/build/ball_trajectory/cmake_install.cmake")
+  include("/home/drcl_yang/workspace/Predict-Tennisball-LandingPoint/build/ball_description/cmake_install.cmake")
   include("/home/drcl_yang/workspace/Predict-Tennisball-LandingPoint/build/mecanum_robot_description/cmake_install.cmake")
 
 endif()

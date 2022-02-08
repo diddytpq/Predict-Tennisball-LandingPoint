@@ -6,5 +6,5 @@
 # testing this directory and lists subdirectories to be tested as well.
 subdirs("gtest")
 subdirs("mecanum_robot_gazebo")
-subdirs("ball_trajectory")
+subdirs("ball_description")
 subdirs("mecanum_robot_description")

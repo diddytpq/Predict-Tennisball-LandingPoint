@@ -12,9 +12,6 @@ from nav_msgs.msg import Odometry
 import time
 from tool.mecanum_utils import *
 
-
-roslib.load_manifest('mecanum_robot_gazebo')
-
 g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
 max_vel_forward = 1.5 # m/s
@@ -106,7 +103,7 @@ def spwan_ball():
     del_ball()
     time.sleep(0.5)
 
-    file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/tennis_ball/ball_main.sdf'
+    file_localition = roslib.packages.get_pkg_dir('ball_description') + '/urdf/tennis_ball/ball_main.sdf'
     srv_spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
 
     robot_x, robot_y, robot_z = get_position()
@@ -183,104 +180,4 @@ def gat_ball_stats():
 
     return ball_state
 
-def cal_liftdrag(dt):
 
-    dt = 0.05
-    dt_gain = 1.5
-
-    ball_state = gat_ball_stats()
-
-    down_motion = 0
-
-    ball_vel_xy = np.sqrt((ball_state.twist.linear.x ** 2) + (ball_state.twist.linear.y ** 2))
-    ball_vel_xyz =  np.sqrt((ball_state.twist.linear.x ** 2) + (ball_state.twist.linear.y ** 2 + (ball_state.twist.linear.z ** 2)))
-
-    if ball_state.twist.angular.y > 0:
-        ball_angular_xy = np.sqrt((ball_state.twist.angular.x ** 2) + (ball_state.twist.angular.y ** 2))
-
-    else:
-        ball_angular_xy = -np.sqrt((ball_state.twist.angular.x ** 2) + (ball_state.twist.angular.y ** 2))
-
-    angle_x = np.arctan(ball_state.twist.linear.y / ball_state.twist.linear.x)
-    angle_xy = np.arctan(ball_state.twist.linear.z / ball_vel_xy)
-
-    cd = 0.507
-    cl = -0.75 * 0.033 * ball_angular_xy / ball_vel_xy
-
-    if cl < -0.4:
-        cl = -0.4
-        return 0
-
-    drag_force = -0.5 * cd * 1.2041 * np.pi * (0.033 ** 2) * ball_vel_xyz
-    lift_force = 0.5 * cl * 1.2041 * np.pi * (0.033 ** 2) * ball_vel_xyz
-
-    if ball_state.twist.linear.z < 0:
-        down_motion = 1
-
-    if down_motion == 0 : 
-
-        if cl < 0:
-
-            drag_force_z = drag_force * np.sin(angle_xy)
-            drag_force_xy = drag_force * np.cos(angle_xy)
-            drag_force_x = drag_force_xy * np.cos(angle_x)
-            drag_force_y = drag_force_xy * np.sin(angle_x)
-            
-            lift_force_z = lift_force * np.sin(angle_xy)
-            lift_force_xy = lift_force * np.cos(angle_xy)
-            lift_force_x = -lift_force_xy * np.cos(angle_x)
-            lift_force_y = lift_force_xy * np.sin(angle_x)
-                
-        else:
-
-            drag_force_z = drag_force * np.sin(angle_xy)
-            drag_force_xy = drag_force * np.cos(angle_xy)
-            drag_force_x = drag_force_xy * np.cos(angle_x)
-            drag_force_y = drag_force_xy * np.sin(angle_x)
-            
-            lift_force_z = lift_force * np.sin(angle_xy)
-            lift_force_xy = lift_force * np.cos(angle_xy)
-            lift_force_x = -lift_force_xy * np.cos(angle_x)
-            lift_force_y = lift_force_xy * np.sin(angle_x)
-        
-    else:
-
-        if cl < 0:
-
-            drag_force_z = drag_force * np.sin(angle_xy)
-            drag_force_xy = drag_force * np.cos(angle_xy)
-            drag_force_x = drag_force_xy * np.cos(angle_x)
-            drag_force_y = drag_force_xy * np.sin(angle_x)
-            
-            lift_force_z = - lift_force * np.sin(angle_xy)
-            lift_force_xy = lift_force * np.cos(angle_xy)
-            lift_force_x = lift_force_xy * np.cos(angle_x)
-            lift_force_y = lift_force_xy * np.sin(angle_x)
-
-        else:
-
-            drag_force_z = drag_force * np.sin(angle_xy)
-            drag_force_xy = drag_force * np.cos(angle_xy)
-            drag_force_x = drag_force_xy * np.cos(angle_x)
-            drag_force_y = drag_force_xy * np.sin(angle_x)
-            
-            lift_force_z = -lift_force * np.sin(angle_xy)
-            lift_force_xy = lift_force * np.cos(angle_xy)
-            lift_force_x = lift_force_xy * np.cos(angle_x)
-            lift_force_y = -lift_force_xy * np.sin(angle_x)
-
-
-    liftdrag_force_x = drag_force_x + lift_force_x
-    liftdrag_force_y = drag_force_y + lift_force_y
-    liftdrag_force_z = drag_force_z + lift_force_z
-    
-    """print("----------------------------------")
-    print("ball postion : {}, {}, {}".format(np.round(ball_state.pose.position.x,3), np.round(ball_state.pose.position.y,3), np.round(ball_state.pose.position.z,3)))
-    print("ball_velocity : {}, {}, {}".format(np.round(ball_state.twist.linear.x,3), np.round(ball_state.twist.linear.y,3), np.round(ball_state.twist.linear.z,3)))
-    print("drag force : {}, {}, {}".format(np.round(drag_force_x,3), np.round(drag_force_y,3), np.round(drag_force_z,3)))
-    print("lift force : {}, {}, {}".format(np.round(lift_force_x,3), np.round(lift_force_y,3), np.round(lift_force_z,3)))
-    print("liftdrag force : {}, {}, {}".format(np.round(liftdrag_force_x,5), np.round(liftdrag_force_y,5), np.round(liftdrag_force_z,5)))"""
-
-    force = [np.round(liftdrag_force_x,5) / (dt * dt_gain), np.round(liftdrag_force_y,5) / (dt * dt_gain), np.round(liftdrag_force_z,5) / (dt * dt_gain)]
-    
-    ball_apply_force("ball_left", force, [0,0,0], dt)
