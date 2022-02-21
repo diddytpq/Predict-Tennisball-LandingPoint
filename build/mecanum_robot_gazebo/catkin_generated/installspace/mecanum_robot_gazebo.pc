@@ -1,4 +1,4 @@
-prefix=/home/drcl_yang/workspace/Predict-Tennisball-LandingPoint/install
+prefix=/home/drcl-yang/workspace/Predict-Tennisball-LandingPoint/install
 
 Name: mecanum_robot_gazebo
 Description: Description of mecanum_robot_gazebo
