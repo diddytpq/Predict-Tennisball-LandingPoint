@@ -146,7 +146,7 @@ def get_gazebo_img(img_pipe):
 
 
 def main(args):
-    #global camera_data, camera_depth_data
+
     BaseManager.register('image_pipe', image_pipe)
     manager = BaseManager()
     manager.start()
@@ -155,10 +155,6 @@ def main(args):
     process = Process(target=get_gazebo_img, args=[inst])
     process.start()
 
-    #a = rospy.Subscriber("/mecanum_camera_ir/depth/image_raw",Image,callback_depth)
-    #b = rospy.Subscriber("/mecanum_camera_ir/mecanum_camera_ir/color/image_raw",Image,callback_camera)
-    #rospy.init_node('Image_converter', anonymous=True)
-
     input_img_buffer = []
 
     while True:
@@ -166,6 +162,8 @@ def main(args):
         camera_data = inst.download()
         
         if len(camera_data[0]):
+
+            print("--------------------------------------")
             
             frame = camera_data[0]
             depth = camera_data[1]
@@ -181,9 +179,6 @@ def main(args):
                 input_img_buffer = input_img_buffer[-3:]
 
             t1 = time.time()
-
-            # unit = tran_input_img(input_img_buffer)
-            # unit = torch.from_numpy(unit).to(device, dtype=torch.float)
 
             unit = tran_input_tensor(input_img_buffer, device)
 
@@ -202,8 +197,16 @@ def main(args):
                 torch.cuda.synchronize()
 
             frame, depth_list, ball_cand_pos, ball_cand_score = find_ball_v3(h_pred, frame, depth, ratio_w, ratio_h)
+            
+            print("ball_cand_pos : ",ball_cand_pos)
+            print("depth_list : ",depth_list)
 
-            cv2.imshow("image",frame)
+            depth_img = cv2.applyColorMap(np.uint8(depth) * 20, cv2.COLORMAP_JET)
+
+            main_frame = cv2.resize(cv2.hconcat([frame, depth_img]), dsize=(0, 0), fx=0.5, fy=0.5, interpolation=cv2.INTER_LINEAR)
+
+
+            cv2.imshow("main_frame",main_frame)
             cv2.imshow("h_pred",h_pred)
 
             t2 = time.time()

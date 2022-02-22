@@ -152,12 +152,6 @@ class Image_converter:
 
             frame, depth_list, ball_cand_pos, ball_cand_score = find_ball_v3(h_pred, frame, depth_img, ratio_w, ratio_h)"""
 
-
-
-
-            
-            
-
             # cv2.imshow("image",frame)
             # cv2.imshow("h_pred",h_pred)
 

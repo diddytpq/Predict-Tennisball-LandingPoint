@@ -52,7 +52,9 @@ def find_ball_v3(pred_image, image_ori, depth_ori, ratio_w, ratio_h):
         x, y, w, h, area = stats[i]
         x_cen, y_cen = centroids[i]
 
-        if area > 150000:
+        print(area)
+
+        if area > 140000:
             continue
 
         x_0, x_1, y_0, y_1 = int(x * ratio_w), int((x + w) * ratio_w), int(y * ratio_h), int((y + h) * ratio_h)

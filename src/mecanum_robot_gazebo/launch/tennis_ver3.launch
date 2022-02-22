@@ -65,7 +65,7 @@
                                       wheel_3_controller 
                                       wheel_4_controller"/>
 
-  <!-- <node pkg="ball_description" name="ball_airdynamic" type="ball_airdynamic.py" output="screen"/>  -->
+  <node pkg="ball_description" name="ball_airdynamic" type="ball_airdynamic.py" output="screen"/> 
 
   <!-- convert joint states to TF transforms for rviz, etc -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
