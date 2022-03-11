@@ -1,20 +1,12 @@
-#!/home/drcl-yang/anaconda3/envs/py37/bin/python3
-
-
+#!/home/drcl/anaconda3/envs/yoseph/bin/python3
 
 import rospy
 import sys
 from gazebo_msgs.srv import *
 from geometry_msgs.msg import *
-import tf.transformations as tft
 import numpy as np
-import math
-import roslib
-from std_msgs.msg import Empty as EmptyMsg
-from std_msgs.msg import Float64
-from nav_msgs.msg import Odometry
 import time
-
+from numba import jit
 
 g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
@@ -79,7 +71,7 @@ def check_ball_exist(ball_name_list):
 
     global t0
 
-    t0 = time.time()
+    #t0 = time.time()
 
     if g_get_state(model_name = ball_name_list[0]).success:
         return 1
@@ -90,7 +82,7 @@ def check_ball_exist(ball_name_list):
     else:
         return 0
 
-
+@jit(nopython=True, cache=True)
 def cal_drag_lift_force(down_motion, drag_force, lift_force, angle_xy, angle_x, cl):
 
     if down_motion == 0 : 
@@ -171,15 +163,14 @@ def ball_apply_force(target, force, torque, duration):
         rospy.Duration(duration))
 
 
-
 def ball_apply_airdyanmic(ball_name, ball_check_flag):
     global left_ball_state
     global right_ball_state
     global t0, t1, dt
 
-    t1 = time.time()
+    #t1 = time.time()
 
-    dt = 1/100
+    dt = 0.01
 
     dt_gain = 1
 

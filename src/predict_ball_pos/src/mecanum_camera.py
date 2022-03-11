@@ -80,8 +80,9 @@ class Image_converter:
 
             if record == True:
 
-                self.out_0.write(self.main_frame)
-
+                #self.out_0.write(self.main_frame)
+                self.out_0.write(self.camera_data)
+        
             key = cv2.waitKey(33)
 
             if key == 27 : 

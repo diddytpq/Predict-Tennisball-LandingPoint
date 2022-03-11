@@ -39,6 +39,8 @@ from yolov5.utils.augmentations import letterbox
 
 from kalman_utils.KFilter import *
 
+from multiprocessing import Process, Pipe, Manager
+from multiprocessing.managers import BaseManager
 
 device = 0
 weights = path + "/yolov5/weights/best.pt"
@@ -86,6 +88,8 @@ estimation_ball = Ball_Pos_Estimation()
 recode = False
 
 
+camera_data = []
+camera_depth_data = []
 
 
 def person_tracking(model, img, img_ori, device):
@@ -100,7 +104,6 @@ def person_tracking(model, img, img_ori, device):
         if img_in.ndimension() == 3:
             img_in = img_in.unsqueeze(0)
         
-
         pred = model(img_in, augment=False, visualize=False)
 
         pred = non_max_suppression(pred, conf_thres, iou_thres, classes, agnostic_nms, max_det=max_det)
@@ -133,108 +136,141 @@ def person_tracking(model, img, img_ori, device):
             
         return im0, person_box_left, person_box_right
 
-class Predict_ball_landing_point():
-
+class image_pipe(object):
+    
     def __init__(self):
+        self.img_data = []
+
+    def img_upload(self, data_list):
+        self.img_data = data_list
+
+    def download(self):
+        return self.img_data
+
+def get_gazebo_img(img_pipe):
+
+    class Img_Buffer():
+
+        def __init__(self):
+            rospy.init_node('Img_Buffer_net_post', anonymous=True)
+
+            self.img_data_left = []
+            self.img_data_right = []
+            self.bridge = CvBridge()
+
+            #self.rate_left = rospy.Rate(30)
+            #self.rate_right = rospy.Rate(30)
+
+
+        def callback_camera_left(self, data):
+            try:
+                self.img_data_left = self.bridge.imgmsg_to_cv2(data, "bgr8")
+                rospy.loginfo(time.time())
+                #self.rate_left.sleep()
+
+            except CvBridgeError as e:
+                print(e)
+
+
+        def callback_camera_right(self, data):
+            try:
+                self.img_data_right = self.bridge.imgmsg_to_cv2(data, "bgr8")
+                #self.rate_right.sleep()
+
+            except CvBridgeError as e:
+                print(e)
+
+    img_buffer = Img_Buffer()
+
+    #rospy.init_node('Image_converter', anonymous=True)
+
+    time.sleep(1)
+    print('----------------serial start--------------------')
+    rospy.Subscriber("/camera_left_0_ir/camera_left_0/color/image_raw",Image, img_buffer.callback_camera_left)
+    rospy.Subscriber("/camera_right_0_ir/camera_right_0/color/image_raw",Image, img_buffer.callback_camera_right)
+
+    try:
+        while True:
+            if len(img_buffer.img_data_left) and len(img_buffer.img_data_right):
+                img_pipe.img_upload([img_buffer.img_data_left,img_buffer.img_data_right])
+
+            else:
+                print('not img')
+                time.sleep(1)
+
+    except KeyboardInterrupt:
+        print("Shutting down")
+
+def get_ball_status():
+        t0 = time.time()
+        g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
+
+        ball_state = g_get_state(model_name = 'ball_left')
+
+        ball_pose = Pose()
+        ball_pose.position.x = float(ball_state.pose.position.x)
+        ball_pose.position.y = float(ball_state.pose.position.y)
+        ball_pose.position.z = float(ball_state.pose.position.z)
         
-        self.bridge = CvBridge()
-        self.landingpoint = [0, 0]
+        ball_vel = Twist()
 
-        rospy.init_node('Image_converter', anonymous=True)
+        ball_vel.linear.x = float(ball_state.twist.linear.x)
+        ball_vel.linear.y = float(ball_state.twist.linear.y)
+        ball_vel.linear.z = float(ball_state.twist.linear.z)
 
-        #send topic to landing point check.py
-        self.pub = rospy.Publisher('/esti_landing_point',Float64MultiArray, queue_size = 10)
-        self.array2data = Float64MultiArray()
+        ball_vel.angular.x = float(ball_state.twist.angular.x)
+        ball_vel.angular.y = float(ball_state.twist.angular.y)
+        ball_vel.angular.z = float(ball_state.twist.angular.z)
 
-        #rospy.Subscriber("/camera_right_1_ir/camera_right_1/color/image_raw",Image,self.main)
+        return ball_pose.position.x, ball_pose.position.y, ball_pose.position.z, ball_vel.linear.x, ball_vel.linear.y, ball_vel.linear.z
 
-        rospy.Subscriber("/camera_left_0_ir/camera_left_0/color/image_raw",Image,self.callback_left_0)
-        rospy.Subscriber("/camera_right_0_ir/camera_right_0/color/image_raw",Image,self.callback_right_0)
+def main():
+    #global camera_data, camera_depth_data
 
-        rospy.Subscriber("/camera_left_top_ir/camera_left_top_ir/color/image_raw", Image, self.main)
+    global estimation_ball, disappear_cnt, padding_x, padding_y
+    global tennis_court_img, ball_pos_jrajectory
 
-    def callback_left_top_ir(self, data):
-        try:
-            #self.t0 = time.time()
-            self.left_top_data_0 = self.bridge.imgmsg_to_cv2(data, "bgr8")
+    BaseManager.register('image_pipe', image_pipe)
+    manager = BaseManager()
+    manager.start()
+    inst = manager.image_pipe()
 
-        except CvBridgeError as e:
-            print(e)
+    process = Process(target=get_gazebo_img, args=[inst])
+    process.start()
 
-    def callback_left_0(self, data):
-        try:
-            self.left_data_0 = self.bridge.imgmsg_to_cv2(data, "bgr8")
-        
-        except CvBridgeError as e:
-            print(e)
+    dT = 1 / 30
 
-    def callback_right_0(self, data):
-        try:
-            self.right_data_0 = self.bridge.imgmsg_to_cv2(data, "bgr8")
-        except CvBridgeError as e:
-            print(e)
+    fps = 30
 
-    def get_ball_status(self):
-            self.t0 = time.time()
-            self.g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
+    if recode:
+        codec = cv2.VideoWriter_fourcc(*'XVID')
+        out = cv2.VideoWriter("ball_tracking.mp4", codec, fps, (720,810))
 
-            self.ball_state = self.g_get_state(model_name = 'ball_left')
+    rospy.init_node('Predict_ball_landing_point', anonymous=True)
+    pub = rospy.Publisher('/esti_landing_point',Float64MultiArray, queue_size = 10)
+    array2data = Float64MultiArray()
 
-            self.ball_pose = Pose()
-            self.ball_pose.position.x = float(self.ball_state.pose.position.x)
-            self.ball_pose.position.y = float(self.ball_state.pose.position.y)
-            self.ball_pose.position.z = float(self.ball_state.pose.position.z)
-            
-            self.ball_vel = Twist()
+    while True:
 
-            self.ball_vel.linear.x = float(self.ball_state.twist.linear.x)
-            self.ball_vel.linear.y = float(self.ball_state.twist.linear.y)
-            self.ball_vel.linear.z = float(self.ball_state.twist.linear.z)
+        camera_data = inst.download()
 
-            self.ball_vel.angular.x = float(self.ball_state.twist.angular.x)
-            self.ball_vel.angular.y = float(self.ball_state.twist.angular.y)
-            self.ball_vel.angular.z = float(self.ball_state.twist.angular.z)
+        if len(camera_data):
 
-    def main(self, data):
-
-        global estimation_ball, disappear_cnt, padding_x, padding_y
-        global tennis_court_img, ball_pos_jrajectory
-
-        ball_esti_pos = []
-        dT = 1 / 25
-        
-        fps = 30
-
-        if recode:
-            codec = cv2.VideoWriter_fourcc(*'XVID')
-            out = cv2.VideoWriter("ball_tracking.mp4", codec, fps, (720,810))
-
-
-        """frame = frame_main[:,320:960,:]
-        frame_left = frame_main[0:360,:590,:]
-        frame_right = frame_main[360:,50:,:]"""
-
-        (rows,cols,channels) = self.left_data_0.shape
-
-        self.get_ball_status()
-        
-        if cols > 60 and rows > 60 :
             print("-----------------------------------------------------------------")
             t1 = time.time()
+            ball_pose_x, ball_pose_y, ball_pose_z, ball_vel_x, ball_vel_y, ball_vel_z = get_ball_status()
 
+            
+            frame_left = camera_data[0]
+            frame_right = camera_data[1]
 
-            frame_left = self.left_data_0
-            frame_right = self.right_data_0
-
-                    
             frame_main = cv2.vconcat([frame_left,frame_right])
 
             frame = cv2.resize(frame_main, dsize=(640, 720), interpolation=cv2.INTER_LINEAR)
 
             frame_main = frame
 
-            frame_recode = cv2.vconcat([frame_left,frame_right])
-
+            frame_recode = frame_main.copy()
 
             ball_box_left = []
             ball_box_right = []
@@ -244,16 +280,16 @@ class Predict_ball_landing_point():
 
             ball_pos = []
 
-            frame_left = frame[0 : int(frame.shape[0]/2), : , : ]
-            frame_right = frame[int(frame.shape[0]/2): , : , : ]
-
             frame_mog2 = frame_main.copy()
             frame_yolo_main = frame_main.copy()
 
             img, img_ori = img_preprocessing(frame_yolo_main, imgsz, stride, pt)
 
-            person_tracking_img, person_box_left_list, person_box_right_list = person_tracking(model, img, img_ori, device)
+            try:
+                person_tracking_img, person_box_left_list, person_box_right_list = person_tracking(model, img, img_ori, device)
 
+            except:
+                continue
             ball_detect_img, ball_cand_box_list_left, ball_cand_box_list_right = ball_tracking(frame_mog2)  #get ball cand bbox list
 
             if ball_cand_box_list_left:
@@ -295,8 +331,6 @@ class Predict_ball_landing_point():
             if len(ball_cen_left) and len(ball_cen_right): #2개의 카메라에서 ball이 검출 되었는가?
                 fly_check = estimation_ball.check_ball_flying(ball_cen_left, ball_cen_right)
                 if (fly_check) == 1:
-
-                    
 
                     ball_cand_pos = estimation_ball.get_ball_pos()
 
@@ -374,8 +408,6 @@ class Predict_ball_landing_point():
 
                         print("pred_ball_pos = ",ball_pos)
 
-
-
                     else : 
                         print("reset_ALL")
                         estimation_ball.reset_ball()
@@ -403,7 +435,7 @@ class Predict_ball_landing_point():
                     disappear_cnt += 1
 
                     if ball_pos[2] < 0 or disappear_cnt > 4 or  ball_pos[0] > 0 :
-        
+
                         print("reset_ALL")
 
                         estimation_ball.reset_ball()
@@ -416,21 +448,23 @@ class Predict_ball_landing_point():
                     estimation_ball.reset_ball()
                     ball_pos_jrajectory.clear()
 
-            if len(ball_pos):
+            if len(ball_pos) and (ball_pos[0] < - 2.5):
                 #print("ball_pos_jrajectory = ",ball_pos_jrajectory)
 
-                ball_landing_point = cal_landing_point(ball_pos_jrajectory, t1)
+                ball_landing_point = cal_landing_point(ball_pos_jrajectory, dT)
 
                 draw_point_court(tennis_court_img, ball_pos, padding_x, padding_y)
+                draw_point_court(tennis_court_img, [ball_pose_x, ball_pose_y, ball_pose_z], padding_x, padding_y, [0, 0, 255])
+
                 draw_landing_point_court(tennis_court_img, ball_landing_point, padding_x, padding_y)
 
                 #print("ball_pos = ",ball_pos)
-                print("real_ball_pos = ", self.ball_pose.position.x, self.ball_pose.position.y, self.ball_pose.position.z)
-                print("real_ball_vel = ", self.ball_vel.linear.x, self.ball_vel.linear.y, self.ball_vel.linear.z)
+                print("real_ball_pos = ", ball_pose_x, ball_pose_y, ball_pose_z)
+                print("real_ball_vel = ", ball_vel_x, ball_vel_y, ball_vel_z)
 
                 print("ball_landing_point = ",ball_landing_point)
-                self.array2data.data = ball_landing_point
-                self.pub.publish(self.array2data)
+                array2data.data = ball_landing_point
+                pub.publish(array2data)
 
             t2 = time.time()
 
@@ -445,9 +479,9 @@ class Predict_ball_landing_point():
 
             if recode:
 
-                print(frame_recode.shape)
                 out.write(frame_recode)
 
+            dT = t2-t1
 
             print("FPS : " , 1/(t2-t1))
 
@@ -461,7 +495,6 @@ class Predict_ball_landing_point():
                 padding_y = int((810 - tennis_court_img.shape[0]) /2 )
                 padding_x = int((1500 - tennis_court_img.shape[1]) /3)
 
-
                 WHITE = [255,255,255]
                 tennis_court_img= cv2.copyMakeBorder(tennis_court_img.copy(),padding_y,padding_y,padding_x,padding_x,cv2.BORDER_CONSTANT,value=WHITE)
 
@@ -469,16 +502,11 @@ class Predict_ball_landing_point():
 
             if key == 27 : 
                 cv2.destroyAllWindows()
+        
+
+            
 
 
 if __name__ == "__main__":
 
-
-    ic = Predict_ball_landing_point()
-
-    try:
-        rospy.spin()
-
-    except KeyboardInterrupt:
-        print("Shutting down")
-        cv2.destroyAllWindows()
+    main()

@@ -18,8 +18,8 @@ max_vel_forward = 1.5 # m/s
 max_vel_lateral = 5.5 # m/s
 
 ball_spawn_z = 1.5 # m
-ball_init_vel_x = 40 #m/s
-ball_init_vel_z = 3 #m/s
+ball_init_vel_x = 30 #m/s
+ball_init_vel_z = 4 #m/s
 
 torque = [0, 209 * 1000, 0]
 

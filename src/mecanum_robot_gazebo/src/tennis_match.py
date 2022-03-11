@@ -35,7 +35,7 @@ if __name__ == '__main__' :
 
         while True:
 
-            add_catch_point = 2
+            add_catch_point = 3
             
             mecanum_L.spwan_ball("ball_left")
             mecanum_L.throw_ball()
