@@ -101,24 +101,24 @@
         <material>Gazebo/Grey</material>
     </gazebo-->
 
-    <!--gazebo reference="camera_link_0">
+    <!-- <gazebo reference="camera_link_0">
         <sensor type="camera" name="camera_right_0">
-        <update_rate>100.0</update_rate>
+        <update_rate>30</update_rate>
             <camera name="head">
-                <horizontal_fov>1.3962634</horizontal_fov>
+                <horizontal_fov>1.50098</horizontal_fov>
                 <image>
                 <width>640</width>
-                <height>320</height>
+                <height>360</height>
                 <format>R8G8B8</format>
                 </image>
             </camera>        
             <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
                 <alwaysOn>true</alwaysOn>
-                <updateRate>0.0</updateRate>
-                <cameraName>camera_right_0</cameraName>
-                <imageTopicName>image_raw</imageTopicName>
-                <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-                <frameName>camera_link_0</frameName>
+                <updateRate>30</updateRate>
+                <cameraName>camera_right</cameraName>
+                <imageTopicName>camera_right_0/color/image_raw</imageTopicName>
+                <cameraInfoTopicName>camera_right_0/color/camera_info</cameraInfoTopicName>
+                <frameName>camera_right</frameName>
                 <hackBaseline>0.07</hackBaseline>
                 <distortionK1>0.0</distortionK1>
                 <distortionK2>0.0</distortionK2>
@@ -127,11 +127,11 @@
                 <distortionT2>0.0</distortionT2>
             </plugin>
         </sensor>
-    </gazebo-->
+    </gazebo> -->
 
     <gazebo reference="camera_link_0">
       <sensor name="camera_right_0" type="depth">
-        <update_rate>0</update_rate>
+        <update_rate>30</update_rate>
         <camera>
           <horizontal_fov>1.50098</horizontal_fov>
           <vertical_fov>0.7417649</vertical_fov>
@@ -148,7 +148,7 @@
         <plugin name="camera_right_0_controller" filename="libgazebo_ros_openni_kinect.so">
           <baseline>0.1</baseline>
           <alwaysOn>true</alwaysOn>
-          <update_rate>0</update_rate>
+          <update_rate>30</update_rate>
           <cameraName>camera_right_0_ir</cameraName>
           <imageTopicName>camera_right_0/color/image_raw</imageTopicName>
           <cameraInfoTopicName>/camera_right_0/color/camera_info</cameraInfoTopicName>
@@ -202,7 +202,7 @@
         </sensor>
     </gazebo-->
 
-    <gazebo reference="camera_link_1">
+    <!-- <gazebo reference="camera_link_1">
       <sensor name="camera_right_1" type="depth">
         <update_rate>1000</update_rate>
         <camera>
@@ -242,6 +242,6 @@
           <hackBaseline>0</hackBaseline>
         </plugin>
       </sensor>
-    </gazebo>
+    </gazebo> -->
 
 </robot>

@@ -67,18 +67,22 @@ class Image_converter:
             
             self.camera_depth = cv2.applyColorMap(self.camera_depth * 20, cv2.COLORMAP_JET)
             
+
             t2 = time.time()
 
             self.main_frame = cv2.hconcat([self.camera_data, self.camera_depth])
 
+
             cv2.imshow("main_frame", self.main_frame)
+
 
             print("FPS : ",1 / (t2 - t1))
 
             if record == True:
 
-                self.out_0.write(self.main_frame)
-
+                #self.out_0.write(self.main_frame)
+                self.out_0.write(self.camera_data)
+        
             key = cv2.waitKey(33)
 
             if key == 27 : 

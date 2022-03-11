@@ -1,484 +1,288 @@
-#! /home/drcl_yang/anaconda3/envs/py36/bin/python
+#!/usr/bin/env python
 
 from pathlib import Path
 import sys
-import os
 
 FILE = Path(__file__).absolute()
 sys.path.append(FILE.parents[0].as_posix())  # add code to path
 
 path = str(FILE.parents[0])
-sys.path.insert(0, './yolov5')
+sys.path.append("/heatmap_based_object_tracking")
 
 import numpy as np
 import time
-import cv2
-
 import roslib
 import rospy
-from std_msgs.msg import String, Float64, Float64MultiArray
+import cv2
+from std_msgs.msg import String, Float64
 from gazebo_msgs.srv import *
 from geometry_msgs.msg import *
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
-
 import torch
-import torch.backends.cudnn as cudnn
+import argparse
+from heatmap_based_object_tracking.models.network import *
+from heatmap_based_object_tracking.utils import *
 
-from tools import *
+from multiprocessing import Process, Pipe, Manager
+from multiprocessing.managers import BaseManager
 
-from yolov5.models.common import DetectMultiBackend
-from yolov5.utils.datasets import IMG_FORMATS, VID_FORMATS, LoadImages, LoadStreams
-from yolov5.utils.general import (LOGGER, check_file, check_img_size, check_imshow, check_requirements, colorstr,
-                           increment_path, non_max_suppression, print_args, scale_coords, strip_optimizer, xyxy2xywh)
-from yolov5.utils.plots import Annotator, colors, save_one_box
-from yolov5.utils.torch_utils import select_device, time_sync
+BATCH_SIZE = 1
+HEIGHT=288
+WIDTH=512
 
-from yolov5.utils.augmentations import letterbox
+height = 360
+width = 640
 
-from kalman_utils.KFilter import *
+ratio_h = height / HEIGHT
+ratio_w = width / WIDTH
+size = (width, height)
 
+parser = argparse.ArgumentParser(description='Gazebo simualation')
 
-device = 0
-weights = path + "/yolov5/weights/best.pt"
-imgsz = 640
-conf_thres = 0.25
-iou_thres = 0.45
-classes = [0, 38, 80]
-agnostic_nms = False
-max_det = 1000
-half=False
-dnn = False
+parser.add_argument('--lr', type=float, default=1e-1,
+                    help='learning rate (default: 0.1)')
+parser.add_argument('--load_weight', type=str,
+                    default='/heatmap_based_object_tracking/weights/gazebo.tar', help='input model weight for predict')
+parser.add_argument('--optimizer', type=str, default='Ada',
+                    help='Ada or SGD (default: Ada)')
+parser.add_argument('--momentum', type=float, default=0.9,
+                    help='momentum fator (default: 0.9)')
+parser.add_argument('--weight_decay', type=float,
+                    default=5e-4, help='weight decay (default: 5e-4)')
+parser.add_argument('--seed', type=int, default=1,
+                    help='random seed (default: 1)')
+parser.add_argument('--record', type=bool, default=False,
+                    help='record option')
+args = parser.parse_args()
 
-device = select_device(device)
-model = DetectMultiBackend(weights, device=device, dnn=dnn)
-stride, names, pt, jit, onnx = model.stride, model.names, model.pt, model.jit, model.onnx
-imgsz = check_img_size(imgsz, s=stride)  # check image size
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+print('GPU Use : ', torch.cuda.is_available())
 
+model = EfficientNet(1.2, 1.4) # b3 width_coef = 1.2, depth_coef = 1.4
 
-half &= pt and device.type != 'cpu'  # half precision only supported by PyTorch on CUDA
+model.to(device)
+if args.optimizer == 'Ada':
+    optimizer = torch.optim.Adadelta(
+        model.parameters(), lr=args.lr, rho=0.9, eps=1e-06, weight_decay=0)
+    #optimizer = torch.optim.Adam(model.parameters(), lr = args.lr, weight_decay = args.weight_decay)
+else:
+    optimizer = torch.optim.SGD(model.parameters(
+    ), lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum)
+checkpoint = torch.load(path + '/' + args.load_weight)
+model.load_state_dict(checkpoint['state_dict'])
 
-if pt:
-    model.model.half() if half else model.model.float()
+model.eval()
 
-cudnn.benchmark = True  # set True to speed up constant image size inference
+input_img_buffer = []
 
-
-color = tuple(np.random.randint(low=200, high = 255, size = 3).tolist())
-color = tuple([0,125,255])
-
-tennis_court_img = cv2.imread(path + "/images/tennis_court.png")
-tennis_court_img = cv2.resize(tennis_court_img,(0,0), fx=2, fy=2, interpolation = cv2.INTER_AREA) # 1276,600,0
-
-padding_y = int((810 - tennis_court_img.shape[0]) /2 )
-padding_x = int((1500 - tennis_court_img.shape[1]) /3)
-
-WHITE = [255,255,255]
-tennis_court_img= cv2.copyMakeBorder(tennis_court_img.copy(),padding_y,padding_y,padding_x,padding_x,cv2.BORDER_CONSTANT,value=WHITE)
-
-
-disappear_cnt = 0
-ball_pos_jrajectory = []
-
-estimation_ball = Ball_Pos_Estimation()
-
-recode = False
+camera_data = []
+camera_depth_data = []
 
 
+#rospy.Subscriber("/camera_left_0_ir/camera_left_0/color/image_raw",Image,self.main)
 
-
-def person_tracking(model, img, img_ori, device):
-
-        person_box_left = []
-        person_box_right = []
-
-        img_in = torch.from_numpy(img).to(device)
-        img_in = img_in.float()
-        img_in /= 255.0
-
-        if img_in.ndimension() == 3:
-            img_in = img_in.unsqueeze(0)
-        
-
-        pred = model(img_in, augment=False, visualize=False)
-
-        pred = non_max_suppression(pred, conf_thres, iou_thres, classes, agnostic_nms, max_det=max_det)
-
-        for i, det in enumerate(pred):  # detections per image
-            
-            im0 = img_ori.copy()
-
-            if len(det):
-                det[:, :4] = scale_coords(img_in.shape[2:], det[:, :4], im0.shape).round()
-
-                for c in det[:, -1].unique():
-                    n = (det[:, -1] == c).sum()  # detections per class
-                    s = f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
-
-                for *xyxy, conf, cls in reversed(det):
-                    c = int(cls)  # integer class
-
-                    label = names[c] #None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}')
-
-                    plot_one_box(xyxy, im0, label=label, color=colors(c, True), line_thickness=3)
-
-                    x0, y0, x1, y1 = int(xyxy[0]), int(xyxy[1]), int(xyxy[2]), int(xyxy[3])
-
-                    if y0 < (img_ori.shape[0] / 2) :
-                        person_box_left.append([x0, y0, x1, y1])
-
-                    else : 
-                        person_box_right.append([x0, y0, x1, y1])
-            
-        return im0, person_box_left, person_box_right
-
-class Predict_ball_landing_point():
-
+class image_pipe(object):
+    
     def __init__(self):
-        
-        self.bridge = CvBridge()
-        self.landingpoint = [0, 0]
+        self.img_data = []
+        self.depth_data = []
 
-        rospy.init_node('Image_converter', anonymous=True)
+    def img_upload(self, data_list):
+        self.img_data = data_list
 
-        #send topic to landing point check.py
-        self.pub = rospy.Publisher('/esti_landing_point',Float64MultiArray, queue_size = 10)
-        self.array2data = Float64MultiArray()
+    def depth_upload(self, data_list):
+        self.depth_data = data_list
 
-        #rospy.Subscriber("/camera_right_1_ir/camera_right_1/color/image_raw",Image,self.main)
+    def download(self):
+        return self.img_data, self.depth_data
 
-        rospy.Subscriber("/camera_left_0_ir/camera_left_0/color/image_raw",Image,self.callback_left_0)
-        rospy.Subscriber("/camera_right_0_ir/camera_right_0/color/image_raw",Image,self.callback_right_0)
+def get_gazebo_img(img_pipe):
 
-        rospy.Subscriber("/camera_left_top_ir/camera_left_top_ir/color/image_raw", Image, self.main)
+    class Img_Buffer():
 
-    def callback_left_top_ir(self, data):
-        try:
-            #self.t0 = time.time()
-            self.left_top_data_0 = self.bridge.imgmsg_to_cv2(data, "bgr8")
+        def __init__(self):
+            rospy.init_node('Img_Buffer', anonymous=True)
 
-        except CvBridgeError as e:
-            print(e)
+            self.img_data = []
+            self.depth_data = []
+            self.bridge = CvBridge()
 
-    def callback_left_0(self, data):
-        try:
-            self.left_data_0 = self.bridge.imgmsg_to_cv2(data, "bgr8")
-        
-        except CvBridgeError as e:
-            print(e)
 
-    def callback_right_0(self, data):
-        try:
-            self.right_data_0 = self.bridge.imgmsg_to_cv2(data, "bgr8")
-        except CvBridgeError as e:
-            print(e)
+        def callback_camera(self, data):
+            try:
+                self.img_data = self.bridge.imgmsg_to_cv2(data, "bgr8")
 
-    def get_ball_status(self):
-            self.t0 = time.time()
-            self.g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
+            except CvBridgeError as e:
+                print(e)
 
-            self.ball_state = self.g_get_state(model_name = 'ball_left')
 
-            self.ball_pose = Pose()
-            self.ball_pose.position.x = float(self.ball_state.pose.position.x)
-            self.ball_pose.position.y = float(self.ball_state.pose.position.y)
-            self.ball_pose.position.z = float(self.ball_state.pose.position.z)
-            
-            self.ball_vel = Twist()
+        def callback_depth(self, data):
+            try:
 
-            self.ball_vel.linear.x = float(self.ball_state.twist.linear.x)
-            self.ball_vel.linear.y = float(self.ball_state.twist.linear.y)
-            self.ball_vel.linear.z = float(self.ball_state.twist.linear.z)
+                self.depth_data = self.bridge.imgmsg_to_cv2(data, "passthrough")
 
-            self.ball_vel.angular.x = float(self.ball_state.twist.angular.x)
-            self.ball_vel.angular.y = float(self.ball_state.twist.angular.y)
-            self.ball_vel.angular.z = float(self.ball_state.twist.angular.z)
+            except CvBridgeError as e:
+                print(e)
 
-    def main(self, data):
+    img_buffer = Img_Buffer()
 
-        global estimation_ball, disappear_cnt, padding_x, padding_y
-        global tennis_court_img, ball_pos_jrajectory
+    #rospy.init_node('Image_converter', anonymous=True)
 
-        ball_esti_pos = []
-        dT = 1 / 25
-        
-        fps = 30
+    time.sleep(1)
+    print('----------------serial start--------------------')
+    rospy.Subscriber("/mecanum_camera_ir/mecanum_camera_ir/color/image_raw",Image, img_buffer.callback_camera)
+    rospy.Subscriber("/mecanum_camera_ir/depth/image_raw",Image, img_buffer.callback_depth)
 
-        if recode:
-            codec = cv2.VideoWriter_fourcc(*'XVID')
-            out = cv2.VideoWriter("ball_tracking.mp4", codec, fps, (720,810))
-
-
-        """frame = frame_main[:,320:960,:]
-        frame_left = frame_main[0:360,:590,:]
-        frame_right = frame_main[360:,50:,:]"""
-
-        (rows,cols,channels) = self.left_data_0.shape
-
-        self.get_ball_status()
-        
-        if cols > 60 and rows > 60 :
-            print("-----------------------------------------------------------------")
-            t1 = time.time()
-
-
-            frame_left = self.left_data_0
-            frame_right = self.right_data_0
-
-                    
-            frame_main = cv2.vconcat([frame_left,frame_right])
-
-            frame = cv2.resize(frame_main, dsize=(640, 720), interpolation=cv2.INTER_LINEAR)
-
-            frame_main = frame
-
-            frame_recode = cv2.vconcat([frame_left,frame_right])
-
-
-            ball_box_left = []
-            ball_box_right = []
-
-            ball_cen_left = []
-            ball_cen_right = []
-
-            ball_pos = []
-
-            frame_left = frame[0 : int(frame.shape[0]/2), : , : ]
-            frame_right = frame[int(frame.shape[0]/2): , : , : ]
-
-            frame_mog2 = frame_main.copy()
-            frame_yolo_main = frame_main.copy()
-
-            img, img_ori = img_preprocessing(frame_yolo_main, imgsz, stride, pt)
-
-            person_tracking_img, person_box_left_list, person_box_right_list = person_tracking(model, img, img_ori, device)
-
-            ball_detect_img, ball_cand_box_list_left, ball_cand_box_list_right = ball_tracking(frame_mog2)  #get ball cand bbox list
-
-            if ball_cand_box_list_left:
-                ball_box_left = check_iou(person_box_left_list, ball_cand_box_list_left) # get left camera ball bbox list
-
-            if ball_cand_box_list_right:
-                ball_box_right = check_iou(person_box_right_list, ball_cand_box_list_right) # get right camera ball bbox list
-
-            ball_box = [ball_box_left, ball_box_right]
-
-            if ball_box:  #draw ball bbox 
-                
-                total_ball_box = ball_box[0] + ball_box[1]
-
-                for i in range(len(total_ball_box)):
-                    x0, y0, x1, y1 = total_ball_box[i]
-
-                    ball_x_pos, ball_y_pos = int((x0 + x1)/2), int((y0 +y1)/2)
-
-                    cv2.rectangle(frame_main, (x0, y0), (x1, y1), color, 3)
-
-                    if recode == True :
-                        cv2.rectangle(frame_recode, (x0, y0), (x1, y1), color, 3)
-
-                    #cv2.circle(point_image,(ball_x_pos, ball_y_pos), 4, color, -1)
-
-                    #ball_list.append([ball_x_pos, ball_y_pos])
-
-            ball_cen_left = trans_point(frame_main, ball_box_left)
-            ball_cen_right = trans_point(frame_main, ball_box_right)
-
-                
-
-            #print("ball_cen_left = ",ball_cen_left)
-            #print("ball_cen_right = ",ball_cen_right)
-
-            #print("KF_flag : ",estimation_ball.kf_flag)
-
-            if len(ball_cen_left) and len(ball_cen_right): #2개의 카메라에서 ball이 검출 되었는가?
-                fly_check = estimation_ball.check_ball_flying(ball_cen_left, ball_cen_right)
-                if (fly_check) == 1:
-
-                    
-
-                    ball_cand_pos = estimation_ball.get_ball_pos()
-
-                    print("check_ball_fly")
-
-                    if estimation_ball.kf_flag:
-                        print("ball_detect_next")
-
-
-                        pred_ball_pos = estimation_ball.kf.get_predict()
-                        ball_pos = get_prior_ball_pos(ball_cand_pos, pred_ball_pos)
-
-                        ball_pos = estimation_ball.ball_vel_check(ball_pos)
-
-                        ball_pos_jrajectory.append(ball_pos)
-
-                        estimation_ball.kf.update(ball_pos[0], ball_pos[1], ball_pos[2], dT)
-
-                        estimation_ball.ball_trajectory.append([ball_pos])
-
-                    else:
-                        print("ball_detect_frist")
-
-                        if len(ball_cand_pos) > 1:
-                            pass
-                            #***************사람 위치와 공 위치 평가 함수******************
-                            #임시
-
-                            del_list = []
-
-                            for i in range(len(ball_cand_pos)) : #임시
-
-                                if abs(ball_cand_pos[i][1]) > 13.1 / 2 :
-
-                                    del_list.append(i)
-
-                            ball_cand_pos = np.delete(np.array(ball_cand_pos),del_list,axis = 0).tolist()
-
-                            ball_pos = ball_cand_pos[(9 - abs(np.array(ball_cand_pos)[:,0])).argmin()]
-
-                            ball_pos_jrajectory.append(ball_pos)
-
-                            estimation_ball.kf = Kalman_filiter(ball_pos[0], ball_pos[1], ball_pos[2], dT)
-                            estimation_ball.kf_flag = True
-                            estimation_ball.ball_trajectory.append([ball_pos])
-
-                        else:
-                            ball_pos = ball_cand_pos[0]
-                            ball_pos_jrajectory.append(ball_pos)
-
-                            estimation_ball.kf = Kalman_filiter(ball_pos[0], ball_pos[1], ball_pos[2], dT)
-                            estimation_ball.kf_flag = True
-                            estimation_ball.ball_trajectory.append([ball_pos])
-
-                elif (fly_check) == 3:
-                    print("setup_ball_fly")
-                    #estimation_ball.reset_ball()
-
-                else : 
-                    print("not_detect_fly_ball")
-
-                    if estimation_ball.kf_flag == True:
-                        print("ball_predict_next_KF")
-                        
-                        estimation_ball.kf.predict(dT)
-
-                        ball_pos = estimation_ball.kf.get_predict()
-
-                        ball_pos = estimation_ball.ball_vel_check(ball_pos)
-
-                        ball_pos_jrajectory.append(ball_pos.tolist())
-
-
-                        estimation_ball.ball_trajectory.append([ball_pos])
-
-                        print("pred_ball_pos = ",ball_pos)
-
-
-
-                    else : 
-                        print("reset_ALL")
-                        estimation_ball.reset_ball()
-                        ball_pos_jrajectory.clear()
-
-                    
-            else:
-                print("not ball_detect")
-
-                if estimation_ball.kf_flag: #칼만 필터가 있는가?
-                    print("ball_predict_next_KF")
-
-                    estimation_ball.kf.predict(dT)
-
-                    ball_pos = estimation_ball.kf.get_predict()
-
-                    ball_pos = estimation_ball.ball_vel_check(ball_pos)
-
-                    ball_pos_jrajectory.append(ball_pos.tolist())
-
-                    estimation_ball.ball_trajectory.append([ball_pos])
-
-                    print("pred_ball_pos = ",ball_pos)
-
-                    disappear_cnt += 1
-
-                    if ball_pos[2] < 0 or disappear_cnt > 4 or  ball_pos[0] > 0 :
-        
-                        print("reset_ALL")
-
-                        estimation_ball.reset_ball()
-                        ball_pos_jrajectory.clear()
-                        disappear_cnt = 0
-
-
-                else:
-                    print("reset_ALL")
-                    estimation_ball.reset_ball()
-                    ball_pos_jrajectory.clear()
-
-            if len(ball_pos):
-                #print("ball_pos_jrajectory = ",ball_pos_jrajectory)
-
-                ball_landing_point = cal_landing_point(ball_pos_jrajectory, t1)
-
-                draw_point_court(tennis_court_img, ball_pos, padding_x, padding_y)
-                draw_landing_point_court(tennis_court_img, ball_landing_point, padding_x, padding_y)
-
-                #print("ball_pos = ",ball_pos)
-                #print("real_ball_pos = ", self.ball_pose.position.x, self.ball_pose.position.y, self.ball_pose.position.z)
-                #print("real_ball_vel = ", self.ball_vel.linear.x, self.ball_vel.linear.y, self.ball_vel.linear.z)
-
-                #print("ball_landing_point = ",ball_landing_point)
-                self.array2data.data = ball_landing_point
-                self.pub.publish(self.array2data)
-
-            t2 = time.time()
-
-
-            #cv2.imshow('person_tracking_img',person_tracking_img)
-            #cv2.imshow('ball_detect_img',ball_detect_img)
-
-            cv2.imshow('tennis_court_img',tennis_court_img)
-            cv2.imshow('frame_main',frame_main)
-
-            #cv2.imshow('frame_recode',frame_recode)
-
-            if recode:
-
-                print(frame_recode.shape)
-                out.write(frame_recode)
-
-
-            print("FPS : " , 1/(t2-t1))
-
-            key = cv2.waitKey(1)
-
-            if key == ord("c") : 
-                tennis_court_img = cv2.imread(path + "/images/tennis_court.png")
-
-                tennis_court_img = cv2.resize(tennis_court_img,(0,0), fx=2, fy=2, interpolation = cv2.INTER_AREA) # 1276,600,0
-
-                padding_y = int((810 - tennis_court_img.shape[0]) /2 )
-                padding_x = int((1500 - tennis_court_img.shape[1]) /3)
-
-
-                WHITE = [255,255,255]
-                tennis_court_img= cv2.copyMakeBorder(tennis_court_img.copy(),padding_y,padding_y,padding_x,padding_x,cv2.BORDER_CONSTANT,value=WHITE)
-
-                #print(tennis_court_img.shape)
-
-            if key == 27 : 
-                cv2.destroyAllWindows()
-
-
-if __name__ == "__main__":
-
-
-    ic = Predict_ball_landing_point()
 
     try:
-        rospy.spin()
+        while True:
+            if len(img_buffer.img_data):
+                img_pipe.img_upload(img_buffer.img_data)
+                img_pipe.depth_upload(img_buffer.depth_data)
+
+            else:
+                print('not img')
+                time.sleep(1)
 
     except KeyboardInterrupt:
         print("Shutting down")
-        cv2.destroyAllWindows()
+        
+def get_ball_status():
+
+    g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
+
+    ball_state = g_get_state(model_name = 'ball_left')
+
+    ball_pose = Pose()
+    ball_pose.position.x = float(ball_state.pose.position.x)
+    ball_pose.position.y = float(ball_state.pose.position.y)
+    ball_pose.position.z = float(ball_state.pose.position.z)
+    
+    ball_vel = Twist()
+
+    ball_vel.linear.x = float(ball_state.twist.linear.x)
+    ball_vel.linear.y = float(ball_state.twist.linear.y)
+    ball_vel.linear.z = float(ball_state.twist.linear.z)
+
+    ball_vel.angular.x = float(ball_state.twist.angular.x)
+    ball_vel.angular.y = float(ball_state.twist.angular.y)
+    ball_vel.angular.z = float(ball_state.twist.angular.z)
+
+    return ball_pose.position.x, ball_pose.position.y, ball_pose.position.z
+
+def main(args):
+    #global camera_data, camera_depth_data
+    BaseManager.register('image_pipe', image_pipe)
+    manager = BaseManager()
+    manager.start()
+    inst = manager.image_pipe()
+
+    process = Process(target=get_gazebo_img, args=[inst])
+    process.start()
+
+    #a = rospy.Subscriber("/mecanum_camera_ir/depth/image_raw",Image,callback_depth)
+    #b = rospy.Subscriber("/mecanum_camera_ir/mecanum_camera_ir/color/image_raw",Image,callback_camera)
+    #rospy.init_node('Image_converter', anonymous=True)
+
+    input_img_buffer = []
+
+    robot_pos_x = 11.5
+    robot_pos_y = 0
+    robot_pos_z = 1.0
+
+    ball_trajectory = []
+    real_ball_trajectory = []
+
+    while True:
+
+        camera_data = inst.download()
+        
+        ball_x, ball_y, ball_z = get_ball_status()
+        
+
+        if len(camera_data[0]):
+            
+            frame = camera_data[0]
+            depth = camera_data[1]
+
+            img = cv2.resize(frame,(WIDTH, HEIGHT))
+
+            input_img_buffer.append(img)
+
+            if len(input_img_buffer) < 3:
+                continue
+
+            if len(input_img_buffer) > 3:
+                input_img_buffer = input_img_buffer[-3:]
+
+            t1 = time.time()
+
+            # unit = tran_input_img(input_img_buffer)
+            # unit = torch.from_numpy(unit).to(device, dtype=torch.float)
+
+            unit = tran_input_tensor(input_img_buffer, device)
+
+            torch.cuda.synchronize()
+
+            with torch.no_grad():
+
+                unit = unit / 255
+
+                h_pred = model(unit)
+                h_pred = (h_pred * 255).cpu().numpy()
+                
+                h_pred = (h_pred[0]).astype('uint8')
+                h_pred = np.asarray(h_pred).transpose(1, 2, 0)
+
+                h_pred = (200 < h_pred) * h_pred
+
+                torch.cuda.synchronize()
+
+            frame, depth_list, ball_cand_pos, ball_cand_score = find_ball_v3(h_pred, frame, np.float32(depth), ratio_w, ratio_h)
+
+            #depth_list = [11.5 - ball_x]
+
+            ball_pos = cal_ball_pos(ball_cand_pos, depth_list)
+            #print("depth_list", depth_list)
+
+            if len(ball_pos):
+                if ball_pos[0] < 15:
+                    print('---------------------------------------------------')
+                    print("ball_pos",[robot_pos_x - ball_pos[0], ball_pos[1] - robot_pos_y, robot_pos_z + ball_pos[2]])
+                    print("real_ball_pos",[ball_x, ball_y, ball_z])
+
+                    ball_trajectory.append([robot_pos_x - ball_pos[0], ball_pos[1] - robot_pos_y, robot_pos_z + ball_pos[2]])
+                    real_ball_trajectory.append([ball_x, ball_y, ball_z])
+
+
+
+            depth = depth * 2.55
+
+            cv2.imshow("image",frame)
+            #cv2.imshow("depth",np.uint8(depth))
+
+            cv2.imshow("h_pred",h_pred)
+
+            t2 = time.time()
+
+            #print((t2 - t1))
+            print("FPS : ",1 / (t2 - t1))
+
+            key = cv2.waitKey(1)
+
+            if key == ord('c'):
+                print("ball_trajectory = ",ball_trajectory)
+                print("real_ball_trajectory = ",real_ball_trajectory)
+
+                ball_trajectory = []
+                real_ball_trajectory = []
+
+
+            if key == 27 : 
+                cv2.destroyAllWindows()
+                break
+
+if __name__ == '__main__':
+    main(sys.argv)

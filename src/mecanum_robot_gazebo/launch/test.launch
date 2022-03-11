@@ -28,7 +28,7 @@
 
   <param name="camera_left_description" textfile="$(find ball_description)/urdf/camera/camera_left.urdf"/>
   <param name="camera_right_description" textfile="$(find ball_description)/urdf/camera/camera_right.urdf"/>
-  
+
 
   <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
 
@@ -40,8 +40,7 @@
 
   <node pkg="gazebo_ros" type="spawn_model" name="camera_left_urdf" args="-urdf -model camera_left -x 0 -y -6.4 -z 0 -param camera_left_description" />
   <node pkg="gazebo_ros" type="spawn_model" name="camera_right_urdf" args="-urdf -model camera_right -x 0 -y 6.4 -z 0 -param camera_right_description" />
-
-
+  
   <!-- Run controller utils -->
 
   <node name="controller_spawner_L" pkg="controller_manager" type="spawner" respawn="false"
@@ -58,7 +57,7 @@
                                       wheel_3_controller 
                                       wheel_4_controller"/>
 
-  <node pkg="ball_description" name="ball_airdynamic" type="ball_airdynamic.py" output="screen"/> 
+  <!-- <node pkg="ball_description" name="ball_airdynamic" type="ball_airdynamic.py" output="screen"/>  -->
 
   <!-- convert joint states to TF transforms for rviz, etc -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">

@@ -10,6 +10,7 @@ sys.path.append(FILE.parents[0].as_posix())  # add code to path
 path = str(FILE.parents[0])
 sys.path.insert(0, './yolov5')
 
+
 import numpy as np
 import time
 import cv2
@@ -50,7 +51,7 @@ class Ball_Pos_Estimation():
 
         self.disappear_cnt = 0
         
-        self.dT = 1 / 25
+        self.dT = 1/30
 
     def check_ball_flying(self, ball_cen_left_list, ball_cen_right_list):
 
@@ -174,7 +175,7 @@ class Ball_Pos_Estimation():
                 height_L = abs(D_L * np.sin(np.arcsin(y_L/c_L)))
                 height_R = abs(D_R * np.sin(np.arcsin(y_R/c_R)))
 
-                print("height",height_L ,height_R)
+                #print("height",height_L ,height_R)
 
                 #height_L = abs(D_L * np.sin(np.arctan(y_L/a_L)))
                 #height_R = abs(D_R * np.sin(np.arctan(y_R/a_R)))
@@ -250,19 +251,19 @@ class Ball_Pos_Estimation():
             print("mean_y_vel", mean_y_vel)
             print("y_vel", y_vel)"""
 
-            if abs(abs(mean_x_vel) - abs(x_vel)) > 5:
+            if abs(abs(mean_x_vel) - abs(x_vel)) > 5: # 이전 x축 속도평균 보다 현재 속도가 5이상 더 빠를때
                 ball_pos[0] = ball_trajectory[-1][0] + mean_x_vel * self.dT
 
-            if abs(abs(mean_y_vel) - abs(y_vel)) > 1:
+            if abs(abs(mean_y_vel) - abs(y_vel)) > 1: # 이전 y축 속도평균 보다 현재 속도가 1이상 더 빠를때
+
                 ball_pos[1] = ball_trajectory[-1][1] + mean_y_vel * self.dT
 
-            if x_pos_list[-1] >= ball_pos[0]:
+            if x_pos_list[-1] >= ball_pos[0]: #공이 뒤로 움직일때 이전 x 위치에서 평균 속도로 현재 위치 추정
+
                 ball_pos[0] = ball_trajectory[-1][0] + mean_x_vel * self.dT
 
-
-            
-
         return ball_pos
+
 
 
 def plot_one_box(x, im, color=(128, 128, 128), label=None, line_thickness=3):
@@ -326,7 +327,7 @@ def ball_tracking(image):
                     ball_cand_box_right.append([x0, y0, x1, y1])
 
         #fgmask_dila_1 = cv2.dilate(fgmask_erode_1,kernel_dilation_2,iterations = 1)
-        fgmask_erode_2 = cv2.erode(fgmask, kernel_erosion_1, iterations = 1) #오픈 연산이아니라 침식으로 바꾸자
+        """fgmask_erode_2 = cv2.erode(fgmask, kernel_erosion_1, iterations = 1) #오픈 연산이아니라 침식으로 바꾸자
         fgmask_dila_2 = cv2.dilate(fgmask_erode_2, kernel_dilation_2,iterations = 1)
 
         nlabels, labels, stats_before, centroids = cv2.connectedComponentsWithStats(fgmask_dila_2, connectivity = 8)
@@ -336,13 +337,13 @@ def ball_tracking(image):
 
             if area > 3000 : #or area > 600 : # or area < 500 or aspect > 1.2 or aspect < 0.97 : 
                continue
-            #cv2.rectangle(image_ori, (x, y), (x + w, y + h), (0,0,255), 3)
+            #cv2.rectangle(image_ori, (x, y), (x + w, y + h), (0,0,255), 3)"""
 
 
 
 
-        MOG2_img_before = cv2.hconcat([fgmask,fgmask_erode_2,fgmask_dila_2])
-        MOG2_img_after = cv2.hconcat([fgmask,fgmask_erode_1])
+        #MOG2_img_before = cv2.hconcat([fgmask,fgmask_erode_2,fgmask_dila_2])
+        #MOG2_img_after = cv2.hconcat([fgmask,fgmask_erode_1])
 
         #cv2.imshow("MOG2_img_before",MOG2_img_before)
         #cv2.imshow("MOG2_img_after",MOG2_img_after)
@@ -370,8 +371,6 @@ def check_iou(person_box, ball_cand_box):
                         continue
 
                     no_ball_box.append(ball_cand_box[j])
-
-
 
         for i in no_ball_box:
             del ball_cand_box[ball_cand_box.index(i)]
@@ -420,7 +419,7 @@ def trans_point(img_ori, point_list):
 
     return new_point
 
-def draw_point_court(img, camera_predict_point_list, padding_x, padding_y):
+def draw_point_court(img, camera_predict_point_list, padding_x, padding_y, color = [0, 255, 0]):
 
     tennis_court_img = img
 
@@ -444,7 +443,7 @@ def draw_point_court(img, camera_predict_point_list, padding_x, padding_y):
 
     predict_pix_point = predict_pix_point_list[0:2]
 
-    cv2.circle(tennis_court_img,(predict_pix_point[0] + padding_x, predict_pix_point[1] + padding_y), 4, [0, 255, 0], -1)
+    cv2.circle(tennis_court_img,(predict_pix_point[0] + padding_x, predict_pix_point[1] + padding_y), 4, color, -1)
 
     return tennis_court_img
 
@@ -496,23 +495,24 @@ def get_distance(point_1, point_2):
 
     #print("point_1 : ",point_1)
     #print("point_2 : ",point_2)
-
-
     return (np.sqrt((point_2[0]-point_1[0])**2 + (point_2[1]-point_1[1])**2 + (point_2[2]-point_1[2])**2))
 
-def cal_landing_point(pos_list, t0):
+def cal_landing_point(pos_list, dT):
 
     t_list = []
 
     if len(pos_list) < 2 : return [np.nan, np.nan, np.nan]
 
+    if dT < 0.033:
+        dT = 0.033
+
+    dT = 0.04
+
     pos = pos_list[-1]
 
     x0, y0, z0 = pos[0], pos[1], pos[2]
 
-    dt = time.time() - t0
-
-    vx, vy, vz = get_velocity(pos_list, dt)
+    vx, vy, vz = get_velocity(pos_list, dT)
 
     a = -((0.5 * 0.507 * 1.2041 * np.pi * (0.033 ** 2) * vz ** 2 ) / 0.057 + 9.8 / 2 )
     b = vz
@@ -522,7 +522,6 @@ def cal_landing_point(pos_list, t0):
     t_list.append((-b - np.sqrt(b ** 2 - 4 * a * c))/(2 * a))
 
     t = max(t_list)
-    print(t_list)
     
     drag_x = (0.5 * 0.507 * 1.2041 * np.pi * (0.033 ** 2) * vx ** 2 )
     drag_y = (0.5 * 0.507 * 1.2041 * np.pi * (0.033 ** 2) * vy ** 2 )
@@ -543,8 +542,6 @@ def cal_landing_point(pos_list, t0):
 
 
 def get_velocity(pos_list, dT):
-
-    dT = 0.055
 
     np_pos_list = np.array(pos_list)
 
