@@ -5,6 +5,7 @@
 *.tar
 *.pt
 *.csv
+*.bin
 
 video/
 videos/

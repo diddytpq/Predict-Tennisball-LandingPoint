@@ -11,6 +11,7 @@ from std_msgs.msg import Float64, Float64MultiArray
 from nav_msgs.msg import Odometry
 import time
 from tool.mecanum_utils import *
+import pickle
 
 class Make_mecanum_left():
 
@@ -28,7 +29,7 @@ class Make_mecanum_left():
         self.vel_forward = 1.5 #m/s
         self.vel_lateral = 5.5 #m/s
         
-        self.ball_fly_time = 0.55 #max height time [sec]
+        self.ball_fly_time = 0.4 #max height time [sec]
         self.vel_forward_apply = 0
         self.vel_lateral_apply = 0
         self.amax = 3
@@ -184,7 +185,7 @@ class Make_mecanum_left():
       
     def spwan_ball(self, name):
 
-        file_localition = roslib.packages.get_pkg_dir('ball_trajectory') + '/urdf/tennis_ball/ball_main.sdf'
+        file_localition = roslib.packages.get_pkg_dir('ball_description') + '/urdf/tennis_ball/ball_main.sdf'
         srv_spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
     
         self.get_position()
@@ -211,11 +212,11 @@ class Make_mecanum_left():
 
     def set_ball_target(self):
 
-        #self.x_target = (np.random.randint(10, 12) + np.random.rand())
-        #self.y_target = (np.random.randint(-3, 3) + np.random.rand())
+        self.x_target = (np.random.randint(10, 12) + np.random.rand())
+        self.y_target = (np.random.randint(-3, 3) + np.random.rand())
 
-        self.x_target = 11
-        self.y_target = 3
+        #self.x_target = 11
+        #self.y_target = -1.5
 
         self.get_position()
         
@@ -285,15 +286,14 @@ class Make_mecanum_left():
 
         self.get_position()
 
-        distance_x = (self.away_ball_pose.position.x - self.object_pose.position.x)
-        distance_y = (self.away_ball_pose.position.y - self.object_pose.position.y)
-        distance_z = (self.away_ball_pose.position.z - self.object_pose.position.z)
+        distance_x = (abs(self.away_ball_pose.position.x) - abs(self.object_pose.position.x))
+        distance_y = (abs(self.away_ball_pose.position.y) - abs(self.object_pose.position.y))
+        distance_z = (abs(self.away_ball_pose.position.z) - abs(self.object_pose.position.z))
 
         #distance = np.sqrt((distance_x)**2 + (distance_y)**2 + (distance_z)**2)
 
-        if (abs(distance_x) < 0.6 and abs(distance_y) < 1  and abs(distance_z) < 2) or abs(self.away_ball_pose.position.x) > 18:
+        if (abs(distance_x) < 0.6 and abs(distance_y) < 0.5  and abs(distance_z) < 2) or abs(self.away_ball_pose.position.x) > 18:
         #if (abs(distance_x) < 0.6 and abs(distance_y) <0.6  and abs(distance_z) < 1):
-        
             self.del_ball()
             return  True
 
@@ -342,6 +342,19 @@ class Make_mecanum_right(Make_mecanum_left):
         self.y_move_target = np.nan
         self.esti_ball_landing_point = [np.nan]
 
+        self.init_robot_pos = [np.NaN]
+
+        self.esti_ball_pos = []
+        self.esti_ball_pos_list = []
+
+        self.esti_data = []
+
+    def save_data(self):
+
+        with open('esti_ball_list.bin', 'wb') as f:
+            pickle.dump((self.esti_data),f)
+        
+
     def set_ball_target(self):
         #self.x_target = -(np.random.randint(8, 10) + np.random.rand())
         
@@ -354,7 +367,23 @@ class Make_mecanum_right(Make_mecanum_left):
         self.y_error = self.y_target - self.object_pose.position.y
         self.s = -np.sqrt(self.x_error**2 + self.y_error**2)
 
-    
+
+    def del_ball(self):
+
+        time.sleep(0.2)
+
+        srv_delete_model = rospy.ServiceProxy('gazebo/delete_model', DeleteModel)
+        res = srv_delete_model(self.away_ball_name)
+        self.away_ball_vel_max_x = 0
+        self.away_ball_vel_max_y = 0
+
+        if len(self.esti_ball_pos_list):
+            self.esti_data.append([self.esti_ball_pos_list])
+
+        self.init_robot_pos = [np.NaN]
+        self.esti_ball_pos = []
+        self.esti_ball_pos_list = []
+
     def move(self, x_target, y_target, away_mecanum):
         t0 = time.time()
 
@@ -376,7 +405,6 @@ class Make_mecanum_right(Make_mecanum_left):
             t0 = time.time()
 
             #print("dt : ", self.dt)
-
             
             self.x_error = self.object_pose.position.x -  x_target 
             self.y_error = self.object_pose.position.y -  y_target
@@ -414,11 +442,13 @@ class Make_mecanum_right(Make_mecanum_left):
     def callback_landing_point(self, data):
 
         if len(data.data) < 1 :
-            self.esti_ball_landing_point = [np.nan]
+            self.esti_ball_landing_point = [np.NaN]
             return 0
+
 
         self.esti_ball_landing_point = [data.data[0], data.data[1], data.data[2]]
         
+
         #print(self.esti_ball_landing_point)
     
     def move_base_camera(self, add_catch_point,away_mecanum):
@@ -486,6 +516,112 @@ class Make_mecanum_right(Make_mecanum_left):
                         self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
                         self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
 
+    def callback_ball_pos(self, data):
+
+        #rate = rospy.Rate(30)
+
+        if len(data.data) < 1 :
+            self.esti_ball_pos = []
+            return 0
+
+        self.get_position()
+
+        if np.isnan(self.init_robot_pos[0]):
+            self.init_robot_pos = [self.object_pose.position.x, self.object_pose.position.y]
+
+        if len(self.esti_ball_pos) == 0:
+            self.esti_ball_pos.append([data.data[0], data.data[1], data.data[2]])
+
+            x_pos_dt =  self.init_robot_pos[0] - self.object_pose.position.x 
+            y_pos_dt =  self.init_robot_pos[1] + self.object_pose.position.y
+
+            #self.esti_ball_pos_list.append([self.esti_ball_pos[-1][0] + x_pos_dt, self.esti_ball_pos[-1][1] + y_pos_dt, self.esti_ball_pos[-1][2]])
+            self.esti_ball_pos_list.append([self.init_robot_pos[0] - (self.esti_ball_pos[-1][0] + x_pos_dt), self.esti_ball_pos[-1][1] + y_pos_dt, self.esti_ball_pos[-1][2]+ 1.05])
+
+        elif self.esti_ball_pos[-1] != [data.data[0], data.data[1], data.data[2]]:
+
+            self.esti_ball_pos.append([data.data[0], data.data[1], data.data[2]])
+
+            x_pos_dt = self.init_robot_pos[0] - self.object_pose.position.x 
+            y_pos_dt = self.init_robot_pos[1] + self.object_pose.position.y
+
+            #print(self.init_robot_pos[1] + self.object_pose.position.y)
+
+            #self.esti_ball_pos_list.append([self.esti_ball_pos[-1][0] + x_pos_dt, self.esti_ball_pos[-1][1] + y_pos_dt, self.esti_ball_pos[-1][2] + 1.05])
+            self.esti_ball_pos_list.append([self.init_robot_pos[0] - (self.esti_ball_pos[-1][0] + x_pos_dt), self.esti_ball_pos[-1][1] + y_pos_dt, self.esti_ball_pos[-1][2]+ 1.05])
+
+        #print(self.init_robot_pos)
+
+        #print(self.esti_ball_pos)
+        print('-------------------------------------')
+        #print("esti_ball_pos_list = ",self.esti_ball_pos_list)
+        #print("esti_ball_vel_list",np.diff(np.array(self.esti_ball_pos_list), axis = 0)/0.045)
+
+        #rate.sleep()
+
+
+    def move_based_mecanum_camera(self, x_target, y_target, away_mecanum):
+        t0 = time.time()
+        rospy.Subscriber("esti_ball_pos", Float64MultiArray, self.callback_ball_pos)
+
+
+        while True:
+            self.get_position()
+
+            if np.isnan(self.init_robot_pos[0]):
+                self.init_robot_pos = [self.object_pose.position.x, self.object_pose.position.y]
+
+            #return_home(away_mecanum)
+
+            if self.ball_catch_check():
+
+                self.stop()
+                away_mecanum.stop()
+                break 
+
+
+
+            t1 = time.time()
+            self.dt = t1 - t0
+
+            t0 = time.time()
+
+            #print("dt : ", self.dt)
+
+            
+            self.x_error = self.object_pose.position.x -  x_target 
+            self.y_error = self.object_pose.position.y -  y_target
+            
+            #print(self.x_error, self.y_error)
+            if (abs(self.x_error) <0.1 and abs(self.y_error)< 0.1) :
+                self.stop()
+                away_mecanum.stop()
+        
+            else:
+                self.set_x_velocity(self.dt)
+                self.set_y_velocity(self.dt)
+                if abs(self.x_error) < 0.1:
+                    self.vel_forward_apply = 0
+
+                if abs(self.y_error) < 0.1:
+                    self.vel_lateral_apply = 0
+
+
+                self.twist = Twist()
+                #print(self.vel_forward_apply, self.vel_lateral_apply)
+                
+                self.twist.linear.x = self.vel_forward_apply
+                self.twist.linear.y = self.vel_lateral_apply
+                self.twist.linear.z = 0
+
+                self.wheel_vel = mecanum_wheel_velocity(self.twist.linear.x, self.twist.linear.y, self.twist.angular.z)
+
+                self.pub.publish(self.twist)
+                self.pub_wheel_vel_1.publish(self.wheel_vel[0,:])
+                self.pub_wheel_vel_2.publish(self.wheel_vel[1,:])
+                self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
+                self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
+
 
 def return_home(home_mecanum):
 
@@ -498,13 +634,13 @@ def return_home(home_mecanum):
     robot_angle = np.rad2deg(home_mecanum.angle[2])
 
     if robot_x < 0:
-        x_error = -12 - robot_x
+        x_error = -13 - robot_x
         y_error = -robot_y
 
         home_mecanum.twist.angular.z = -robot_angle/100
 
     if robot_x > 0:
-        x_error = robot_x - 12
+        x_error = robot_x - 13
         y_error = robot_y
 
         if robot_angle > 0 :

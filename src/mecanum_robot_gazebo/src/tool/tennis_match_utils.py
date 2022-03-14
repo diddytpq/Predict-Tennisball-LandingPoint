@@ -420,9 +420,9 @@ class Make_mecanum_right(Make_mecanum_left):
     def move_base_camera(self, add_catch_point,away_mecanum):
             t0 = time.time()
 
-            while True:
+            rospy.Subscriber("esti_landing_point", Float64MultiArray, self.callback_landing_point)
 
-                rospy.Subscriber("esti_landing_point", Float64MultiArray, self.callback_landing_point)
+            while True:
 
                 return_home(away_mecanum)
 

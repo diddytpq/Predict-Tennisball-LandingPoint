@@ -2,6 +2,7 @@ import rospy
 import sys, select, os
 import roslib
 import time
+import pickle
 
 from tool.tennis_test_utils import *
 
@@ -36,31 +37,33 @@ if __name__ == '__main__' :
     mecanum_R.ball_name = 'ball_right'
     mecanum_R.away_ball_name = "ball_left"
     mecanum_L.del_ball()
-    mecanum_R.del_ball() 
+    mecanum_R.del_ball()
 
-    add_catch_point = 0
-
+    add_catch_point = 3
 
     while True:
         mecanum_L.spwan_ball("ball_left")
         mecanum_L.throw_ball()
+
+
+        ball_landing_point = [mecanum_L.x_target + add_catch_point * np.cos(mecanum_L.yaw_z), mecanum_L.y_target + add_catch_point * np.sin(mecanum_L.yaw_z)]
+
+
+        print("ball_landing_point",ball_landing_point)
+
+        mecanum_R.move_based_mecanum_camera(ball_landing_point[0],ball_landing_point[1] ,mecanum_L)
         
-        #print(ball_landing_point)
-        #print(add_catch_point * np.cos(mecanum_0.yaw_z),add_catch_point * np.sin(mecanum_0.yaw_z))
+        t0 = time.time()
+        while True:
+            return_home(mecanum_R)
+            if (time.time() - t0) > 3: break
 
-        #rospy.Subscriber("esti_landing_point", Float64MultiArray, callback_landing_point)
-        #ball_landing_point = [mecanum_L.x_target + add_catch_point * np.cos(mecanum_L.yaw_z), mecanum_L.y_target + add_catch_point * np.sin(mecanum_L.yaw_z)]
+        #check = input()
 
-        mecanum_R.move_base_camera(add_catch_point, mecanum_L)
+        #if check == 'c':
+        print(len(mecanum_R.esti_data))
+        if len(mecanum_R.esti_data) > 20:
+            mecanum_R.save_data()
+            break
 
 
-        #mecanum_R.spwan_ball("ball_right")
-        #mecanum_R.throw_ball()  
-
-        #ball_landing_point = [-12,0]
-        
-        #mecanum_L.move(ball_landing_point[0],ball_landing_point[1] ,mecanum_R)
-
-        time.sleep(1)
-
-        #return_home(mecanum_L)

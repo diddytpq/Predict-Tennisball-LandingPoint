@@ -83,7 +83,6 @@ camera_data = []
 camera_depth_data = []
 
 
-
 #rospy.Subscriber("/camera_left_0_ir/camera_left_0/color/image_raw",Image,self.main)
 
 class image_pipe(object):
@@ -193,12 +192,6 @@ def main(args):
 
     input_img_buffer = []
 
-    print(args.record)
-
-    if args.record:
-        codec = cv2.VideoWriter_fourcc(*'XVID')
-        out = cv2.VideoWriter("ball_tracking.mp4", codec, 30, (1280,720))
-
     robot_pos_x = 11.5
     robot_pos_y = 0
     robot_pos_z = 1.0
@@ -269,8 +262,8 @@ def main(args):
                     #print("real_ball_pos",[ball_x, ball_y, ball_z])
 
                     #ball_trajectory.append([robot_pos_x - ball_pos[0], ball_pos[1] - robot_pos_y, robot_pos_z + ball_pos[2]])
-                    
                     real_ball_trajectory.append([ball_x, ball_y, ball_z])
+                    
                     ball_trajectory.append([ball_pos[0], ball_pos[1], ball_pos[2]])
 
                     array2data.data = ball_pos
@@ -284,7 +277,7 @@ def main(args):
             else:
                 ball_disappear_cnt += 1
 
-            """if ball_disappear_cnt > 15:
+            if ball_disappear_cnt > 15:
                 ball_disappear_cnt = 0
                 print("real_ball_trajectory = ",real_ball_trajectory)
 
@@ -293,10 +286,8 @@ def main(args):
                     print(len(real_data))
                 
                 ball_trajectory = []
-                real_ball_trajectory = []"""
+                real_ball_trajectory = []
             
-
-
             """if ball_disappear_cnt > 15:
 
                 ball_trajectory = []
@@ -322,13 +313,9 @@ def main(args):
             t2 = time.time()
 
             #print((t2 - t1))
-            print("FPS : ",1 / (t2 - t1))
+            #print("FPS : ",1 / (t2 - t1))
 
             key = cv2.waitKey(1)
-
-            if args.record:
-
-                out.write(frame)
 
             if key == ord('c'):
                 #print("ball_trajectory = ",ball_trajectory)
@@ -345,4 +332,4 @@ def main(args):
                 break
 
 if __name__ == '__main__':
-    main(args)
+    main(sys.argv)

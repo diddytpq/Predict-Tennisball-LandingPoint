@@ -85,7 +85,7 @@ ball_pos_jrajectory = []
 
 estimation_ball = Ball_Pos_Estimation()
 
-recode = False
+record = False
 
 
 camera_data = []
@@ -242,7 +242,7 @@ def main():
 
     fps = 30
 
-    if recode:
+    if record:
         codec = cv2.VideoWriter_fourcc(*'XVID')
         out = cv2.VideoWriter("ball_tracking.mp4", codec, fps, (720,810))
 
@@ -270,7 +270,7 @@ def main():
 
             frame_main = frame
 
-            frame_recode = frame_main.copy()
+            frame_record = frame_main.copy()
 
             ball_box_left = []
             ball_box_right = []
@@ -311,8 +311,8 @@ def main():
 
                     cv2.rectangle(frame_main, (x0, y0), (x1, y1), color, 3)
 
-                    if recode == True :
-                        cv2.rectangle(frame_recode, (x0, y0), (x1, y1), color, 3)
+                    if record == True :
+                        cv2.rectangle(frame_record, (x0, y0), (x1, y1), color, 3)
 
                     #cv2.circle(point_image,(ball_x_pos, ball_y_pos), 4, color, -1)
 
@@ -475,11 +475,11 @@ def main():
             cv2.imshow('tennis_court_img',tennis_court_img)
             cv2.imshow('frame_main',frame_main)
 
-            #cv2.imshow('frame_recode',frame_recode)
+            #cv2.imshow('frame_record',frame_record)
 
-            if recode:
+            if record:
 
-                out.write(frame_recode)
+                out.write(frame_record)
 
             dT = t2-t1
 
