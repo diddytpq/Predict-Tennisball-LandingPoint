@@ -212,7 +212,7 @@ class Make_mecanum_left():
 
     def set_ball_target(self):
 
-        self.x_target = (np.random.randint(10, 12) + np.random.rand())
+        self.x_target = (np.random.randint(8, 10) + np.random.rand())
         self.y_target = (np.random.randint(-3, 3) + np.random.rand())
 
         #self.x_target = 11
@@ -241,9 +241,9 @@ class Make_mecanum_left():
         self.v0 = self.s/(self.ball_fly_time + self.ball_fly_time_plus)
 
         if self.v0 > 0 :
-            self.v0 += 17
+            self.v0 += 13
         else:
-            self.v0 -= 17
+            self.v0 -= 13
 
         self.v = np.sqrt(self.v0**2 + self.vz0**2)
         self.launch_angle = np.arctan(self.vz0/self.v0)
@@ -292,9 +292,13 @@ class Make_mecanum_left():
 
         #distance = np.sqrt((distance_x)**2 + (distance_y)**2 + (distance_z)**2)
 
-        if (abs(distance_x) < 0.6 and abs(distance_y) < 0.5  and abs(distance_z) < 2) or abs(self.away_ball_pose.position.x) > 18:
+        #print(distance_x, distance_y, distance_z)
+
+        #if (abs(distance_x) < 0.6 and abs(distance_y) < 0.5  and abs(distance_z) < 2) or abs(self.away_ball_pose.position.x) > 15:
+        if abs(self.away_ball_pose.position.x) > 15:
         #if (abs(distance_x) < 0.6 and abs(distance_y) <0.6  and abs(distance_z) < 1):
             self.del_ball()
+            print("del ball")
             return  True
 
         return False
@@ -337,6 +341,7 @@ class Make_mecanum_right(Make_mecanum_left):
 
     def __init__(self, model_name):
         Make_mecanum_left.__init__(self, model_name)
+        self.g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
         
         self.x_move_target = np.nan
         self.y_move_target = np.nan
@@ -346,19 +351,48 @@ class Make_mecanum_right(Make_mecanum_left):
 
         self.esti_ball_pos = []
         self.esti_ball_pos_list = []
+        self.real_ball_pos_list = []
 
         self.esti_data = []
+        self.real_data = []
+
+    
+    def get_ball_status(self):
+
+
+        self.ball_state = self.g_get_state(model_name = 'ball_left')
+
+        ball_pose = Pose()
+        ball_pose.position.x = float(self.ball_state.pose.position.x)
+        ball_pose.position.y = float(self.ball_state.pose.position.y)
+        ball_pose.position.z = float(self.ball_state.pose.position.z)
+        
+        ball_vel = Twist()
+
+        ball_vel.linear.x = float(self.ball_state.twist.linear.x)
+        ball_vel.linear.y = float(self.ball_state.twist.linear.y)
+        ball_vel.linear.z = float(self.ball_state.twist.linear.z)
+
+        ball_vel.angular.x = float(self.ball_state.twist.angular.x)
+        ball_vel.angular.y = float(self.ball_state.twist.angular.y)
+        ball_vel.angular.z = float(self.ball_state.twist.angular.z)
+
+        return ball_pose.position.x, ball_pose.position.y, ball_pose.position.z ,ball_vel.linear.x, ball_vel.linear.y, ball_vel.linear.z
+
 
     def save_data(self):
 
-        with open('esti_ball_list.bin', 'wb') as f:
+        with open('esti_.bin', 'wb') as f:
             pickle.dump((self.esti_data),f)
+
+        with open('real_.bin', 'wb') as f:
+            pickle.dump((self.real_data),f)
         
 
     def set_ball_target(self):
-        #self.x_target = -(np.random.randint(8, 10) + np.random.rand())
+        self.x_target = -(np.random.randint(8, 10) + np.random.rand())
         
-        self.x_target = -(np.random.randint(12, 15) + np.random.rand())
+        #self.x_target = -(np.random.randint(12, 15) + np.random.rand())
         self.y_target = (np.random.randint(-3, 3) + np.random.rand())
 
         self.get_position()
@@ -370,7 +404,7 @@ class Make_mecanum_right(Make_mecanum_left):
 
     def del_ball(self):
 
-        time.sleep(0.2)
+        time.sleep(0.3)
 
         srv_delete_model = rospy.ServiceProxy('gazebo/delete_model', DeleteModel)
         res = srv_delete_model(self.away_ball_name)
@@ -379,10 +413,15 @@ class Make_mecanum_right(Make_mecanum_left):
 
         if len(self.esti_ball_pos_list):
             self.esti_data.append([self.esti_ball_pos_list])
+            self.real_data.append([self.real_ball_pos_list])
+
+
+        #print("esti_ball_pos_list = ", self.esti_ball_pos_list)
 
         self.init_robot_pos = [np.NaN]
         self.esti_ball_pos = []
         self.esti_ball_pos_list = []
+        self.real_ball_pos_list = []
 
     def move(self, x_target, y_target, away_mecanum):
         t0 = time.time()
@@ -520,6 +559,8 @@ class Make_mecanum_right(Make_mecanum_left):
 
         #rate = rospy.Rate(30)
 
+        real_ball_status = self.get_ball_status()
+
         if len(data.data) < 1 :
             self.esti_ball_pos = []
             return 0
@@ -529,31 +570,35 @@ class Make_mecanum_right(Make_mecanum_left):
         if np.isnan(self.init_robot_pos[0]):
             self.init_robot_pos = [self.object_pose.position.x, self.object_pose.position.y]
 
-        if len(self.esti_ball_pos) == 0:
-            self.esti_ball_pos.append([data.data[0], data.data[1], data.data[2]])
+        x_pos_dt =  self.object_pose.position.x - self.init_robot_pos[0]
+        y_pos_dt =  self.object_pose.position.y - self.init_robot_pos[1]
 
-            x_pos_dt =  self.init_robot_pos[0] - self.object_pose.position.x 
-            y_pos_dt =  self.init_robot_pos[1] + self.object_pose.position.y
+        if len(self.esti_ball_pos) == 0 and len(real_ball_status):
+            if real_ball_status[0] != 0 and real_ball_status[0] < 12.5  :
+                self.esti_ball_pos.append([data.data[0], data.data[1], data.data[2]])
+        
+                #self.esti_ball_pos_list.append([self.esti_ball_pos[-1][0] + x_pos_dt, self.esti_ball_pos[-1][1] + y_pos_dt, self.esti_ball_pos[-1][2]])
+                self.esti_ball_pos_list.append([self.init_robot_pos[0] - (self.esti_ball_pos[-1][0] - x_pos_dt), self.init_robot_pos[1] + (self.esti_ball_pos[-1][1] + y_pos_dt), self.esti_ball_pos[-1][2]+ 1.])
+                self.real_ball_pos_list.append([real_ball_status[0],real_ball_status[1],real_ball_status[2]])
 
-            #self.esti_ball_pos_list.append([self.esti_ball_pos[-1][0] + x_pos_dt, self.esti_ball_pos[-1][1] + y_pos_dt, self.esti_ball_pos[-1][2]])
-            self.esti_ball_pos_list.append([self.init_robot_pos[0] - (self.esti_ball_pos[-1][0] + x_pos_dt), self.esti_ball_pos[-1][1] + y_pos_dt, self.esti_ball_pos[-1][2]+ 1.05])
 
-        elif self.esti_ball_pos[-1] != [data.data[0], data.data[1], data.data[2]]:
+        elif self.esti_ball_pos[-1] != [data.data[0], data.data[1], data.data[2]] and len(real_ball_status):
+            if real_ball_status[0] != 0 and real_ball_status[0] < 12.5 :
 
-            self.esti_ball_pos.append([data.data[0], data.data[1], data.data[2]])
+                self.esti_ball_pos.append([data.data[0], data.data[1], data.data[2]])
 
-            x_pos_dt = self.init_robot_pos[0] - self.object_pose.position.x 
-            y_pos_dt = self.init_robot_pos[1] + self.object_pose.position.y
+                #print(self.init_robot_pos[1] + self.object_pose.position.y)
 
-            #print(self.init_robot_pos[1] + self.object_pose.position.y)
-
-            #self.esti_ball_pos_list.append([self.esti_ball_pos[-1][0] + x_pos_dt, self.esti_ball_pos[-1][1] + y_pos_dt, self.esti_ball_pos[-1][2] + 1.05])
-            self.esti_ball_pos_list.append([self.init_robot_pos[0] - (self.esti_ball_pos[-1][0] + x_pos_dt), self.esti_ball_pos[-1][1] + y_pos_dt, self.esti_ball_pos[-1][2]+ 1.05])
-
+                #self.esti_ball_pos_list.append([self.esti_ball_pos[-1][0] + x_pos_dt, self.esti_ball_pos[-1][1] + y_pos_dt, self.esti_ball_pos[-1][2] + 1.05])
+                self.esti_ball_pos_list.append([self.init_robot_pos[0] - (self.esti_ball_pos[-1][0] - x_pos_dt), self.init_robot_pos[1] + (self.esti_ball_pos[-1][1] + y_pos_dt), self.esti_ball_pos[-1][2]+ 1.])
+                self.real_ball_pos_list.append([real_ball_status[0],real_ball_status[1],real_ball_status[2]])
+        
+        print('-------------------------------------')
+        print(len(self.esti_ball_pos_list), len(self.real_ball_pos_list))
         #print(self.init_robot_pos)
 
         #print(self.esti_ball_pos)
-        print('-------------------------------------')
+        
         #print("esti_ball_pos_list = ",self.esti_ball_pos_list)
         #print("esti_ball_vel_list",np.diff(np.array(self.esti_ball_pos_list), axis = 0)/0.045)
 
@@ -663,7 +708,7 @@ def return_home(home_mecanum):
     home_mecanum.pub_wheel_vel_3.publish(home_mecanum.wheel_vel[2,:])
     home_mecanum.pub_wheel_vel_4.publish(home_mecanum.wheel_vel[3,:])
 
-    if abs(x_error) <0.1 and abs(y_error)< 0.1 :
+    if abs(x_error) <0.05 and abs(y_error)< 0.05 :
         home_mecanum.stop()
 
 

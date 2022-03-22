@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from pathlib import Path
 import sys
 
@@ -10,11 +8,12 @@ path = str(FILE.parents[0])
 sys.path.append("/heatmap_based_object_tracking")
 
 import numpy as np
-import time
-import roslib
+import ray
+
 import rospy
 import cv2
-from std_msgs.msg import String, Float64
+
+import time
 from gazebo_msgs.srv import *
 from geometry_msgs.msg import *
 from sensor_msgs.msg import Image
@@ -24,9 +23,6 @@ import torch
 import argparse
 from heatmap_based_object_tracking.models.network import *
 from heatmap_based_object_tracking.utils import *
-
-from multiprocessing import Process, Pipe, Manager
-from multiprocessing.managers import BaseManager
 
 BATCH_SIZE = 1
 HEIGHT=288
@@ -57,8 +53,9 @@ parser.add_argument('--record', type=bool, default=False,
                     help='record option')
 args = parser.parse_args()
 
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print('GPU Use : ', torch.cuda.is_available())
+
 
 model = EfficientNet(1.2, 1.4) # b3 width_coef = 1.2, depth_coef = 1.4
 
@@ -75,80 +72,40 @@ model.load_state_dict(checkpoint['state_dict'])
 
 model.eval()
 
-input_img_buffer = []
 
-camera_data = []
-camera_depth_data = []
+@ray.remote
+class Img_Buffer(object):
 
-
-#rospy.Subscriber("/camera_left_0_ir/camera_left_0/color/image_raw",Image,self.main)
-
-class image_pipe(object):
-    
     def __init__(self):
+        rospy.init_node('Img_Buffer', anonymous=True)
+
+        rospy.Subscriber("/mecanum_camera_ir/mecanum_camera_ir/color/image_raw",Image, self.callback_camera)
+        rospy.Subscriber("/mecanum_camera_ir/depth/image_raw",Image, self.callback_depth)
+
         self.img_data = []
         self.depth_data = []
+        self.bridge = CvBridge()
 
-    def img_upload(self, data_list):
-        self.img_data = data_list
+    def callback_camera(self, data):
+        try:
+            self.img_data = self.bridge.imgmsg_to_cv2(data, "bgr8")
 
-    def depth_upload(self, data_list):
-        self.depth_data = data_list
+        except CvBridgeError as e:
+            print(e)
 
-    def download(self):
+    def callback_depth(self, data):
+        try:
+
+            self.depth_data = self.bridge.imgmsg_to_cv2(data, "passthrough")
+            #print("depth",time.time())
+
+        except CvBridgeError as e:
+            print(e)
+
+    def get_img(self):
+
         return self.img_data, self.depth_data
 
-def get_gazebo_img(img_pipe):
-
-    class Img_Buffer():
-
-        def __init__(self):
-            rospy.init_node('Img_Buffer', anonymous=True)
-
-            self.img_data = []
-            self.depth_data = []
-            self.bridge = CvBridge()
-
-
-        def callback_camera(self, data):
-            try:
-                self.img_data = self.bridge.imgmsg_to_cv2(data, "bgr8")
-
-            except CvBridgeError as e:
-                print(e)
-
-
-        def callback_depth(self, data):
-            try:
-
-                self.depth_data = self.bridge.imgmsg_to_cv2(data, "passthrough")
-
-            except CvBridgeError as e:
-                print(e)
-
-    img_buffer = Img_Buffer()
-
-    #rospy.init_node('Image_converter', anonymous=True)
-
-    time.sleep(1)
-    print('----------------serial start--------------------')
-    rospy.Subscriber("/mecanum_camera_ir/mecanum_camera_ir/color/image_raw",Image, img_buffer.callback_camera)
-    rospy.Subscriber("/mecanum_camera_ir/depth/image_raw",Image, img_buffer.callback_depth)
-
-
-    try:
-        while True:
-            if len(img_buffer.img_data):
-                img_pipe.img_upload(img_buffer.img_data)
-                img_pipe.depth_upload(img_buffer.depth_data)
-
-            else:
-                print('not img')
-                time.sleep(1)
-
-    except KeyboardInterrupt:
-        print("Shutting down")
-        
 def get_ball_status():
 
     g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
@@ -172,37 +129,25 @@ def get_ball_status():
 
     return ball_pose.position.x, ball_pose.position.y, ball_pose.position.z
 
-def main(args):
-    #global camera_data, camera_depth_data
-    BaseManager.register('image_pipe', image_pipe)
-    manager = BaseManager()
-    manager.start()
-    inst = manager.image_pipe()
-
-    process = Process(target=get_gazebo_img, args=[inst])
-    process.start()
-
-    #a = rospy.Subscriber("/mecanum_camera_ir/depth/image_raw",Image,callback_depth)
-    #b = rospy.Subscriber("/mecanum_camera_ir/mecanum_camera_ir/color/image_raw",Image,callback_camera)
-    #rospy.init_node('Image_converter', anonymous=True)
+def main():
 
     input_img_buffer = []
+
+    ball_trajectory = []
+    real_ball_trajectory = []
 
     robot_pos_x = 11.5
     robot_pos_y = 0
     robot_pos_z = 1.0
 
-    ball_trajectory = []
-    real_ball_trajectory = []
+    img_buffer = Img_Buffer.remote()
 
     while True:
-
-        camera_data = inst.download()
-        
-        ball_x, ball_y, ball_z = get_ball_status()
-        
+        camera_data = ray.get(img_buffer.get_img.remote())
 
         if len(camera_data[0]):
+            ball_x, ball_y, ball_z = get_ball_status()
+
             
             frame = camera_data[0]
             depth = camera_data[1]
@@ -241,11 +186,8 @@ def main(args):
                 torch.cuda.synchronize()
 
             frame, depth_list, ball_cand_pos, ball_cand_score = find_ball_v3(h_pred, frame, np.float32(depth), ratio_w, ratio_h)
-
-            #depth_list = [11.5 - ball_x]
-
+            
             ball_pos = cal_ball_pos(ball_cand_pos, depth_list)
-            #print("depth_list", depth_list)
 
             if len(ball_pos):
                 if ball_pos[0] < 15:
@@ -257,32 +199,21 @@ def main(args):
                     real_ball_trajectory.append([ball_x, ball_y, ball_z])
 
 
+            print("FPS : ",1 / (time.time() - t1))
 
-            depth = depth * 2.55
 
-            cv2.imshow("image",frame)
-            #cv2.imshow("depth",np.uint8(depth))
+            cv2.imshow("img",frame)
 
-            cv2.imshow("h_pred",h_pred)
-
-            t2 = time.time()
-
-            #print((t2 - t1))
-            print("FPS : ",1 / (t2 - t1))
 
             key = cv2.waitKey(1)
-
-            if key == ord('c'):
-                print("ball_trajectory = ",ball_trajectory)
-                print("real_ball_trajectory = ",real_ball_trajectory)
-
-                ball_trajectory = []
-                real_ball_trajectory = []
-
-
-            if key == 27 : 
+            if key == 27:
                 cv2.destroyAllWindows()
+                ray.shutdown()
                 break
 
+
+
+
 if __name__ == '__main__':
-    main(sys.argv)
+
+    main() 

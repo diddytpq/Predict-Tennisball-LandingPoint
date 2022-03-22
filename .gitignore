@@ -12,7 +12,11 @@ videos/
 
 images/
 
+build/
+devel/
+.vscode/
 
+CMakeLists.txt
 
 # Packages #
 ############

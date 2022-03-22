@@ -64,7 +64,7 @@ def find_ball_v3(pred_image, image_ori, depth_ori, ratio_w, ratio_h):
 
         score = np.mean(pred_image[y:y+h, x:x+w])
 
-        depth = np.min(depth_check_array[y_0 : y_1, x_0 : x_1]) - 0.2
+        depth = np.min(depth_check_array[y_0 : y_1, x_0 : x_1]) + 0.03
         #depth = depth_check_array[new_cen_y,new_cen_x] - 0.5
 
         ball_cand_score.append(score)

@@ -172,7 +172,9 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
 
     dt = 0.01
 
-    dt_gain = 1
+    duration_time = 0.001
+    
+    dt_gain = +0.0003 #if mecanum camera on = -0.05 
 
     print(dt)
 
@@ -212,7 +214,7 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
 
         liftdrag_force_x, liftdrag_force_y, liftdrag_force_z = cal_drag_lift_force(down_motion, drag_force, lift_force, angle_xy, angle_x, cl)
 
-        force = [np.round(liftdrag_force_x,5) / (dt * dt_gain), np.round(liftdrag_force_y,5) / (dt * (dt_gain + 1) ),np.round(liftdrag_force_z,5) / (dt * dt_gain)]
+        force = [np.round(liftdrag_force_x,5) / (duration_time + dt_gain), np.round(liftdrag_force_y,5) / (duration_time + dt_gain), np.round(liftdrag_force_z,5) / (duration_time + dt_gain)]
 
     if ball_check_flag == 2:
         right_ball_state = gat_ball_stats(ball_name)
@@ -251,12 +253,12 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
 
         liftdrag_force_x, liftdrag_force_y, liftdrag_force_z = cal_drag_lift_force(down_motion, drag_force, lift_force, angle_xy, angle_x, cl)
 
-        force = [-np.round(liftdrag_force_x,5) / (dt * dt_gain), -np.round(liftdrag_force_y,5) / (dt * (dt_gain + 1)), np.round(liftdrag_force_z,5) / (dt * dt_gain)]
+        force = [-np.round(liftdrag_force_x,5) / (duration_time + dt_gain), -np.round(liftdrag_force_y,5) / (duration_time + dt_gain), np.round(liftdrag_force_z,5) / (duration_time + dt_gain)]
     
     
     #force = [force[0],0,force[2]]
 
-    ball_apply_force(ball_name, force, [0,0,0], dt)
+    ball_apply_force(ball_name, force, [0,0,0], duration_time)
 
 
 

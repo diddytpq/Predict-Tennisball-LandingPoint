@@ -82,6 +82,8 @@ input_img_buffer = []
 camera_data = []
 camera_depth_data = []
 
+g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
+
 
 #rospy.Subscriber("/camera_left_0_ir/camera_left_0/color/image_raw",Image,self.main)
 
@@ -152,7 +154,6 @@ def get_gazebo_img(img_pipe):
         
 def get_ball_status():
 
-    g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
 
     ball_state = g_get_state(model_name = 'ball_left')
 
@@ -171,7 +172,26 @@ def get_ball_status():
     ball_vel.angular.y = float(ball_state.twist.angular.y)
     ball_vel.angular.z = float(ball_state.twist.angular.z)
 
-    return ball_pose.position.x, ball_pose.position.y, ball_pose.position.z ,ball_vel.linear.x, ball_vel.linear.y, ball_vel.linear.z
+    return ball_pose.position.x, ball_pose.position.y, ball_pose.position.z #,ball_vel.linear.x, ball_vel.linear.y, ball_vel.linear.z
+
+def get_robot_pos():
+
+    robot_state = g_get_state(model_name='mecanum_R')
+
+    object_pose = Pose()
+    object_pose.position.x = float(robot_state.pose.position.x)
+    object_pose.position.y = float(robot_state.pose.position.y)
+    object_pose.position.z = float(robot_state.pose.position.z)
+
+    object_pose.orientation.x = float(robot_state.pose.orientation.x)
+    object_pose.orientation.y = float(robot_state.pose.orientation.y)
+    object_pose.orientation.z = float(robot_state.pose.orientation.z)
+    object_pose.orientation.w = float(robot_state.pose.orientation.w)
+    
+    # angle = qua2eular(object_pose.orientation.x, object_pose.orientation.y,
+    #                     object_pose.orientation.z, object_pose.orientation.w)
+
+    return object_pose.position.x , object_pose.position.y, object_pose.position.z 
 
 def main(args):
     #global camera_data, camera_depth_data
@@ -192,9 +212,9 @@ def main(args):
 
     input_img_buffer = []
 
-    robot_pos_x = 11.5
-    robot_pos_y = 0
-    robot_pos_z = 1.0
+    init_robot_pos_x = 13
+    init_robot_pos_y = 0
+    init_robot_pos_z = 1.0
 
     ball_trajectory = []
     real_ball_trajectory = []
@@ -202,14 +222,19 @@ def main(args):
     ball_disappear_cnt = 0
 
     real_data = []
+    esti_data = []
+
     while True:
 
         camera_data = inst.download()
         
-        ball_x, ball_y, ball_z, ball_vel_x, ball_vel_y, ball_vel_z = get_ball_status()
         
 
         if len(camera_data[0]):
+            robot_x, robot_y, robot_z =  get_robot_pos()
+
+            ball_x, ball_y, ball_z = get_ball_status()
+
             
             frame = camera_data[0]
             depth = camera_data[1]
@@ -243,7 +268,7 @@ def main(args):
                 h_pred = (h_pred[0]).astype('uint8')
                 h_pred = np.asarray(h_pred).transpose(1, 2, 0)
 
-                h_pred = (200 < h_pred) * h_pred
+                h_pred = (210 < h_pred) * h_pred
 
                 torch.cuda.synchronize()
 
@@ -255,21 +280,28 @@ def main(args):
             #print("depth_list", depth_list)
 
             if len(ball_pos):
-                if ball_pos[0] < 15:
-                    print('---------------------------------------------------')
-                    #print("ball_pos",[ball_pos[0], ball_pos[1], ball_pos[2]])
+                if ball_pos[0] < 13:
+                    x_pos_dt =  robot_x - init_robot_pos_x
+                    y_pos_dt =  robot_y - init_robot_pos_y
 
-                    #print("real_ball_pos",[ball_x, ball_y, ball_z])
-
-                    #ball_trajectory.append([robot_pos_x - ball_pos[0], ball_pos[1] - robot_pos_y, robot_pos_z + ball_pos[2]])
+                    ball_trajectory.append([init_robot_pos_x - (ball_pos[0] - x_pos_dt), init_robot_pos_y + (ball_pos[1] + y_pos_dt), ball_pos[2] + init_robot_pos_z])
                     real_ball_trajectory.append([ball_x, ball_y, ball_z])
                     
-                    ball_trajectory.append([ball_pos[0], ball_pos[1], ball_pos[2]])
+                    #ball_trajectory.append([ball_pos[0], ball_pos[1], ball_pos[2]])
 
-                    array2data.data = ball_pos
-                    pub.publish(array2data)
+                    #array2data.data = ball_pos
+                    #pub.publish(array2data)
 
+                    print('---------------------------------------------------')
 
+                    print(robot_x)
+                    print(init_robot_pos_x)
+                    print(ball_pos[0])
+
+                    #print("ball_pos",[ball_pos[0], ball_pos[1], ball_pos[2]])
+                    #print("ball_pos",[12 - ball_pos[0], ball_pos[1], 1 - ball_pos[2]])
+                    #print("real_ball_pos",[ball_x, ball_y, ball_z])
+                    print(len(ball_trajectory), len(real_ball_trajectory))
 
                 else:
                     ball_disappear_cnt += 1
@@ -279,31 +311,20 @@ def main(args):
 
             if ball_disappear_cnt > 15:
                 ball_disappear_cnt = 0
-                print("real_ball_trajectory = ",real_ball_trajectory)
 
                 if len(real_ball_trajectory):
-                    real_data.append([real_ball_trajectory])
-                    print(len(real_data))
+                    #real_data.append([real_ball_trajectory])
+                    #print(len(real_data))
+
+                    real_data.append(real_ball_trajectory)
+                    esti_data.append(ball_trajectory)
                 
                 ball_trajectory = []
                 real_ball_trajectory = []
-            
-            """if ball_disappear_cnt > 15:
+                print(len(esti_data))
+                #print("real_ball_trajectory = ",real_ball_trajectory)
 
-                ball_trajectory = []
-                ball_disappear_cnt = 0
-
-            if len(ball_trajectory) > 1:
-
-                vel_x, vel_y = ball_vel_check(ball_trajectory)
-
-                print("vel_x, vel_y",vel_x, vel_y)
-                print("real_vel_x, real_vel_y",ball_vel_x, ball_vel_y)
-            """
-
-            #depth = depth * 2.55
-
-            frame = cv2.resize(frame,(1280, 720))
+            frame = cv2.resize(frame,(640, 360))
 
             cv2.imshow("image",frame)
             #cv2.imshow("depth",np.uint8(depth))
@@ -313,12 +334,12 @@ def main(args):
             t2 = time.time()
 
             #print((t2 - t1))
-            #print("FPS : ",1 / (t2 - t1))
+            print("FPS : ",1 / (t2 - t1))
 
             key = cv2.waitKey(1)
 
             if key == ord('c'):
-                #print("ball_trajectory = ",ball_trajectory)
+                print("ball_trajectory = ",ball_trajectory)
                 print("real_ball_trajectory = ",real_ball_trajectory)
 
                 ball_trajectory = []
@@ -327,8 +348,11 @@ def main(args):
 
             if key == 27 : 
                 cv2.destroyAllWindows()
-                with open('real_ball_list.bin', 'wb') as f:
+                with open('real_.bin', 'wb') as f:
                     pickle.dump((real_data),f)
+
+                with open('esti_.bin', 'wb') as f:
+                    pickle.dump((esti_data),f)
                 break
 
 if __name__ == '__main__':
