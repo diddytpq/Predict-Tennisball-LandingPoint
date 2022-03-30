@@ -39,7 +39,8 @@ from yolov5.utils.augmentations import letterbox
 
 from kalman_utils.KFilter import *
 
-import ray
+from multiprocessing import Process, Pipe, Manager
+from multiprocessing.managers import BaseManager
 
 device = 0
 weights = path + "/yolov5/weights/best.pt"
@@ -135,39 +136,69 @@ def person_tracking(model, img, img_ori, device):
             
         return im0, person_box_left, person_box_right
 
-@ray.remote
-class Img_Buffer(object):
-
+class image_pipe(object):
+    
     def __init__(self):
-        rospy.init_node('Img_Buffer', anonymous=True)
+        self.img_data = []
 
-        rospy.Subscriber("/camera_left_0_ir/camera_left_0/color/image_raw",Image, self.callback_camera_left)
-        rospy.Subscriber("/camera_right_0_ir/camera_right_0/color/image_raw",Image, self.callback_camera_right)
+    def img_upload(self, data_list):
+        self.img_data = data_list
 
-        self.img_data_left = []
-        self.img_data_right = []
-        self.bridge = CvBridge()
+    def download(self):
+        return self.img_data
 
-    def callback_camera_left(self, data):
-        try:
-            self.img_data_left = self.bridge.imgmsg_to_cv2(data, "bgr8")
+def get_gazebo_img(img_pipe):
 
-        except CvBridgeError as e:
-            print(e)
+    class Img_Buffer():
 
+        def __init__(self):
+            rospy.init_node('Img_Buffer_net_post', anonymous=True)
 
-    def callback_camera_right(self, data):
-        try:
-            self.img_data_right = self.bridge.imgmsg_to_cv2(data, "bgr8")
+            self.img_data_left = []
+            self.img_data_right = []
+            self.bridge = CvBridge()
 
-        except CvBridgeError as e:
-            print(e)
-
-    def get_img(self):
-
-        return self.img_data_left, self.img_data_right
+            #self.rate_left = rospy.Rate(30)
+            #self.rate_right = rospy.Rate(30)
 
 
+        def callback_camera_left(self, data):
+            try:
+                self.img_data_left = self.bridge.imgmsg_to_cv2(data, "bgr8")
+                #self.rate_left.sleep()
+
+            except CvBridgeError as e:
+                print(e)
+
+
+        def callback_camera_right(self, data):
+            try:
+                self.img_data_right = self.bridge.imgmsg_to_cv2(data, "bgr8")
+                #self.rate_right.sleep()
+
+            except CvBridgeError as e:
+                print(e)
+
+    img_buffer = Img_Buffer()
+
+    #rospy.init_node('Image_converter', anonymous=True)
+
+    time.sleep(1)
+    print('----------------serial start--------------------')
+    rospy.Subscriber("/camera_left_0_ir/camera_left_0/color/image_raw",Image, img_buffer.callback_camera_left)
+    rospy.Subscriber("/camera_right_0_ir/camera_right_0/color/image_raw",Image, img_buffer.callback_camera_right)
+
+    try:
+        while True:
+            if len(img_buffer.img_data_left) and len(img_buffer.img_data_right):
+                img_pipe.img_upload([img_buffer.img_data_left,img_buffer.img_data_right])
+
+            else:
+                print('not img')
+                time.sleep(1)
+
+    except KeyboardInterrupt:
+        print("Shutting down")
 
 def get_ball_status():
         t0 = time.time()
@@ -194,13 +225,20 @@ def get_ball_status():
 
 def main():
     #global camera_data, camera_depth_data
-
+    a = []
     global estimation_ball, disappear_cnt, padding_x, padding_y
     global tennis_court_img, ball_pos_jrajectory
 
-    img_buffer = Img_Buffer.remote()
+    BaseManager.register('image_pipe', image_pipe)
+    manager = BaseManager()
+    manager.start()
+    inst = manager.image_pipe()
+
+    process = Process(target=get_gazebo_img, args=[inst])
+    process.start()
 
     dT = 1 / 30
+
     fps = 30
 
     if record:
@@ -213,9 +251,9 @@ def main():
 
     while True:
 
-        camera_data = ray.get(img_buffer.get_img.remote())
+        camera_data = inst.download()
 
-        if len(camera_data[0]):
+        if len(camera_data):
 
             print("-----------------------------------------------------------------")
             t1 = time.time()
@@ -443,9 +481,11 @@ def main():
                 out.write(frame_record)
 
             dT = t2-t1
-
+            
+            a.append(dT)
             print("FPS : " , 1/(t2-t1))
 
+            print(1 / (sum(a)/len(a)))
 
             key = cv2.waitKey(1)
 
@@ -462,10 +502,12 @@ def main():
 
                 #print(tennis_court_img.shape)
 
-            if key == 27:
+            if key == 27 : 
                 cv2.destroyAllWindows()
-                ray.shutdown()
-                break
+        
+
+            
+
 
 if __name__ == "__main__":
 

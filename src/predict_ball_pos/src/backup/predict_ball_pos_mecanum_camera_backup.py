@@ -233,8 +233,10 @@ def main(args):
 
             t1 = time.time()
 
-            unit = tran_input_img(input_img_buffer)
-            unit = torch.from_numpy(unit).to(device, dtype=torch.float)
+            # unit = tran_input_img(input_img_buffer)
+            # unit = torch.from_numpy(unit).to(device, dtype=torch.float)
+
+            unit = tran_input_tensor(input_img_buffer, device)
 
             torch.cuda.synchronize()
 
@@ -248,7 +250,7 @@ def main(args):
                 h_pred = (h_pred[0]).astype('uint8')
                 h_pred = np.asarray(h_pred).transpose(1, 2, 0)
 
-                h_pred = (150 < h_pred) * h_pred
+                h_pred = (200 < h_pred) * h_pred
 
                 torch.cuda.synchronize()
 

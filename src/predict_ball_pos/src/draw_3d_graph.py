@@ -9,11 +9,13 @@ from matplotlib.cbook import get_sample_data
 import mpl_toolkits.mplot3d.art3d as art3d
 
 import cv2
+from tools import cal_rebound_trajectory
 
 from pathlib import Path
 import sys
 
 import pickle
+import time
 
 FILE = Path(__file__).absolute()
 sys.path.append(FILE.parents[0].as_posix())  # add code to path
@@ -59,20 +61,58 @@ def draw_point_3D(real_ball_trajectory_list, estimation_ball_trajectory_list, la
             ax.plot(real_x[-1], real_y[-1], real_z[-1], 'red', zorder = 100, label = 'Actual trajectory')
             ax.plot(esti_x[-1], esti_y[-1], esti_z[-1], '#3336FF', zorder = 100, label = 'Predict trajectory')
 
+def draw_trajectory_3D(real_ball_trajectory_list, estimation_ball_trajectory_list, prediect_trajectory_list, label = False):
+        
+        real_x = []
+        real_y = []
+        real_z = []
+        esti_x = []
+        esti_y = []
+        esti_z = []
+        predict_x = []
+        predict_y = []
+        predict_z = []
 
 
 
-#real_ball_trajectory_list =  [[-10.39, 3.249, 1.881], [-9.421, 3.249, 2.055], [-8.463, 3.249, 2.203], [-7.435, 3.249, 2.334], [-5.566, 3.249, 2.497], [-4.74, 3.249, 2.538], [-4.035, 3.249, 2.559], [-3.128, 3.249, 2.565], [-2.403, 3.249, 2.554], [-1.639, 3.249, 2.525]]
-#estimation_ball_trajectory_list =  [[-10.684, 3.256, 1.729], [-9.629, 3.252, 1.941], [-8.66, 3.244, 2.112], [-7.479, 3.512, 2.187], [-5.53, 3.238, 2.468], [-4.707, 3.236, 2.516], [-4.025, 3.398, 2.524], [-3.075, 3.227, 2.56], [-2.331, 3.233, 2.547], [-1.591, 3.227, 2.521]]
+
+        for i in range((len(real_ball_trajectory_list))):
+
+            real_x.append(real_ball_trajectory_list[i][0])
+            real_y.append(real_ball_trajectory_list[i][1])
+            real_z.append(real_ball_trajectory_list[i][2])
+
+            ax.plot(real_x, real_y, real_z, c= 'red', zorder = 100)
+
+        ax.scatter(real_x[0], real_y[0], real_z[0],s = 180, c='#FF3333', zorder = 101, marker = '*')
+
+        for j in range((len(estimation_ball_trajectory_list))):
+
+            esti_x.append(estimation_ball_trajectory_list[j][0])
+            esti_y.append(estimation_ball_trajectory_list[j][1])
+            esti_z.append(estimation_ball_trajectory_list[j][2])
+
+            ax.plot(esti_x, esti_y, esti_z, '#3336FF', zorder = 100)
+
+        ax.scatter(esti_x[0], esti_y[0], esti_z[0],s = 180, c='#3336FF', zorder = 99, marker = '*')
+        
 
 
-#3
-#real_ball_trajectory_list =  [[-10.332, -0.007, 1.862], [-9.363, -0.007, 2.04], [-8.363, -0.007, 2.197], [-7.433, -0.007, 2.318], [-6.453, -0.007, 2.42], [-5.541, -0.007, 2.492], [-4.618, -0.007, 2.541], [-3.723, -0.007, 2.566], [-2.799, -0.007, 2.569], [-0.961, -0.007, 2.501]]
-#estimation_ball_trajectory_list =  [[-10.606, -0.002, 1.717], [-9.597, -0.004, 1.912], [-8.404, 0.305, 2.063], [-7.726, -0.01, 2.227], [-6.758, -0.006, 2.34], [-5.801, -0.008, 2.428], [-4.849, -0.009, 2.512], [-3.991, -0.009, 2.533], [-3.009, -0.006, 2.554], [-1.151, 0.047, 2.518]]
+        for j in range((len(prediect_trajectory_list))):
 
-#5
-#real_ball_trajectory_list =  [[-10.316, -3.72, 1.894], [-9.489, -3.72, 2.044], [-8.668, -3.72, 2.174], [-7.815, -3.72, 2.29], [-6.93, -3.72, 2.389], [-6.093, -3.72, 2.464], [-5.243, -3.72, 2.519], [-4.476, -3.72, 2.552], [-3.678, -3.72, 2.57], [-2.944, -3.72, 2.57], [-2.187, -3.72, 2.555]]
-#estimation_ball_trajectory_list =  [[-10.309, -3.711, 1.807], [-9.442, -3.709, 1.983], [-8.639, -3.71, 2.107], [-7.794, -3.715, 2.219], [-6.946, -3.719, 2.326], [-6.102, -3.715, 2.428], [-5.199, -3.712, 2.485], [-4.409, -3.713, 2.531], [-3.63, -3.7, 2.544], [-2.871, -3.708, 2.565], [-2.168, -3.711, 2.551]]
+            predict_x.append(prediect_trajectory_list[j][0])
+            predict_y.append(prediect_trajectory_list[j][1])
+            predict_z.append(prediect_trajectory_list[j][2])
+
+            ax.plot(predict_x, predict_y, predict_z, '#3336FF',linestyle='dotted', zorder = 100)
+
+        ax.scatter(predict_x[0], predict_y[0], predict_z[0],s = 180, c='#3336FF', zorder = 99, marker = '*')
+
+        if label == True:
+            ax.plot(real_x[-1], real_y[-1], real_z[-1], 'red', zorder = 100, label = 'Actual trajectory')
+            ax.plot(esti_x[-1], esti_y[-1], esti_z[-1], '#3336FF', zorder = 100, label = 'Predict trajectory')
+
+
 
 
 #궤적
@@ -90,16 +130,6 @@ with open('4.bin', 'rb') as f:
 
 with open('5.bin', 'rb') as f:
     real_ball_trajectory_list_5 = pickle.load(f) 
-
-estimation_ball_trajectory_list_1 = np.array( [[-10.162, 3.305, 1.839], [-9.203, 3.305, 2.027], [-8.285, 3.299, 2.151], [-7.357, 3.301, 2.285], [-6.046, 3.289, 2.423], [-5.159, 3.293, 2.478], [-4.203, 3.291, 2.534], [-3.294, 3.281, 2.547], [-2.409, 3.284, 2.559]] )
-
-estimation_ball_trajectory_list_2 = np.array( [[-10.981, 2.225, 1.624], [-9.858, 2.17, 1.893], [-8.805, 2.172, 2.089], [-7.811, 2.169, 2.237], [-6.825, 2.172, 2.356], [-5.867, 2.168, 2.432], [-4.924, 2.165, 2.491], [-4.004, 2.16, 2.548], [-3.115, 2.156, 2.565], [-2.259, 2.163, 2.543], [-1.403, 2.157, 2.512], [-0.529, 2.155, 2.435]] )
-
-estimation_ball_trajectory_list_3 = np.array( [[-11.254, 0.036, 1.632], [-10.161, 0.036, 1.838], [-9.108, 0.033, 2.048], [-8.183, 0.028, 2.188], [-7.192, 0.035, 2.297], [-5.934, 0.032, 2.39], [-4.896, 0.031, 2.518], [-3.996, 0.029, 2.546], [-2.979, 0.032, 2.56], [-2.066, 0.028, 2.548], [-1.228, 0.031, 2.512], [-0.547, 0.03, 2.445]] )
-
-estimation_ball_trajectory_list_4 = np.array( [[-11.054, -2.165, 1.669], [-9.95, -2.166, 1.883], [-8.91, -2.166, 2.064], [-7.915, -2.167, 2.216], [-6.984, -2.161, 2.343], [-6.026, -2.163, 2.423], [-5.131, -2.158, 2.485], [-4.157, -2.158, 2.539], [-3.271, -2.163, 2.553], [-2.355, -2.164, 2.553], [-1.484, -2.157, 2.518], [-0.784, -2.157, 2.47]] )
-
-estimation_ball_trajectory_list_5 = np.array( [[-10.098, -3.9, 1.857], [-9.15, -3.896, 2.032], [-8.209, -3.889, 2.178], [-7.254, -3.889, 2.295], [-6.413, -3.89, 2.377], [-5.16, -3.889, 2.497], [-4.201, -3.886, 2.533], [-3.303, -3.888, 2.554], [-2.513, -3.886, 2.548]] )
 
 real_ball_trajectory_list_1 = real_ball_trajectory_list_1[:150]
 real_ball_trajectory_list_2 = real_ball_trajectory_list_2[:150]
@@ -121,19 +151,12 @@ landing_point = [3.82, 1.692, 0.0]
 circle_radius_x = 2       # 원의 반지름
 circle_radius_y = 0.5       # 원의 반지름"""
 
-with open("real_.bin","rb") as fr:
+
+with open("data/real_.bin","rb") as fr:
     real_data = pickle.load(fr)
 
-with open("esti_.bin","rb") as fr:
+with open("data/esti_.bin","rb") as fr:
     esti_data = pickle.load(fr)
-
-esti_ball_pos_list =  esti_data
-
-   
-real_ball_trajectory =  real_data
-
-
-
 
 plt.rcParams["figure.autolayout"] = True
 fig_3d = plt.figure(figsize=(8,8),dpi=100)
@@ -165,7 +188,7 @@ X1, Y1 = np.meshgrid(X1, Y1)
 
 
 
-ax.plot_surface(X1, Y1, np.ones(X1.shape) * -0.01,rstride=8, cstride=8, facecolors=img, zorder = 20)
+#ax.plot_surface(X1, Y1, np.ones(X1.shape) * -0.01,rstride=8, cstride=8, facecolors=img, zorder = 20)
 
 
 
@@ -181,15 +204,31 @@ ax.plot_surface(X1, Y1, np.ones(X1.shape) * -0.01,rstride=8, cstride=8, facecolo
 
 #draw_point_3D(real_ball_trajectory,esti_ball_pos_list,True)
 
-for i in range(60, 90):
+"""for i in range(91,92):
 
-    if i in [7, 10,14,15,21,23,39,41,51,57,62,76,85,88,90,93]:
-        continue
+    #if i in [7, 10,14,15,21,23,39,41,51,57,62,76,85,88,90,93]:
+    #    continue
 
-    esti = esti_ball_pos_list[i]
-    real = real_ball_trajectory[i]
+    real_ball_trajectory = np.array(real_data[i])
+    #esti_ball_pos_list = esti_data[i]
 
-    draw_point_3D(real,esti)
+    real_landing_point = real_ball_trajectory[np.argmin(real_ball_trajectory[:,2], axis = 0)-2:]
+
+    list_len = len(esti_data[i])
+    print("list_len", list_len)
+
+
+    #for j in range(1, list_len-1):
+
+    #esti_ball_pos_list, landing_trajectory = cal_rebound_trajectory(esti_data[i][:int(list_len/2.5)])
+    esti_ball_pos_list, landing_trajectory = cal_rebound_trajectory(esti_data[i][:5])
+
+    draw_point_3D(real_ball_trajectory,esti_ball_pos_list,False)
+    #draw_point_3D(real_ball_trajectory,esti_ball_pos_list,False)
+
+
+    #print("real_landing_point", real_landing_point)
+    #print("landing_trajectory", np.array(landing_trajectory))"""
 
 #낙하지점
 """draw_point_3D(real_ball_trajectory_list, estimation_ball_trajectory_list)
@@ -203,7 +242,29 @@ art3d.pathpatch_2d_to_3d(p, z=0.01, zdir="z")"""
 
 
 
-ax.view_init(30, 45)
+i, j = list(input().split())
+
+real_ball_trajectory = np.array(real_data[int(i)][0])
+
+# real_landing_point = real_ball_trajectory[np.argmin(real_ball_trajectory[:,2], axis = 0):]
+
+
+# list_len = len(esti_data[i])
+# print("list_len", list_len)
+
+
+
+# esti_ball_pos_list, landing_trajectory = cal_rebound_trajectory(esti_data[i][:4])
+
+measure_data,  esti_ball_pos_list = esti_data[int(i)][int(j)]
+
+draw_trajectory_3D(real_ball_trajectory,measure_data,esti_ball_pos_list,False)
+#draw_point_3D(real_ball_trajectory,esti_ball_pos_list,False)
+
+
+
+
+ax.view_init(30, 30)
 
 ax.legend()
 

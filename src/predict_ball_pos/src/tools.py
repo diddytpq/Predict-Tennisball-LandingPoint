@@ -560,5 +560,128 @@ def get_velocity(pos_list, dT):
 
     return vel_x_list[-1], vel_y_list[-1], vel_z_list[-1]
 
+class Ball_Trajectory_Estimation():
 
+    def __init__(self):
+        self.sample_time = 0.01
+
+    def cal_rebound_trajectory(self, pos_list, dt):
+
+        esti_trajectory = []
+        pos_esit = pos_list[-1]
+
+        vel_list = np.diff(pos_list, axis = 0) / dt
+        vel_mean = np.mean(vel_list[:-1], axis = 0)
+
+        if abs(vel_list[-1][0]) > abs(vel_mean[0]) or (vel_list[-1][0]) < 0:
+            vel_esti = vel_mean
+    
+        else:
+            vel_esti = vel_list[-1]
+
+        esti_trajectory.append(pos_esit)
+
+        while True:
+            # print("pos_esit",pos_esit)
+            # print("vel_esti",vel_esti)
+
+
+            drag = (0.5 * 0.507 * 1.29 * np.pi * (0.033 ** 2) * vel_esti ** 2 ) / 0.057
+        
+            pos_esit = (np.array(pos_esit) + (vel_esti) * self.sample_time + np.array([-drag[0], -drag[1], -drag[2] - 9.8]) * (self.sample_time **2) / 2).tolist()
+
+            esti_trajectory.append(pos_esit)
+
+            vel_esti += np.array([-drag[0], -drag[1], -drag[2] - 9.8]) * (self.sample_time)
+
+            if esti_trajectory[-1][-1] <= 0 and vel_esti[2] < 0:
+                vel_esti[2] = -vel_esti[2] * 0.70
+
+            if esti_trajectory[-1][0] > 13:
+                break
+            if esti_trajectory[-1][0] == float('-inf'):
+                return False
+
+        return esti_trajectory
+
+def cal_rebound_trajectory(pos_list):
+    
+    trajectory = []
+    after_landing_trjectory = []
+    pos_esit = pos_list[-1]
+
+    landing_point = []
+
+    land_flag = 0
+
+    dt = 0.03
+    #print(pos_esit)
+    
+    vel_list = np.diff(pos_list, axis=0) / dt
+
+    vel_mean = np.mean(vel_list[:-1], axis = 0) 
+
+    if abs(vel_list[-1][0]) > abs(vel_mean[0]) or (vel_list[-1][0]) < 0:
+        vel_esti = vel_mean
+    
+    else:
+        vel_esti = vel_list[-1]
+
+    #vel_mean = vel_list[-1]
+
+
+    #vel = np.linalg.norm(vel_mean)
+
+    t = 0.005
+
+    trajectory.append(pos_esit)
+
+    print("init_pos", pos_esit)
+    print("vel_mean = ",vel_mean)
+    print("vel_list = ",vel_list[-1][0])
+
+    cnt = 0
+        
+    print(pos_esit)
+    print(vel_esti)
+    while True:
+
+
+        drag = (0.5 * 0.507 * 1.29 * np.pi * (0.033 ** 2) * vel_esti ** 2 ) / 0.057
+        
+        # left_x = (0.5 * 0.2 * 1.2041 * np.pi * (0.033 ** 2) * vel_mean[0] ** 2 ) / 0.057
+        # left_y = (0.5 * 0.2 * 1.2041 * np.pi * (0.033 ** 2) * vel_mean[1] ** 2 ) / 0.057
+        # left_z = (0.5 * 0.2 * 1.2041 * np.pi * (0.033 ** 2) * vel_mean[2] ** 2 ) / 0.057
+        
+        pos_esit = (np.array(pos_esit) + (vel_esti) * t + np.array([-drag[0], -drag[1], -drag[2] - 9.8]) * (t **2) / 2).tolist()
+        #pos_esit = (np.array(pos_esit) + (vel_mean) * t + np.array([-(drag_x + left_x), -(drag_y + left_y), -(drag_z + left_z) - 9.8]) * (t **2) / 2).tolist()
+
+        #print("drag_x, drag_y, drag_z =",drag_x, drag_y, drag_z)
+        trajectory.append(pos_esit)
+
+        vel_esti += np.array([-drag[0], -drag[1], -drag[2] - 9.8]) * (t)
+        #vel = np.linalg.norm(vel_mean)
+
+        if land_flag:
+            after_landing_trjectory.append(pos_esit)
+        
+        #print(cnt * t)
+        #print("pos_esit =\t",pos_esit)
+        #print('vel_mean :\t',vel_mean)
+
+        cnt += 1
+
+        if trajectory[-1][-1] < 0.05 :
+            land_flag = 1
+
+        if trajectory[-1][-1] < 0 and vel_esti[2] < 0:
+            vel_esti[2] = -vel_esti[2] * 0.70
+
+
+            landing_point.append(pos_esit)
+        
+        if trajectory[-1][0] > 11.5:
+            break
+
+    return trajectory, after_landing_trjectory, landing_point
 

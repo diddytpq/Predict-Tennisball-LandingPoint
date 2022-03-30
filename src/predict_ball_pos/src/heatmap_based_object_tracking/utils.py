@@ -78,6 +78,56 @@ def find_ball_v3(pred_image, image_ori, depth_ori, ratio_w, ratio_h):
 
     return image_ori, depth_list, ball_cand_pos, ball_cand_score
 
+def find_ball_center_base(pred_image, image_ori, depth_ori, ratio_w, ratio_h):
+
+    ball_cand_score = []
+    ball_cand_pos = []
+    depth_list = []
+
+    ori_height, ori_width = image_ori.shape[0], image_ori.shape[1]
+
+    depth_check_array = np.nan_to_num(depth_ori, nan = 100)
+
+    pred_image = cv2.resize(pred_image,(ori_width, ori_height))
+
+    if np.amax(pred_image) <= 0: #no ball
+        return image_ori, depth_list, ball_cand_pos, ball_cand_score
+
+    nlabels, labels, stats, centroids = cv2.connectedComponentsWithStats(pred_image, connectivity = 8)
+
+    for i in range(len(stats)):
+        x, y, w, h, area = stats[i]
+        x_cen, y_cen = centroids[i]
+
+        if area > 140000 or area < 5:
+            continue
+
+        x_0, x_1, y_0, y_1 = int(x), int(x + w), int(y), int(y + h)
+
+        new_cen_x, new_cen_y = (int((x_0 + x_1) / 2), int((y_0 + y_1) / 2))
+
+        score = np.mean(pred_image[y:y+h, x:x+w])
+
+        # high_score_pos = np.unravel_index(np.argmax(pred_image[y:y+h, x:x+w], axis=None), pred_image[y:y+h, x:x+w].shape)
+
+        # depth = np.min(depth_check_array[y_0 : y_1, x_0 : x_1]) + 0.03
+        depth = depth_check_array[new_cen_y,new_cen_x] + 0.03
+
+        ball_cand_score.append(score)
+
+        ball_cand_pos.append([new_cen_x, new_cen_y])
+
+        depth_list.append(depth)
+
+        # cv2.rectangle(image_ori, (int(x), int(y)), (int((x + w)), int((y + h))), (255,0,0), 3)
+        # cv2.circle(image_ori, (new_cen_x, new_cen_y),  3, (0,0,255), -1)
+        # cv2.circle(image_ori, (int((high_score_pos[1] + x)), int((high_score_pos[0] + y))),  3, (255,0,0), -1)
+        cv2.circle(image_ori, (new_cen_x, new_cen_y),  3, (0,0,255), -1)
+
+        plot_one_box([x_0, y_0, x_1, y_1], image_ori, label='tennis ball', color=(25,50,255), line_thickness=3)
+
+    return image_ori, depth_list, ball_cand_pos, ball_cand_score
+
 def cal_ball_pos(ball_cand_pos, depth_list):
 
     focal_length = 319.9988245765257
@@ -108,7 +158,7 @@ def tran_input_img(img_list):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         #img = cv2.resize(img,(WIDTH, HEIGHT))
-        img = np.asarray(img).transpose(2, 0, 1) / 255.0
+        img = np.asarray(img).transpose(2, 0, 1)
 
         trans_img.append(img[0])
         trans_img.append(img[1])
@@ -189,3 +239,16 @@ def ball_vel_check(ball_trajectory):
         ball_pos[0] = ball_trajectory[-1][0] + mean_x_vel * self.dT"""
 
     return x_vel, y_vel
+
+def plot_one_box(x, im, color=(128, 128, 128), label=None, line_thickness=3):
+    # Plots one bounding box on image 'im' using OpenCV
+    assert im.data.contiguous, 'Image not contiguous. Apply np.ascontiguousarray(im) to plot_on_box() input image.'
+    tl = line_thickness or round(0.002 * (im.shape[0] + im.shape[1]) / 2) + 1  # line/font thickness
+    c1, c2 = (int(x[0]), int(x[1])), (int(x[2]), int(x[3]))
+    cv2.rectangle(im, c1, c2, color, thickness=tl, lineType=cv2.LINE_AA)
+    if label:
+        tf = max(tl - 1, 1)  # font thickness
+        t_size = cv2.getTextSize(label, 0, fontScale=tl / 3, thickness=tf)[0]
+        c2 = c1[0] + t_size[0], c1[1] - t_size[1] - 3
+        cv2.rectangle(im, c1, c2, color, -1, cv2.LINE_AA)  # filled
+        cv2.putText(im, label, (c1[0], c1[1] - 2), 0, tl / 3, [225, 255, 255], thickness=tf, lineType=cv2.LINE_AA)
