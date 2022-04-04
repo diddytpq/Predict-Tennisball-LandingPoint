@@ -618,19 +618,31 @@ class Ball_Trajectory_Estimation():
         pos_esit = pos_list[-1]
 
         cnt = 0
-        vel = np.diff(pos_list, axis = 0)[-1] / dt
 
-        self.vel_list.append(vel)
+        if len(self.vel_list) == 0:
+            self.vel_list.append(np.mean(np.diff(pos_list, axis = 0)/ dt , axis = 0))
+            vel = np.diff(pos_list, axis = 0)[-1] / dt
+        else:
+            vel = np.diff(pos_list, axis = 0)[-1] / dt
+            self.vel_list.append(vel)
 
         #bounce check
-        if pos_list[-2][2] < pos_list[-1][2]:
-             self.bounce_flag = 1
+        if pos_list[-2][2] < pos_list[-1][2] and self.bounce_flag  == 0:
+            self.bounce_flag = 1   
+            self.vel_z_list_after.append(-np.mean(self.vel_z_list_before[:-1]))
+            self.vel_list[-1][2] = -np.mean(self.vel_z_list_before[:-1])
+
+            return False
 
         if len(self.vel_list) > 3:
             vel_mean = np.mean(self.vel_list[-4:-1], axis = 0)
 
         else:
-            vel_mean = np.mean(self.vel_list, axis = 0)
+            if len(self.vel_list) == 1:
+                vel_mean = np.array(self.vel_list)[0]
+
+            else:
+                vel_mean = np.mean(self.vel_list[:-1], axis = 0)
 
         #z_vel calculate bounce before and after
         if self.bounce_flag == 0:
@@ -638,7 +650,6 @@ class Ball_Trajectory_Estimation():
 
             if len(self.vel_z_list_before) > 1:
                 vel_mean[2] = np.mean(self.vel_z_list_before[:-1])
-            
 
         else :
             self.vel_z_list_after.append(vel[2])
@@ -649,9 +660,11 @@ class Ball_Trajectory_Estimation():
                 self.vel_z_before_mean = -np.mean(self.vel_z_list_before[:-1])
 
         ##moving average filter
-        if abs(vel[0]) > abs(vel_mean[0]) or (vel[0]) < 0:
+        if abs(vel[0]) > abs(vel_mean[0]) :
             
             vel_x = vel_mean[0]
+            self.vel_list[-1][0] = vel_mean[0]
+
 
         else :
             vel_x = vel[0]
@@ -667,28 +680,24 @@ class Ball_Trajectory_Estimation():
 
         if len(self.vel_z_list_after) < 1 :
 
-            if abs(vel[2]) > abs(vel_mean[2]):
+            if abs(vel[2]) > abs(vel_mean[2]) or abs(vel[2]) < 2:
                 
                 vel_z = vel_mean[2]
 
             else:
+                    
                 vel_z = vel[2]
         else:
-            if  len(self.vel_z_list_after) == 1: 
-                if abs(vel[2]) > abs(self.vel_z_before_mean): # if frist bounce point vel > before velocity
-                    # vel_z = self.vel_z_before_mean
-                    vel_z = self.vel_z_before_mean
-                    self.vel_z_list_after[0] = self.vel_z_before_mean
-                
-                else:
-                    vel_z = vel[2]
+           
+            if abs(vel[2]) > abs(np.mean(self.vel_z_list_after[:-1])):
+                vel_z = np.mean(self.vel_z_list_after[:-1])
+
             else:
-                if abs(vel[2]) > abs(np.mean(self.vel_z_list_after[:-1])):
-                    vel_z = np.mean(self.vel_z_list_after[:-1])
+                vel_z = vel[2]
 
-                else:
-                    vel_z = vel[2]
-
+        print("vel_mean",vel_mean)
+        print("vel_video",vel)
+        print("vel_esti",[vel_x, vel_y, vel_z])
 
         vel_esti = np.array([vel_x, vel_y, vel_z])
         esti_trajectory.append(pos_esit)

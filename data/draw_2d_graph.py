@@ -44,13 +44,13 @@ real_sim_time[remove_time:] += 1e+9
 
 sim_time, measure_data,  esti_ball_pos_list = esti_data[int(i)][int(j)][0], esti_data[int(i)][int(j)][1], esti_data[int(i)][int(j)][2]
 
-sim_time_list = np.arange(sim_time[-1] + 1e+9, sim_time[-1] + 1e+9 + len(esti_ball_pos_list)*1e+7, 1e+7)
-
-if np.argmin(sim_time) != 0:
+if np.argmin(sim_time) != 0 and sim_time[-1] < 1e+9:
+    sim_time_list = np.arange(sim_time[-1] + 1e+9, sim_time[-1] + 1e+9 + len(esti_ball_pos_list)*1e+7, 1e+7)
     measure_sim_time_list = sim_time[:np.argmin(sim_time)].tolist() + (np.array(sim_time[np.argmin(sim_time):]) + 1e+9).tolist()
 
-else :
-    measure_sim_time_list = sim_time +  1e+9
+else:
+    sim_time_list = np.arange(sim_time[-1], sim_time[-1] + len(esti_ball_pos_list)*1e+7, 1e+7)
+    measure_sim_time_list = sim_time
 
 # x axis
 plt.subplot(2, 1, 1)
