@@ -8,7 +8,7 @@ FILE = Path(__file__).absolute()
 sys.path.append(FILE.parents[0].as_posix())  # add code to path
 
 path = str(FILE.parents[0])
-sys.path.insert(0, './yolov5')
+sys.path.append(path + '/lib')
 
 import numpy as np
 import time
@@ -42,7 +42,7 @@ from kalman_utils.KFilter import *
 import ray
 
 device = 0
-weights = path + "/yolov5/weights/best.pt"
+weights = path + "/lib/yolov5/weights/best.pt"
 imgsz = 640
 conf_thres = 0.25
 iou_thres = 0.45

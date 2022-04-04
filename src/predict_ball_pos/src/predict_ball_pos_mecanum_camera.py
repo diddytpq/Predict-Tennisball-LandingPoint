@@ -7,7 +7,8 @@ FILE = Path(__file__).absolute()
 sys.path.append(FILE.parents[0].as_posix())  # add code to path
 
 path = str(FILE.parents[0])
-sys.path.append("/heatmap_based_object_tracking")
+sys.path.append(path + '/lib')
+
 
 import numpy as np
 import time
@@ -46,7 +47,7 @@ parser = argparse.ArgumentParser(description='Gazebo simualation')
 parser.add_argument('--lr', type=float, default=1e-1,
                     help='learning rate (default: 0.1)')
 parser.add_argument('--load_weight', type=str,
-                    default='/heatmap_based_object_tracking/weights/gazebo.tar', help='input model weight for predict')
+                    default='/lib/heatmap_based_object_tracking/weights/gazebo.tar', help='input model weight for predict')
 parser.add_argument('--optimizer', type=str, default='Ada',
                     help='Ada or SGD (default: Ada)')
 parser.add_argument('--momentum', type=float, default=0.9,

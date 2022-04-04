@@ -1,18 +1,20 @@
+
+# video && img
+
 *.avi
 *.mov
 *.mp4
-*.tar
-*.pt
-*.csv
-*.bin
-
 video/
 videos/
 
-images/
+# network weight
+*.tar
+*.pt
 
+# ros build
 build/
 devel/
+
 .vscode/
 
 CMakeLists.txt

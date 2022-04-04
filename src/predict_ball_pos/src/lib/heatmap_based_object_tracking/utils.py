@@ -109,9 +109,12 @@ def find_ball_center_base(pred_image, image_ori, depth_ori, ratio_w, ratio_h):
         score = np.mean(pred_image[y:y+h, x:x+w])
 
         # high_score_pos = np.unravel_index(np.argmax(pred_image[y:y+h, x:x+w], axis=None), pred_image[y:y+h, x:x+w].shape)
+        depth = np.min(depth_check_array[y_0 : y_1, x_0 : x_1]) + 0.03
 
-        # depth = np.min(depth_check_array[y_0 : y_1, x_0 : x_1]) + 0.03
-        depth = depth_check_array[new_cen_y,new_cen_x] + 0.03
+        # if area < 50:
+        #     depth = np.min(depth_check_array[y_0 : y_1, x_0 : x_1]) + 0.03
+        # else:
+        #     depth = depth_check_array[new_cen_y,new_cen_x] + 0.03
 
         ball_cand_score.append(score)
 

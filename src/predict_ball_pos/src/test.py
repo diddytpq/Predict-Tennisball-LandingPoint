@@ -147,6 +147,8 @@ def get_robot_pos():
 
 def main():
 
+    rospy.init_node('predict_ball_pos_node', anonymous=True)
+
     input_img_buffer = []
 
     ball_trajectory = []
@@ -154,7 +156,7 @@ def main():
 
     esti_ball_trajectory_data = []
     
-    init_robot_pos_x = 13
+    init_robot_pos_x = 12.88
     init_robot_pos_y = 0
     init_robot_pos_z = 1.0
 
@@ -173,7 +175,9 @@ def main():
         if len(camera_data[0]):
             print('---------------------------------------------------')
 
-            # ball_x, ball_y, ball_z = get_ball_status()
+            #ball_x, ball_y, ball_z = get_ball_status()
+            now = rospy.get_rostime()
+
             t1 = time.time()
             frame = camera_data[0]
             depth = camera_data[1]
@@ -205,11 +209,12 @@ def main():
                 h_pred = (h_pred[0]).astype('uint8')
                 h_pred = np.asarray(h_pred).transpose(1, 2, 0)
 
-                h_pred = (200 < h_pred) * h_pred
+                h_pred = (170 < h_pred) * h_pred
 
                 torch.cuda.synchronize()
 
             frame, depth_list, ball_cand_pos, ball_cand_score = find_ball_center_base(h_pred, frame, np.float32(depth), ratio_w, ratio_h)
+            # frame, depth_list, ball_cand_pos, ball_cand_score = find_ball_v3(h_pred, frame, np.float32(depth), ratio_w, ratio_h)
             
             ball_pos = cal_ball_pos(ball_cand_pos, depth_list)
 
@@ -218,8 +223,7 @@ def main():
                     x_pos_dt =  robot_x - init_robot_pos_x
                     y_pos_dt =  robot_y - init_robot_pos_y
 
-                    ball_trajectory.append([init_robot_pos_x - (ball_pos[0] - x_pos_dt), init_robot_pos_y + (ball_pos[1] + y_pos_dt), ball_pos[2] + init_robot_pos_z])
-                    # real_ball_trajectory.append([ball_x, ball_y, ball_z])
+                    ball_trajectory.append([now.nsecs, init_robot_pos_x - (ball_pos[0] - x_pos_dt), init_robot_pos_y + (ball_pos[1] + y_pos_dt), ball_pos[2] + init_robot_pos_z])
                     
                     #ball_trajectory.append([ball_pos[0], ball_pos[1], ball_pos[2]])
 
@@ -229,15 +233,17 @@ def main():
                     if len(ball_trajectory) > 2:
                         print("ball_trajectory",len(ball_trajectory))
 
-                        measure_data = ball_trajectory.copy()
+                        measure_time = np.array(ball_trajectory.copy())[:,0]
+                        measure_data = np.array(ball_trajectory.copy())[:,1:]
 
                         esti_ball_trajectory = BTE.cal_rebound_trajectory(measure_data, dt = time.time() - t1)
 
                         if esti_ball_trajectory:
                             # print((measure_data))
                             # print(len(esti_ball_trajectory))
+                            # real_ball_trajectory.append([ball_x, ball_y, ball_z])
                             
-                            esti_ball_trajectory_data.append([measure_data,esti_ball_trajectory])
+                            esti_ball_trajectory_data.append([measure_time, measure_data, esti_ball_trajectory])
 
                 else:
                     ball_disappear_cnt += 1
@@ -248,7 +254,7 @@ def main():
             if ball_disappear_cnt > 30:
                 ball_disappear_cnt = 0
 
-                if len(esti_ball_trajectory_data) > 10:
+                if len(esti_ball_trajectory_data) > 8:
                 #     #real_data.append([real_ball_trajectory])
                 #     #print(len(real_data))
 
@@ -257,6 +263,7 @@ def main():
                 
                 ball_trajectory = []
                 esti_ball_trajectory_data = []
+                BTE.clear()
                 print(len(esti_data))
 
 

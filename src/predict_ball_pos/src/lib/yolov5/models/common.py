@@ -2,6 +2,14 @@
 """
 Common modules
 """
+from pathlib import Path
+import sys
+
+FILE = Path(__file__).absolute()
+sys.path.append(FILE.parents[0].as_posix())  # add code to path
+
+path = str(FILE.parents[0])
+sys.path.append(path + '/lib')
 
 import json
 import math

@@ -264,7 +264,7 @@ def ball_apply_airdyanmic(ball_name, ball_check_flag):
 
 def main(args):
 
-    time.sleep(3)
+    time.sleep(1)
 
     rospy.init_node('ball_airdynamic', anonymous=True)
 
@@ -290,7 +290,7 @@ def main(args):
 
 
     except KeyboardInterrupt:
-        print("Shutting down")
+        main(sys.argv)
 
 
 

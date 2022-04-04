@@ -10,7 +10,6 @@ from matplotlib.cbook import get_sample_data
 import mpl_toolkits.mplot3d.art3d as art3d
 
 import cv2
-from tools import cal_rebound_trajectory
 
 from pathlib import Path
 import sys
@@ -215,9 +214,9 @@ check_list = []
 
 # i, j = list(input().split())
 num = int(input())
-j = 0
+j = 4
 
-# for i in range(1, len(esti_data)):
+# for i in range(0, len(esti_data)):
 for i in [num, -1]:
 # for i in range(num, num + 10):
 
@@ -230,27 +229,27 @@ for i in [num, -1]:
 
     # real_landing_point = real_ball_trajectory[np.argmin(real_ball_trajectory[:,2], axis = 0):]
 
-    if len(esti_data[int(i)]) < 11:
+    if len(esti_data[int(i)]) < j:
         continue
 
     sim_time, measure_data,  esti_ball_pos_list = esti_data[int(i)][int(j)][0], esti_data[int(i)][int(j)][1], esti_data[int(i)][int(j)][2]
     # measure_data,  esti_ball_pos_list = esti_data[int(i)][len(esti_data[int(i)])-1]
 
 
-    # if measure_data[0][2] < 0.1 :
-    #     continue
+    if measure_data[0][2] < 0.1 :
+        continue
 
-    # if np.min(np.diff(measure_data, axis = 0)[:,0]) < 0:
-    #     continue
+    if np.min(np.diff(measure_data, axis = 0)[:,0]) < 0:
+        continue
 
-    # else:
-    #     check_list.append(i)
-    #     draw_trajectory_3D(real_ball_trajectory,measure_data,esti_ball_pos_list,False)
+    else:
+        check_list.append(i)
+        draw_trajectory_3D(real_ball_trajectory,measure_data,esti_ball_pos_list,False)
     draw_trajectory_3D(real_ball_trajectory,measure_data,esti_ball_pos_list,False)
 
 print(check_list)
 
-ax.view_init(30, 30)
+ax.view_init(0, 89)
 
 ax.legend()
 

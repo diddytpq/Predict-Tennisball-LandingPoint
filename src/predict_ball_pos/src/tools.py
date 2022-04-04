@@ -5,17 +5,14 @@ import sys
 import os
 
 FILE = Path(__file__).absolute()
-sys.path.append(FILE.parents[0].as_posix())  # add code to path
 
 path = str(FILE.parents[0])
-sys.path.insert(0, './yolov5')
+sys.path.append(path + '/lib')
 
 
 import numpy as np
 import time
 import cv2
-
-from yolov5.utils.augmentations import letterbox
 
 from kalman_utils.KFilter import *
 
@@ -279,6 +276,37 @@ def plot_one_box(x, im, color=(128, 128, 128), label=None, line_thickness=3):
         cv2.rectangle(im, c1, c2, color, -1, cv2.LINE_AA)  # filled
         cv2.putText(im, label, (c1[0], c1[1] - 2), 0, tl / 3, [225, 255, 255], thickness=tf, lineType=cv2.LINE_AA)
 
+def letterbox(im, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True, stride=32):
+    # Resize and pad image while meeting stride-multiple constraints
+    shape = im.shape[:2]  # current shape [height, width]
+    if isinstance(new_shape, int):
+        new_shape = (new_shape, new_shape)
+
+    # Scale ratio (new / old)
+    r = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
+    if not scaleup:  # only scale down, do not scale up (for better val mAP)
+        r = min(r, 1.0)
+
+    # Compute padding
+    ratio = r, r  # width, height ratios
+    new_unpad = int(round(shape[1] * r)), int(round(shape[0] * r))
+    dw, dh = new_shape[1] - new_unpad[0], new_shape[0] - new_unpad[1]  # wh padding
+    if auto:  # minimum rectangle
+        dw, dh = np.mod(dw, stride), np.mod(dh, stride)  # wh padding
+    elif scaleFill:  # stretch
+        dw, dh = 0.0, 0.0
+        new_unpad = (new_shape[1], new_shape[0])
+        ratio = new_shape[1] / shape[1], new_shape[0] / shape[0]  # width, height ratios
+
+    dw /= 2  # divide padding into 2 sides
+    dh /= 2
+
+    if shape[::-1] != new_unpad:  # resize
+        im = cv2.resize(im, new_unpad, interpolation=cv2.INTER_LINEAR)
+    top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
+    left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
+    im = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
+    return im, ratio, (dw, dh)
 
 def img_preprocessing(img0, imgsz, stride, pt):
     img = letterbox(img0, new_shape = imgsz, stride= stride, auto= pt)[0]
@@ -564,27 +592,108 @@ class Ball_Trajectory_Estimation():
 
     def __init__(self):
         self.sample_time = 0.01
+        self.vel_list = []
+        self.vel_z_list_before = []
+        self.vel_z_list_after = []
+
+        self.vel_z_before_mean = 0
+        
+        self.bounce_flag = 0
+
+        self.esti_trajectory = []
+
+    def clear(self):
+
+        self.vel_list = []
+        self.vel_z_list_before = []
+        self.vel_z_list_after = []
+
+        self.bounce_flag = 0
+
+        self.esti_trajectory = []
 
     def cal_rebound_trajectory(self, pos_list, dt):
 
         esti_trajectory = []
         pos_esit = pos_list[-1]
 
-        vel_list = np.diff(pos_list, axis = 0) / dt
-        vel_mean = np.mean(vel_list[:-1], axis = 0)
+        cnt = 0
+        vel = np.diff(pos_list, axis = 0)[-1] / dt
 
-        if abs(vel_list[-1][0]) > abs(vel_mean[0]) or (vel_list[-1][0]) < 0:
-            vel_esti = vel_mean
-    
+        self.vel_list.append(vel)
+
+        #bounce check
+        if pos_list[-2][2] < pos_list[-1][2]:
+             self.bounce_flag = 1
+
+        if len(self.vel_list) > 3:
+            vel_mean = np.mean(self.vel_list[-4:-1], axis = 0)
+
         else:
-            vel_esti = vel_list[-1]
+            vel_mean = np.mean(self.vel_list, axis = 0)
 
+        #z_vel calculate bounce before and after
+        if self.bounce_flag == 0:
+            self.vel_z_list_before.append(vel[2])
+
+            if len(self.vel_z_list_before) > 1:
+                vel_mean[2] = np.mean(self.vel_z_list_before[:-1])
+            
+
+        else :
+            self.vel_z_list_after.append(vel[2])
+
+            if len(self.vel_z_list_after) > 1:
+                vel_mean[2] = np.mean(self.vel_z_list_after[:-1])
+            else :
+                self.vel_z_before_mean = -np.mean(self.vel_z_list_before[:-1])
+
+        ##moving average filter
+        if abs(vel[0]) > abs(vel_mean[0]) or (vel[0]) < 0:
+            
+            vel_x = vel_mean[0]
+
+        else :
+            vel_x = vel[0]
+
+        if abs(vel[1]) > abs(vel_mean[1]) :
+            
+            vel_y = vel_mean[1]
+
+        else:
+            vel_y = vel[1]
+
+# ============================================================
+
+        if len(self.vel_z_list_after) < 1 :
+
+            if abs(vel[2]) > abs(vel_mean[2]):
+                
+                vel_z = vel_mean[2]
+
+            else:
+                vel_z = vel[2]
+        else:
+            if  len(self.vel_z_list_after) == 1: 
+                if abs(vel[2]) > abs(self.vel_z_before_mean): # if frist bounce point vel > before velocity
+                    # vel_z = self.vel_z_before_mean
+                    vel_z = self.vel_z_before_mean
+                    self.vel_z_list_after[0] = self.vel_z_before_mean
+                
+                else:
+                    vel_z = vel[2]
+            else:
+                if abs(vel[2]) > abs(np.mean(self.vel_z_list_after[:-1])):
+                    vel_z = np.mean(self.vel_z_list_after[:-1])
+
+                else:
+                    vel_z = vel[2]
+
+
+        vel_esti = np.array([vel_x, vel_y, vel_z])
         esti_trajectory.append(pos_esit)
 
         while True:
-            # print("pos_esit",pos_esit)
-            # print("vel_esti",vel_esti)
-
 
             drag = (0.5 * 0.507 * 1.29 * np.pi * (0.033 ** 2) * vel_esti ** 2 ) / 0.057
         
@@ -594,94 +703,18 @@ class Ball_Trajectory_Estimation():
 
             vel_esti += np.array([-drag[0], -drag[1], -drag[2] - 9.8]) * (self.sample_time)
 
+            cnt += 1
+
             if esti_trajectory[-1][-1] <= 0 and vel_esti[2] < 0:
                 vel_esti[2] = -vel_esti[2] * 0.70
 
             if esti_trajectory[-1][0] > 13:
                 break
-            if esti_trajectory[-1][0] == float('-inf'):
+
+            if esti_trajectory[-1][0] == float('-inf') or esti_trajectory[-1][1] == float('-inf') or cnt > 150:
                 return False
 
-        return esti_trajectory
 
-def cal_rebound_trajectory(pos_list):
-    
-    trajectory = []
-    after_landing_trjectory = []
-    pos_esit = pos_list[-1]
+        self.esti_trajectory = esti_trajectory
 
-    landing_point = []
-
-    land_flag = 0
-
-    dt = 0.03
-    #print(pos_esit)
-    
-    vel_list = np.diff(pos_list, axis=0) / dt
-
-    vel_mean = np.mean(vel_list[:-1], axis = 0) 
-
-    if abs(vel_list[-1][0]) > abs(vel_mean[0]) or (vel_list[-1][0]) < 0:
-        vel_esti = vel_mean
-    
-    else:
-        vel_esti = vel_list[-1]
-
-    #vel_mean = vel_list[-1]
-
-
-    #vel = np.linalg.norm(vel_mean)
-
-    t = 0.005
-
-    trajectory.append(pos_esit)
-
-    print("init_pos", pos_esit)
-    print("vel_mean = ",vel_mean)
-    print("vel_list = ",vel_list[-1][0])
-
-    cnt = 0
-        
-    print(pos_esit)
-    print(vel_esti)
-    while True:
-
-
-        drag = (0.5 * 0.507 * 1.29 * np.pi * (0.033 ** 2) * vel_esti ** 2 ) / 0.057
-        
-        # left_x = (0.5 * 0.2 * 1.2041 * np.pi * (0.033 ** 2) * vel_mean[0] ** 2 ) / 0.057
-        # left_y = (0.5 * 0.2 * 1.2041 * np.pi * (0.033 ** 2) * vel_mean[1] ** 2 ) / 0.057
-        # left_z = (0.5 * 0.2 * 1.2041 * np.pi * (0.033 ** 2) * vel_mean[2] ** 2 ) / 0.057
-        
-        pos_esit = (np.array(pos_esit) + (vel_esti) * t + np.array([-drag[0], -drag[1], -drag[2] - 9.8]) * (t **2) / 2).tolist()
-        #pos_esit = (np.array(pos_esit) + (vel_mean) * t + np.array([-(drag_x + left_x), -(drag_y + left_y), -(drag_z + left_z) - 9.8]) * (t **2) / 2).tolist()
-
-        #print("drag_x, drag_y, drag_z =",drag_x, drag_y, drag_z)
-        trajectory.append(pos_esit)
-
-        vel_esti += np.array([-drag[0], -drag[1], -drag[2] - 9.8]) * (t)
-        #vel = np.linalg.norm(vel_mean)
-
-        if land_flag:
-            after_landing_trjectory.append(pos_esit)
-        
-        #print(cnt * t)
-        #print("pos_esit =\t",pos_esit)
-        #print('vel_mean :\t',vel_mean)
-
-        cnt += 1
-
-        if trajectory[-1][-1] < 0.05 :
-            land_flag = 1
-
-        if trajectory[-1][-1] < 0 and vel_esti[2] < 0:
-            vel_esti[2] = -vel_esti[2] * 0.70
-
-
-            landing_point.append(pos_esit)
-        
-        if trajectory[-1][0] > 11.5:
-            break
-
-    return trajectory, after_landing_trjectory, landing_point
-
+        return self.esti_trajectory

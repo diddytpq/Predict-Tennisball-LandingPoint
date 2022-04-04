@@ -9,9 +9,14 @@ import roslib
 from std_msgs.msg import Empty as EmptyMsg
 from std_msgs.msg import Float64, Float64MultiArray
 from nav_msgs.msg import Odometry
+from std_srvs.srv import Empty
+
 import time
 from tool.mecanum_utils import *
 import pickle
+
+reset_sim_time = rospy.ServiceProxy("/gazebo/reset_simulation", Empty)
+
 
 class Make_mecanum_left():
 
@@ -187,7 +192,7 @@ class Make_mecanum_left():
 
         file_localition = roslib.packages.get_pkg_dir('ball_description') + '/urdf/tennis_ball/ball_main.sdf'
         srv_spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
-    
+
         self.get_position()
         ball_pose = Pose()
         ball_pose.position.x = self.object_pose.position.x
@@ -209,6 +214,8 @@ class Make_mecanum_left():
         req.initial_pose = ball_pose
 
         res = srv_spawn_model(req)
+
+
 
     def set_ball_target(self):
 
@@ -241,9 +248,9 @@ class Make_mecanum_left():
         self.v0 = self.s/(self.ball_fly_time + self.ball_fly_time_plus)
 
         if self.v0 > 0 :
-            self.v0 += 13
+            self.v0 += 8
         else:
-            self.v0 -= 13
+            self.v0 -= 8
 
         self.v = np.sqrt(self.v0**2 + self.vz0**2)
         self.launch_angle = np.arctan(self.vz0/self.v0)
@@ -404,12 +411,17 @@ class Make_mecanum_right(Make_mecanum_left):
 
     def del_ball(self):
 
-        time.sleep(0.3)
 
         srv_delete_model = rospy.ServiceProxy('gazebo/delete_model', DeleteModel)
+        
         res = srv_delete_model(self.away_ball_name)
+        reset_sim_time()
+
         self.away_ball_vel_max_x = 0
         self.away_ball_vel_max_y = 0
+        
+        time.sleep(0.3)
+
 
         if len(self.esti_ball_pos_list):
             self.esti_data.append([self.esti_ball_pos_list])

@@ -2,12 +2,17 @@
 """
 Image augmentation functions
 """
-
+from pathlib import Path
+import sys
+import sys
 import math
 import random
 
 import cv2
 import numpy as np
+
+FILE = Path(__file__).absolute()
+sys.path.append(FILE.parents[0].as_posix())  # add code to path
 
 from yolov5.utils.general import LOGGER, check_version, colorstr, resample_segments, segment2box
 from yolov5.utils.metrics import bbox_ioa

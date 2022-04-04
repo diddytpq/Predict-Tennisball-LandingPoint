@@ -6,7 +6,7 @@ import tf.transformations as tft
 import numpy as np
 import math
 import roslib
-from std_msgs.msg import Empty as EmptyMsg
+from std_srvs.srv import Empty
 from std_msgs.msg import String, Float64, Float64MultiArray
 from nav_msgs.msg import Odometry
 
@@ -19,12 +19,10 @@ import time
 roslib.load_manifest('mecanum_robot_gazebo')
 
 g_get_state = rospy.ServiceProxy("/gazebo/get_model_state", GetModelState)
-
-
+# reset_sim_time = rospy.ServiceProxy("/gazebo/reset_simulation", Empty)
 
 ball_name = 'ball_left'
 #ball_name = 'ball_right'
-
 
 pre_z = np.nan
 pre_gradient = np.nan
@@ -39,10 +37,6 @@ def callback_landing_point(data):
     #esti_ball_landing_point = [data.data[0], data.data[1], data.data[2]]
 
     esti_ball_landing_point = list(data.data)
-
-    
-
-
 
 def gat_ball_stats():
     ball_state = g_get_state(model_name = ball_name)
@@ -86,7 +80,6 @@ def check_grad(num):
     else :
         return True
 
-
 def empty(x):
     pass
 
@@ -103,12 +96,12 @@ def landing_point(ball_stats, real_ball_landing_point_list, esti_ball_landing_po
 
 
 
-def real_ball_trajectory(ball_stats, real_trajectory):
+def real_ball_trajectory(ball_stats, real_trajectory, time):
 
-    if np.round(ball_stats.pose.position.x,3) == 0 or np.round(ball_stats.pose.position.x,3) > 13.5:
+    if np.round(ball_stats.pose.position.x,3) == 0 or np.round(ball_stats.pose.position.x,3) > 13.:
         return real_trajectory
 
-    real_trajectory.append([np.round(ball_stats.pose.position.x,3), np.round(ball_stats.pose.position.y,3), np.round(ball_stats.pose.position.z,3)])
+    real_trajectory.append([now.nsecs,np.round(ball_stats.pose.position.x,3), np.round(ball_stats.pose.position.y,3), np.round(ball_stats.pose.position.z,3)])
 
     return real_trajectory
 
@@ -138,21 +131,23 @@ if __name__ == "__main__" :
         t0 = time.time()
         #rospy.Subscriber("esti_landing_point", Float64MultiArray, callback_landing_point)
         ball_stats = gat_ball_stats()
+        now = rospy.get_rostime()
+
 
         # record ball landing point
         #real_ball_landing_point_list, esti_ball_landing_point_list = landing_point(ball_stats, real_ball_landing_point_list, esti_ball_landing_point_list)
 
         # record ball trajectory
 
-        real_trajectory = real_ball_trajectory(ball_stats, real_trajectory)
+        real_trajectory = real_ball_trajectory(ball_stats, real_trajectory, now)
 
         if len(real_trajectory) > 2:
 
-            
-            if check_plus(real_trajectory[-2][0]) == True and check_plus(real_trajectory[-1][0]) == False:
+            if check_plus(real_trajectory[-2][1]) == True and check_plus(real_trajectory[-1][1]) == False:
                 print(np.array(real_trajectory[:-2]).shape)
-                real_data.append([real_trajectory[:-2]])
+                real_data.append(real_trajectory[:-2])
                 real_trajectory = []
+                # reset_sim_time()
 
 
         print(len(real_data))
