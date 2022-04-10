@@ -22,10 +22,10 @@ from cv_bridge import CvBridge, CvBridgeError
 
 import torch
 import argparse
-from heatmap_based_object_tracking.models.network import *
+from lib.heatmap_based_object_tracking.models.network import *
 #from heatmap_based_object_tracking.models.network_b0_ver2 import *
 
-from heatmap_based_object_tracking.utils import *
+from lib.heatmap_based_object_tracking.utils import *
 
 from tools import *
 import pickle

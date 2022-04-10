@@ -39,7 +39,7 @@ if __name__ == '__main__' :
     mecanum_L.del_ball()
     mecanum_R.del_ball()
 
-    add_catch_point = 5
+    add_catch_point = 1
 
     while True:
         mecanum_L.spwan_ball("ball_left")
@@ -51,12 +51,14 @@ if __name__ == '__main__' :
 
         print("ball_landing_point",ball_landing_point)
 
-        #mecanum_R.move_based_mecanum_camera(ball_landing_point[0],ball_landing_point[1] ,mecanum_L)
-        mecanum_R.move(ball_landing_point[0],ball_landing_point[1] ,mecanum_L)
+        ball_landing_point = [13, mecanum_L.y_target - (add_catch_point * np.sin(mecanum_L.yaw_z))]
+
+        mecanum_R.move_based_mecanum_camera(ball_landing_point[0],ball_landing_point[1] ,mecanum_L)
+        # mecanum_R.move(ball_landing_point[0],ball_landing_point[1] ,mecanum_L)
 
         t0 = time.time()
         while True:
-            return_home(mecanum_R)
+            # return_home(mecanum_R)
             if (time.time() - t0) > 3: break
 
         #check = input()

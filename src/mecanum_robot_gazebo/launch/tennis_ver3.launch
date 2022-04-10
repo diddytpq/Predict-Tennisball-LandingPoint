@@ -5,7 +5,7 @@
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find ball_description)/worlds/tennis_court.world"/>
-    <arg name="paused" value="false"/>
+    <arg name="paused" value="true"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="true"/>
     <arg name="headless" value="false"/>
@@ -33,10 +33,10 @@
   <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
 
   <node pkg="gazebo_ros" type="spawn_model" name="mecanum_urdf_0" respawn="false" output="screen"
-    args="-urdf -x -12 -y 0 -z 0 -R 0 -P 0 -Y 0  -model mecanum_L -param robot_description"/>
+    args="-urdf -x -13 -y 0 -z 0 -R 0 -P 0 -Y 0  -model mecanum_L -param robot_description"/>
 
   <node pkg="gazebo_ros" type="spawn_model" name="mecanum_urdf_1" respawn="false" output="screen"
-    args="-urdf -x 12 -y 0 -z 0 -Y 3.14 -model mecanum_R -param robot_description_1"/>
+    args="-urdf -x 13 -y 0 -z 0 -Y 3.14 -model mecanum_R -param robot_description_1"/>
 
   <node pkg="gazebo_ros" type="spawn_model" name="camera_left_urdf" args="-urdf -model camera_left -x 0 -y -6.4 -z 0 -param camera_left_description" />
   <node pkg="gazebo_ros" type="spawn_model" name="camera_right_urdf" args="-urdf -model camera_right -x 0 -y 6.4 -z 0 -param camera_right_description" />

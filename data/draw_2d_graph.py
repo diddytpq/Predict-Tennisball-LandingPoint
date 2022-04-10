@@ -54,7 +54,15 @@ else:
 
 # x axis
 plt.subplot(2, 1, 1)
-plt.plot(real_sim_time,real_ball_trajectory[:,0],'ro', measure_sim_time_list,measure_data[:,0],'b*',sim_time_list, np.array(esti_ball_pos_list)[:,0],'bo')#, x,y2,'g-')
+plt.plot(real_sim_time,real_ball_trajectory[:,0],'ro',label = 'Real trajectory')#, x,y2,'g-')
+plt.plot( measure_sim_time_list,measure_data[:,0],'b*',label = 'Measure trajectory')
+plt.plot( sim_time_list, np.array(esti_ball_pos_list)[:,0],'bo',label = 'predict trajectory')
+
+plt.grid()
+plt.legend()
+
+plt.title('x axis ball postion')
+
 
 # # y axis
 # plt.subplot(3, 1, 2)
@@ -62,8 +70,13 @@ plt.plot(real_sim_time,real_ball_trajectory[:,0],'ro', measure_sim_time_list,mea
 
 # z axis
 plt.subplot(2, 1, 2)
-plt.plot(real_sim_time,real_ball_trajectory[:,2],'ro', measure_sim_time_list,measure_data[:,2],'b*', sim_time_list, np.array(esti_ball_pos_list)[:,2],'bo')#, x,y2,'g-')
+plt.plot(real_sim_time,real_ball_trajectory[:,2],'ro',label = 'Real trajectory')#, x,y2,'g-')
+plt.plot( measure_sim_time_list,measure_data[:,2],'b*',label = 'Measure trajectory')
+plt.plot( sim_time_list, np.array(esti_ball_pos_list)[:,2],'bo',label = 'predict trajectory')
 plt.grid()
+plt.title('z axis ball postion')
+plt.legend()
+
 plt.show()
 
 

@@ -14,7 +14,7 @@ import numpy as np
 import time
 import cv2
 
-from kalman_utils.KFilter import *
+from lib.kalman_utils.KFilter import *
 
 
 # ball_tracking setup
@@ -602,6 +602,8 @@ class Ball_Trajectory_Estimation():
 
         self.esti_trajectory = []
 
+        self.landing_point = np.NaN
+
     def clear(self):
 
         self.vel_list = []
@@ -611,10 +613,16 @@ class Ball_Trajectory_Estimation():
         self.bounce_flag = 0
 
         self.esti_trajectory = []
+        self.landing_after_trajectory = []
+
+        self.landing_point = np.NaN
+
 
     def cal_rebound_trajectory(self, pos_list, dt):
 
         esti_trajectory = []
+        self.landing_after_trajectory = []
+
         pos_esit = pos_list[-1]
 
         cnt = 0
@@ -695,9 +703,9 @@ class Ball_Trajectory_Estimation():
             else:
                 vel_z = vel[2]
 
-        print("vel_mean",vel_mean)
-        print("vel_video",vel)
-        print("vel_esti",[vel_x, vel_y, vel_z])
+        # print("vel_mean",vel_mean)
+        # print("vel_video",vel)
+        # print("vel_esti",[vel_x, vel_y, vel_z])
 
         vel_esti = np.array([vel_x, vel_y, vel_z])
         esti_trajectory.append(pos_esit)
@@ -710,12 +718,17 @@ class Ball_Trajectory_Estimation():
 
             esti_trajectory.append(pos_esit)
 
+            if len(self.landing_after_trajectory) or self.bounce_flag:
+                self.landing_after_trajectory.append(pos_esit)
+
             vel_esti += np.array([-drag[0], -drag[1], -drag[2] - 9.8]) * (self.sample_time)
 
             cnt += 1
 
             if esti_trajectory[-1][-1] <= 0 and vel_esti[2] < 0:
                 vel_esti[2] = -vel_esti[2] * 0.70
+                self.landing_point = pos_esit
+                self.landing_after_trajectory.append(pos_esit)
 
             if esti_trajectory[-1][0] > 13:
                 break
@@ -723,7 +736,21 @@ class Ball_Trajectory_Estimation():
             if esti_trajectory[-1][0] == float('-inf') or esti_trajectory[-1][1] == float('-inf') or cnt > 150:
                 return False
 
-
         self.esti_trajectory = esti_trajectory
 
         return self.esti_trajectory
+
+    def get_robot_move_point(self):
+
+        self.landing_after_trajectory_np = np.array(self.landing_after_trajectory)
+
+        print(self.landing_after_trajectory_np.shape)
+
+        if len(self.landing_after_trajectory_np):
+            target_pos_index = np.argmin(abs(1 - self.landing_after_trajectory_np[:,2]))
+
+        else:
+            return self.landing_after_trajectory_np
+
+        return self.landing_after_trajectory_np[target_pos_index]
+

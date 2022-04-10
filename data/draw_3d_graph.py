@@ -181,7 +181,7 @@ Y1 = np.arange(-6, 6, stepY)
 
 X1, Y1 = np.meshgrid(X1, Y1)
 
-# ax.plot_surface(X1, Y1, np.ones(X1.shape) * -0.01,rstride=8, cstride=8, facecolors=img, zorder = 20)
+ax.plot_surface(X1, Y1, np.ones(X1.shape) * -0.01,rstride=8, cstride=8, facecolors=img, zorder = 20)
 
 
 
@@ -212,9 +212,12 @@ draw_trajectory_3D(real_ball_trajectory,measure_data,esti_ball_pos_list,False)
 
 check_list = []
 
-# i, j = list(input().split())
-num = int(input())
-j = 4
+num, j = list(input().split())
+
+num, j = int(num), int(j)
+
+# num = int(input())
+# j = 4
 
 # for i in range(0, len(esti_data)):
 for i in [num, -1]:
@@ -236,20 +239,20 @@ for i in [num, -1]:
     # measure_data,  esti_ball_pos_list = esti_data[int(i)][len(esti_data[int(i)])-1]
 
 
-    if measure_data[0][2] < 0.1 :
-        continue
+    # if measure_data[0][2] < 0.1 :
+    #     continue
 
-    if np.min(np.diff(measure_data, axis = 0)[:,0]) < 0:
-        continue
+    # if np.min(np.diff(measure_data, axis = 0)[:,0]) < 0:
+    #     continue
 
-    else:
-        check_list.append(i)
-        draw_trajectory_3D(real_ball_trajectory,measure_data,esti_ball_pos_list,False)
+    # else:
+    #     check_list.append(i)
+    #     draw_trajectory_3D(real_ball_trajectory,measure_data,esti_ball_pos_list,False)
     draw_trajectory_3D(real_ball_trajectory,measure_data,esti_ball_pos_list,False)
 
 print(check_list)
 
-ax.view_init(0, 89)
+ax.view_init(10, 74)
 
 ax.legend()
 
