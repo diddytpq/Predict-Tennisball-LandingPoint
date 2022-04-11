@@ -34,12 +34,12 @@ class Make_mecanum_left():
         # self.vel_forward = 1.5 #m/s
         # self.vel_lateral = 5.5 #m/s
         self.vel_forward = 1.5 #m/s
-        self.vel_lateral = 3.5 #m/s
+        self.vel_lateral = 5.5 #m/s
 
         self.ball_fly_time = 0.4 #max height time [sec]
         self.vel_forward_apply = 0
         self.vel_lateral_apply = 0
-        self.amax = 5
+        self.amax = 3
 
         self.spawn_pos_z = 1.3
 
@@ -221,11 +221,11 @@ class Make_mecanum_left():
 
     def set_ball_target(self):
 
-        self.x_target = (np.random.randint(8, 12) + np.random.rand())
-        self.y_target = (np.random.randint(-3, 3) + np.random.rand())
+        self.x_target = (np.random.randint(7, 12) + np.random.rand())
+        self.y_target = (np.random.randint(-4.5, 4.5) + np.random.rand())
 
         #self.x_target = 11
-        #self.y_target = -1.5
+        # self.y_target = 5
 
         self.get_position()
         
@@ -433,16 +433,30 @@ class Make_mecanum_right(Make_mecanum_left):
             self.vel_lateral_apply -= self.amax * dt
             if abs(self.vel_lateral_apply) > self.vel_lateral:
                 self.vel_lateral_apply = -self.vel_lateral   
+                
+    def set_x_velocity_based_error(self, dt):
+        self.vel_forward_apply = 1
+
+        if self.x_error < 0: #backward
+            self.vel_forward_apply = self.vel_forward_apply * (self.x_error * 2)
+            if abs(self.vel_forward_apply) > self.vel_forward:
+                self.vel_forward_apply = -self.vel_forward
+
+        else : #forward
+            self.vel_forward_apply = self.vel_forward_apply * (self.x_error * 2)
+            if abs(self.vel_forward_apply) > self.vel_forward:
+                self.vel_forward_apply = self.vel_forward   
+
 
     def set_y_velocity_based_error(self, dt):
         self.vel_lateral_apply = 1
 
-        if self.y_error < 0:
+        if self.y_error < 0: #left
             self.vel_lateral_apply = self.vel_lateral_apply * (-self.y_error * 2)
             if abs(self.vel_lateral_apply) > self.vel_lateral:
                 self.vel_lateral_apply = self.vel_lateral
 
-        else :
+        else : #right
             self.vel_lateral_apply = self.vel_lateral_apply * (-self.y_error * 2)
             if abs(self.vel_lateral_apply) > self.vel_lateral:
                 self.vel_lateral_apply = -self.vel_lateral   
@@ -628,8 +642,9 @@ class Make_mecanum_right(Make_mecanum_left):
                 away_mecanum.stop()
         
             else:
-                self.set_x_velocity(self.dt)
+                # self.set_x_velocity(self.dt)
                 # self.set_y_velocity(self.dt)
+                self.set_x_velocity_based_error(self.dt)
                 self.set_y_velocity_based_error(self.dt)
                 if abs(self.x_error) < 0.01:
                     self.vel_forward_apply = 0

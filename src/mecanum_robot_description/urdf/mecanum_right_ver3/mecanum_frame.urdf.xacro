@@ -54,7 +54,7 @@
         <link name="tennis_robot_net">
             <inertial>
                 <origin
-                    xyz="0.15 0 -0.1"
+                    xyz="0.15 0 0.585"
                     rpy="0 0 0" />
                 <mass
                     value="1" />
@@ -69,10 +69,10 @@
             
             <visual>
                 <origin
-                    xyz="0.15 0 -0.1"
+                    xyz="0.15 0 0.585"
                     rpy="0 0 0" />
                 <geometry>
-                    <mesh filename="package://mecanum_robot_description/meshes/tennis_robot_net1.stl" scale="0.001 0.001 0.001"/>  
+                    <mesh filename="package://mecanum_robot_description/meshes/net500x450.stl" scale="0.01 0.01 0.01"/>  
                 </geometry>
                 <material
                     name="">
@@ -83,17 +83,17 @@
 
             <collision>
                 <origin
-                    xyz="0.15 0 -0.1"
+                    xyz="0.15 0 0.585"
                     rpy="0 0 0" />
                 <geometry>
-                    <mesh filename="package://mecanum_robot_description/meshes/tennis_robot_net1.stl" scale="0.001 0.001 0.001"/>  
+                    <mesh filename="package://mecanum_robot_description/meshes/net500x450.stl" scale="0.01 0.01 0.01"/>  
                 </geometry>
             </collision>
         </link>
 
         <joint name="camera_joint_0" type="fixed">
-            <origin xyz="0.1 0 0.75" rpy="0 0 0"/>
-            <parent link="tennis_robot_net"/>
+            <origin xyz="0.05 0 1.02" rpy="0 0 0"/>
+            <parent link="frame"/>
             <child link="camera_link"/>
         </joint>
         

@@ -162,7 +162,7 @@ def main():
     
     init_robot_pos_x = 13 
     init_robot_pos_y = 0
-    init_robot_pos_z = 0.9
+    init_robot_pos_z = 1.214
 
     ball_disappear_cnt = 0
 

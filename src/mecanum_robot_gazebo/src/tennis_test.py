@@ -51,7 +51,7 @@ if __name__ == '__main__' :
 
         print("ball_landing_point",ball_landing_point)
 
-        ball_landing_point = [13, mecanum_L.y_target - (add_catch_point * np.sin(mecanum_L.yaw_z))]
+        ball_landing_point = [mecanum_L.x_target + add_catch_point * np.cos(mecanum_L.yaw_z), mecanum_L.y_target + (add_catch_point * np.sin(mecanum_L.yaw_z))]
 
         mecanum_R.move_based_mecanum_camera(ball_landing_point[0],ball_landing_point[1] ,mecanum_L)
         # mecanum_R.move(ball_landing_point[0],ball_landing_point[1] ,mecanum_L)
