@@ -57,7 +57,7 @@
                     xyz="0.15 0 0.585"
                     rpy="0 0 0" />
                 <mass
-                    value="1" />
+                    value="8" />
                 <inertia
                     ixx="0.003958333"
                     ixy="0"
@@ -72,7 +72,7 @@
                     xyz="0.15 0 0.585"
                     rpy="0 0 0" />
                 <geometry>
-                    <mesh filename="package://mecanum_robot_description/meshes/net500x450.stl" scale="0.01 0.01 0.01"/>  
+                    <mesh filename="package://mecanum_robot_description/meshes/net450x450.stl" scale="0.001 0.001 0.001"/>  
                 </geometry>
                 <material
                     name="">
@@ -86,7 +86,7 @@
                     xyz="0.15 0 0.585"
                     rpy="0 0 0" />
                 <geometry>
-                    <mesh filename="package://mecanum_robot_description/meshes/net500x450.stl" scale="0.01 0.01 0.01"/>  
+                    <mesh filename="package://mecanum_robot_description/meshes/net450x450.stl" scale="0.001 0.001 0.001"/>  
                 </geometry>
             </collision>
         </link>

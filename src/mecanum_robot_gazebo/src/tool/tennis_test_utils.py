@@ -33,7 +33,7 @@ class Make_mecanum_left():
 
         # self.vel_forward = 1.5 #m/s
         # self.vel_lateral = 5.5 #m/s
-        self.vel_forward = 1.5 #m/s
+        self.vel_forward = 2.0 #m/s
         self.vel_lateral = 5.5 #m/s
 
         self.ball_fly_time = 0.4 #max height time [sec]
