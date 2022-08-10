@@ -70,7 +70,7 @@
   </node>
 
   <!-- Joystick node -->
-  <node name="joy" pkg="joy" type="joy_node"/>
+  <!-- <node name="joy" pkg="joy" type="joy_node"/> -->
 
 
 

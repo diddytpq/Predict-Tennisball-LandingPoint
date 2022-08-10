@@ -531,10 +531,10 @@ def cal_landing_point(pos_list, dT):
 
     if len(pos_list) < 2 : return [np.nan, np.nan, np.nan]
 
-    if dT < 0.033:
-        dT = 0.033
+    # if dT < 0.033:
+    #     dT = 0.033
 
-    dT = 0.04
+    # dT = 0.04
 
     pos = pos_list[-1]
 

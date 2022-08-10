@@ -78,6 +78,8 @@ padding_x = int((1500 - tennis_court_img.shape[1]) /3)
 WHITE = [255,255,255]
 tennis_court_img= cv2.copyMakeBorder(tennis_court_img.copy(),padding_y,padding_y,padding_x,padding_x,cv2.BORDER_CONSTANT,value=WHITE)
 
+# tennis_court_img = cv2.resize(tennis_court_img,(0,0), fx=0.5, fy=0.5, interpolation = cv2.INTER_AREA) # 1276,600,0
+
 
 disappear_cnt = 0
 ball_pos_jrajectory = []
@@ -210,15 +212,17 @@ def main():
     rospy.init_node('Predict_ball_landing_point', anonymous=True)
     pub = rospy.Publisher('/esti_landing_point',Float64MultiArray, queue_size = 10)
     array2data = Float64MultiArray()
+    t1 = time.time()
 
     while True:
 
         camera_data = ray.get(img_buffer.get_img.remote())
 
-        if len(camera_data[0]):
+        if len(camera_data[0]) and len(camera_data[1]):
+
+            t2 = time.time()
 
             print("-----------------------------------------------------------------")
-            t1 = time.time()
             ball_pose_x, ball_pose_y, ball_pose_z, ball_vel_x, ball_vel_y, ball_vel_z = get_ball_status()
 
             
@@ -412,6 +416,13 @@ def main():
             if len(ball_pos) and (ball_pos[0] < - 2.5):
                 #print("ball_pos_jrajectory = ",ball_pos_jrajectory)
 
+                dT = time.time() - t1
+
+                if dT < 0.03:
+                    dT = 0.03
+
+                t1 = time.time()
+
                 ball_landing_point = cal_landing_point(ball_pos_jrajectory, dT)
 
                 draw_point_court(tennis_court_img, ball_pos, padding_x, padding_y)
@@ -427,13 +438,13 @@ def main():
                 array2data.data = ball_landing_point
                 pub.publish(array2data)
 
-            t2 = time.time()
-
-
             #cv2.imshow('person_tracking_img',person_tracking_img)
             #cv2.imshow('ball_detect_img',ball_detect_img)
 
-            cv2.imshow('tennis_court_img',tennis_court_img)
+
+            tennis_court_img_small = cv2.resize(tennis_court_img,(712, 405), interpolation = cv2.INTER_AREA) # 1276,600,0
+
+            cv2.imshow('tennis_court_img',tennis_court_img_small)
             cv2.imshow('frame_main',frame_main)
 
             #cv2.imshow('frame_record',frame_record)
@@ -442,9 +453,9 @@ def main():
 
                 out.write(frame_record)
 
-            dT = t2-t1
+            # dT = t2-t1
 
-            print("FPS : " , 1/(t2-t1))
+            print("FPS : " , 1/(time.time() - t2))
 
 
             key = cv2.waitKey(1)
@@ -459,6 +470,9 @@ def main():
 
                 WHITE = [255,255,255]
                 tennis_court_img= cv2.copyMakeBorder(tennis_court_img.copy(),padding_y,padding_y,padding_x,padding_x,cv2.BORDER_CONSTANT,value=WHITE)
+
+                # tennis_court_img = cv2.resize(tennis_court_img,(0,0), fx=0.5, fy=0.5, interpolation = cv2.INTER_AREA) # 1276,600,0
+
 
                 #print(tennis_court_img.shape)
 

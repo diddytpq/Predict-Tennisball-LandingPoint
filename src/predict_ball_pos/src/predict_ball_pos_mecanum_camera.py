@@ -178,6 +178,8 @@ def main():
         camera_data = ray.get(img_buffer.get_img.remote())
 
         if len(camera_data[0]):
+
+            t1 = time.time()
             # print('---------------------------------------------------')
 
             #ball_x, ball_y, ball_z = get_ball_status()
@@ -281,9 +283,8 @@ def main():
                 BTE.clear()
                 # print(len(esti_data))
 
-            t1 = time.time()
 
-            #print("FPS : ",1 / (time.time() - t1))
+            print("FPS : ",1 / (time.time() - t1))
 
             cv2.imshow("img",frame)
             #cv2.imshow("h_pred",h_pred)

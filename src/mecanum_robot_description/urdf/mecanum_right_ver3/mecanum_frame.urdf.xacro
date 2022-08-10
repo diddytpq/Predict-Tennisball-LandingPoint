@@ -45,13 +45,13 @@
         </link>
 
 
-        <joint name="camera_body_joint" type="fixed">
+        <!--<joint name="camera_body_joint" type="fixed">
             <origin xyz="0 0 0" rpy="0 0 0" />
             <parent link="frame"/>
             <child link="tennis_robot_net" />
           </joint>
 
-        <link name="tennis_robot_net">
+         <link name="tennis_robot_net">
             <inertial>
                 <origin
                     xyz="0.15 0 0.585"
@@ -89,7 +89,7 @@
                     <mesh filename="package://mecanum_robot_description/meshes/net450x450.stl" scale="0.001 0.001 0.001"/>  
                 </geometry>
             </collision>
-        </link>
+        </link> -->
 
         <joint name="camera_joint_0" type="fixed">
             <origin xyz="0.05 0 1.02" rpy="0 0 0"/>
