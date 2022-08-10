@@ -39,6 +39,8 @@ gedit src/ball_description/src/ball_airdynamic.py
 
 ```bash
 roslaunch mecanum_robot_gazebo tennis_world.launch
+roslaunch mecanum_robot_gazebo tennis_ver3.launch
+
 ```
 
 <p align="center">
