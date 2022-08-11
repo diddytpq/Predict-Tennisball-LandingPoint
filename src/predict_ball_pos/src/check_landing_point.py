@@ -99,7 +99,8 @@ if __name__ == "__main__" :
 
         img = np.zeros((10,10,3), np.uint8)
 
-        rospy.Subscriber("esti_landing_point", Float64MultiArray, callback_landing_point)
+        # rospy.Subscriber("esti_landing_point", Float64MultiArray, callback_landing_point)
+        rospy.Subscriber("/esti_landing_point_robot_camera", Float64MultiArray, callback_landing_point)
 
         while True:
             ball_stats = gat_ball_stats()
@@ -107,7 +108,7 @@ if __name__ == "__main__" :
             if check_bounce(ball_stats.pose.position.z) and len(esti_ball_landing_point):
                 #real_ball_landing_point_list.append([np.round(ball_stats.pose.position.x,3), np.round(ball_stats.pose.position.y,3), np.round(ball_stats.pose.position.z,3)])
                 real_ball_landing_point_list.append([np.round(ball_stats.pose.position.x,3), np.round(ball_stats.pose.position.y,3)])
-                esti_ball_landing_point_list.append(np.mean(np.array(esti_ball_landing_point), axis = 0)[:2])
+                esti_ball_landing_point_list.append(np.mean(np.array(esti_ball_landing_point[-5:]), axis = 0)[:2])
 
                 print(esti_ball_landing_point)
                 print(len(esti_ball_landing_point))

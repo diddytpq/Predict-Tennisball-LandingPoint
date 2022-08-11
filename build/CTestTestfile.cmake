@@ -1,6 +1,6 @@
 # CMake generated Testfile for 
-# Source directory: /home/drcl/workspace/Predict-Tennisball-LandingPoint/src
-# Build directory: /home/drcl/workspace/Predict-Tennisball-LandingPoint/build
+# Source directory: /home/yang/workspace/Predict-Tennisball-LandingPoint/src
+# Build directory: /home/yang/workspace/Predict-Tennisball-LandingPoint/build
 # 
 # This file includes the relevant testing commands required for 
 # testing this directory and lists subdirectories to be tested as well.

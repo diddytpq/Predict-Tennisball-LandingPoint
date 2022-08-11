@@ -1,3 +1,4 @@
+from cmath import isnan
 from pathlib import Path
 import sys
 
@@ -152,6 +153,9 @@ def main():
     rospy.init_node('predict_ball_pos_node', anonymous=True)
 
     pub = rospy.Publisher('/esti_ball_pos',Float64MultiArray, queue_size = 1)
+    pub_landing_point = rospy.Publisher('/esti_landing_point_robot_camera',Float64MultiArray, queue_size = 1)
+
+
     array2data = Float64MultiArray()
 
     input_img_buffer = []
@@ -251,6 +255,11 @@ def main():
                             # print((measure_data))
                             # print(len(esti_ball_trajectory))
                             # real_ball_trajectory.append([ball_x, ball_y, ball_z])
+                            print("ball landing point :",BTE.landing_point)
+
+                            if np.isnan(BTE.landing_point[0]) == False:
+                                array2data.data = BTE.landing_point
+                                pub_landing_point.publish(array2data)
 
                             
                             # if BTE.bounce_flag == 0:

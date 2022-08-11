@@ -1,4 +1,4 @@
-#!/home/drcl/anaconda3/envs/yoseph/bin/python3
+#!/usr/bin/env python
 
 import rospy
 import sys

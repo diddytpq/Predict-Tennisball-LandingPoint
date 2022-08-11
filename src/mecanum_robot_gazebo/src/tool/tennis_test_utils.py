@@ -609,155 +609,155 @@ class Make_mecanum_right(Make_mecanum_left):
 
         self.esti_ball_landing_point_robot = [data.data[0], data.data[1]]
 
-        # print("target_ball_pos = ",self.esti_ball_landing_point)
+        print("target_ball_pos = ",self.esti_ball_landing_point)
 
-    # def move_based_mecanum_camera(self, x_target, y_target, away_mecanum):
-    #     t0 = time.time()
-    #     rospy.Subscriber("esti_ball_pos", Float64MultiArray, self.callback_get_ball_pos)
+    def move_based_mecanum_camera(self, x_target, y_target, away_mecanum):
+        t0 = time.time()
+        rospy.Subscriber("esti_ball_pos", Float64MultiArray, self.callback_get_ball_pos)
 
-    #     while True:
-    #         self.get_position()
+        while True:
+            self.get_position()
 
-    #         # if np.isnan(self.init_robot_pos[0]):
-    #         #     self.init_robot_pos = [self.object_pose.position.x, self.object_pose.position.y]
+            # if np.isnan(self.init_robot_pos[0]):
+            #     self.init_robot_pos = [self.object_pose.position.x, self.object_pose.position.y]
 
-    #         #return_home(away_mecanum)
+            #return_home(away_mecanum)
 
-    #         if self.ball_catch_check():
+            if self.ball_catch_check():
 
-    #             self.stop()
-    #             away_mecanum.stop()
-    #             break 
+                self.stop()
+                away_mecanum.stop()
+                break 
 
-    #         # print("esti_ball_pos = ",self.esti_ball_landing_point)
+            # print("esti_ball_pos = ",self.esti_ball_landing_point)
             
-    #         if np.isnan(self.esti_ball_landing_point[0]) == False:
-    #              x_target, y_target = self.esti_ball_landing_point[0], self.esti_ball_landing_point[1]
+            if np.isnan(self.esti_ball_landing_point[0]) == False:
+                 x_target, y_target = self.esti_ball_landing_point[0], self.esti_ball_landing_point[1]
 
-    #         t1 = time.time()
-    #         self.dt = t1 - t0
+            t1 = time.time()
+            self.dt = t1 - t0
 
-    #         t0 = time.time()
-
-    #         #print("dt : ", self.dt)
-
-    #         self.get_position()
-            
-    #         self.x_error = self.object_pose.position.x -  x_target 
-    #         self.y_error =  y_target - self.object_pose.position.y
-            
-    #         print("robot_pos = ", self.object_pose.position.x, self.object_pose.position.y)
-
-    #         print("robot error = ",self.x_error, self.y_error)
-    #         if (abs(self.x_error) <0.01 and abs(self.y_error)< 0.01) :
-    #             self.stop()
-    #             away_mecanum.stop()
-        
-    #         else:
-    #             # self.set_x_velocity(self.dt)
-    #             # self.set_y_velocity(self.dt)
-    #             self.set_x_velocity_based_error(self.dt)
-    #             self.set_y_velocity_based_error(self.dt)
-    #             if abs(self.x_error) < 0.01:
-    #                 self.vel_forward_apply = 0
-
-    #             if abs(self.y_error) < 0.01:
-    #                 self.vel_lateral_apply = 0
-
-
-    #             self.twist = Twist()
-    #             #print(self.vel_forward_apply, self.vel_lateral_apply)
-                
-    #             self.twist.linear.x = self.vel_forward_apply
-    #             self.twist.linear.y = self.vel_lateral_apply
-    #             self.twist.linear.z = 0
-
-    #             self.wheel_vel = mecanum_wheel_velocity(self.twist.linear.x, self.twist.linear.y, self.twist.angular.z)
-
-    #             self.pub.publish(self.twist)
-    #             self.pub_wheel_vel_1.publish(self.wheel_vel[0,:])
-    #             self.pub_wheel_vel_2.publish(self.wheel_vel[1,:])
-    #             self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
-    #             self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
-
-    def move_based_mecanum_camera(self,add_catch_point,away_mecanum):
             t0 = time.time()
 
-            rospy.Subscriber("/esti_landing_point", Float64MultiArray, self.callback_landing_point)
-            rospy.Subscriber("esti_ball_pos", Float64MultiArray, self.callback_get_ball_pos)
+            #print("dt : ", self.dt)
 
-            while True:
-                self.get_position()
+            self.get_position()
+            
+            self.x_error = self.object_pose.position.x -  x_target 
+            self.y_error =  y_target - self.object_pose.position.y
+            
+            print("robot_pos = ", self.object_pose.position.x, self.object_pose.position.y)
 
-                # if np.isnan(self.init_robot_pos[0]):
-                #     self.init_robot_pos = [self.object_pose.position.x, self.object_pose.position.y]
+            print("robot error = ",self.x_error, self.y_error)
+            if (abs(self.x_error) <0.01 and abs(self.y_error)< 0.01) :
+                self.stop()
+                away_mecanum.stop()
+        
+            else:
+                # self.set_x_velocity(self.dt)
+                # self.set_y_velocity(self.dt)
+                self.set_x_velocity_based_error(self.dt)
+                self.set_y_velocity_based_error(self.dt)
+                if abs(self.x_error) < 0.01:
+                    self.vel_forward_apply = 0
 
-                #return_home(away_mecanum)
+                if abs(self.y_error) < 0.01:
+                    self.vel_lateral_apply = 0
 
-                if self.ball_catch_check():
 
-                    self.stop()
-                    away_mecanum.stop()
-                    self.esti_ball_landing_point[0] = [np.nan]
-                    self.esti_ball_landing_point_robot[0] = [np.nan]
-                    break 
-
-                # print("esti_ball_pos = ",self.esti_ball_landing_point)
+                self.twist = Twist()
+                #print(self.vel_forward_apply, self.vel_lateral_apply)
                 
-                if np.isnan(self.esti_ball_landing_point[0]) == False:
-                    self.x_move_target, self.y_move_target = self.esti_ball_landing_point[0] + add_catch_point, self.esti_ball_landing_point[1]
+                self.twist.linear.x = self.vel_forward_apply
+                self.twist.linear.y = self.vel_lateral_apply
+                self.twist.linear.z = 0
 
-                if np.isnan(self.esti_ball_landing_point_robot[0]) == False:
-                    self.x_move_target, self.y_move_target = self.esti_ball_landing_point_robot[0], self.esti_ball_landing_point_robot[1]
+                self.wheel_vel = mecanum_wheel_velocity(self.twist.linear.x, self.twist.linear.y, self.twist.angular.z)
 
-                t1 = time.time()
-                self.dt = t1 - t0
+                self.pub.publish(self.twist)
+                self.pub_wheel_vel_1.publish(self.wheel_vel[0,:])
+                self.pub_wheel_vel_2.publish(self.wheel_vel[1,:])
+                self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
+                self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
 
-                t0 = time.time()
+    # def move_based_mecanum_camera(self,add_catch_point,away_mecanum):
+    #         t0 = time.time()
 
-                #print("dt : ", self.dt)
+    #         rospy.Subscriber("/esti_landing_point", Float64MultiArray, self.callback_landing_point)
+    #         rospy.Subscriber("esti_ball_pos", Float64MultiArray, self.callback_get_ball_pos)
 
-                self.get_position()
+    #         while True:
+    #             self.get_position()
 
-                if np.isnan(self.x_move_target) == False :
+    #             # if np.isnan(self.init_robot_pos[0]):
+    #             #     self.init_robot_pos = [self.object_pose.position.x, self.object_pose.position.y]
 
-                    self.x_error = self.object_pose.position.x -  self.x_move_target
-                    self.y_error =  self.y_move_target - self.object_pose.position.y
+    #             #return_home(away_mecanum)
+
+    #             if self.ball_catch_check():
+
+    #                 self.stop()
+    #                 away_mecanum.stop()
+    #                 self.esti_ball_landing_point[0] = [np.nan]
+    #                 self.esti_ball_landing_point_robot[0] = [np.nan]
+    #                 break 
+
+    #             # print("esti_ball_pos = ",self.esti_ball_landing_point)
+                
+    #             if np.isnan(self.esti_ball_landing_point[0]) == False:
+    #                 self.x_move_target, self.y_move_target = self.esti_ball_landing_point[0] + add_catch_point, self.esti_ball_landing_point[1]
+
+    #             if np.isnan(self.esti_ball_landing_point_robot[0]) == False:
+    #                 self.x_move_target, self.y_move_target = self.esti_ball_landing_point_robot[0], self.esti_ball_landing_point_robot[1]
+
+    #             t1 = time.time()
+    #             self.dt = t1 - t0
+
+    #             t0 = time.time()
+
+    #             #print("dt : ", self.dt)
+
+    #             self.get_position()
+
+    #             if np.isnan(self.x_move_target) == False :
+
+    #                 self.x_error = self.object_pose.position.x -  self.x_move_target
+    #                 self.y_error =  self.y_move_target - self.object_pose.position.y
                     
-                    # print("robot_pos = ", self.object_pose.position.x, self.object_pose.position.y)
-                    print("ball_landing_point = ", self.x_move_target, self.y_move_target)
-                    print("robot error = ",self.x_error, self.y_error)
+    #                 # print("robot_pos = ", self.object_pose.position.x, self.object_pose.position.y)
+    #                 print("ball_landing_point = ", self.x_move_target, self.y_move_target)
+    #                 print("robot error = ",self.x_error, self.y_error)
 
-                    if (abs(self.x_error) <0.01 and abs(self.y_error)< 0.01) :
-                        self.stop()
-                        away_mecanum.stop()
+    #                 if (abs(self.x_error) <0.01 and abs(self.y_error)< 0.01) :
+    #                     self.stop()
+    #                     away_mecanum.stop()
                 
-                    else:
-                        # self.set_x_velocity(self.dt)
-                        # self.set_y_velocity(self.dt)
-                        self.set_x_velocity_based_error(self.dt)
-                        self.set_y_velocity_based_error(self.dt)
-                        if abs(self.x_error) < 0.01:
-                            self.vel_forward_apply = 0
+    #                 else:
+    #                     # self.set_x_velocity(self.dt)
+    #                     # self.set_y_velocity(self.dt)
+    #                     self.set_x_velocity_based_error(self.dt)
+    #                     self.set_y_velocity_based_error(self.dt)
+    #                     if abs(self.x_error) < 0.01:
+    #                         self.vel_forward_apply = 0
 
-                        if abs(self.y_error) < 0.01:
-                            self.vel_lateral_apply = 0
+    #                     if abs(self.y_error) < 0.01:
+    #                         self.vel_lateral_apply = 0
 
 
-                        self.twist = Twist()
-                        #print(self.vel_forward_apply, self.vel_lateral_apply)
+    #                     self.twist = Twist()
+    #                     #print(self.vel_forward_apply, self.vel_lateral_apply)
                         
-                        self.twist.linear.x = self.vel_forward_apply
-                        self.twist.linear.y = self.vel_lateral_apply
-                        self.twist.linear.z = 0
+    #                     self.twist.linear.x = self.vel_forward_apply
+    #                     self.twist.linear.y = self.vel_lateral_apply
+    #                     self.twist.linear.z = 0
 
-                        self.wheel_vel = mecanum_wheel_velocity(self.twist.linear.x, self.twist.linear.y, self.twist.angular.z)
+    #                     self.wheel_vel = mecanum_wheel_velocity(self.twist.linear.x, self.twist.linear.y, self.twist.angular.z)
 
-                        self.pub.publish(self.twist)
-                        self.pub_wheel_vel_1.publish(self.wheel_vel[0,:])
-                        self.pub_wheel_vel_2.publish(self.wheel_vel[1,:])
-                        self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
-                        self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
+    #                     self.pub.publish(self.twist)
+    #                     self.pub_wheel_vel_1.publish(self.wheel_vel[0,:])
+    #                     self.pub_wheel_vel_2.publish(self.wheel_vel[1,:])
+    #                     self.pub_wheel_vel_3.publish(self.wheel_vel[2,:])
+    #                     self.pub_wheel_vel_4.publish(self.wheel_vel[3,:])
 
 def return_home(home_mecanum):
 
