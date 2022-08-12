@@ -54,13 +54,15 @@ if __name__ == '__main__' :
         # mecanum_R.move(ball_landing_point[0],ball_landing_point[1] ,mecanum_L)
         # mecanum_R.move_base_netpost_camera(add_catch_point, mecanum_L)
         # mecanum_R.move_based_mecanum_camera(add_catch_point, mecanum_L)
-        mecanum_R.move_based_mecanum_camera(ball_landing_point[0],ball_landing_point[1] ,mecanum_L)
+        # mecanum_R.move_based_mecanum_camera(ball_landing_point[0],ball_landing_point[1] ,mecanum_L)
 
 
         t0 = time.time()
         while True:
             # return_home(mecanum_R)
-            if (time.time() - t0) > 3: break
+            if (time.time() - t0) > 2: 
+                mecanum_R.del_ball()
+                break
 
         #check = input()
 

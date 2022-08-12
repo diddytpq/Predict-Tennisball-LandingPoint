@@ -7,8 +7,8 @@
 # new environment variables
 
 # modified environment variables
-export CMAKE_PREFIX_PATH="/home/yang/workspace/Predict-Tennisball-LandingPoint/devel:$CMAKE_PREFIX_PATH"
-export LD_LIBRARY_PATH='/opt/ros/noetic/lib:/usr/local/cuda-11.3/lib64'
-export PWD='/home/yang/workspace/Predict-Tennisball-LandingPoint/build'
-export ROSLISP_PACKAGE_DIRECTORIES='/home/yang/workspace/Predict-Tennisball-LandingPoint/devel/share/common-lisp'
-export ROS_PACKAGE_PATH="/home/yang/workspace/Predict-Tennisball-LandingPoint/src:$ROS_PACKAGE_PATH"
+export CMAKE_PREFIX_PATH="/home/drcl/workspace/Predict-Tennisball-LandingPoint/devel:$CMAKE_PREFIX_PATH"
+export LD_LIBRARY_PATH='/opt/ros/noetic/lib:/usr/local/cuda-11.5/lib64:/usr/local/cuda-11.5/lib64'
+export PWD='/home/drcl/workspace/Predict-Tennisball-LandingPoint/build'
+export ROSLISP_PACKAGE_DIRECTORIES='/home/drcl/workspace/Predict-Tennisball-LandingPoint/devel/share/common-lisp'
+export ROS_PACKAGE_PATH="/home/drcl/workspace/Predict-Tennisball-LandingPoint/src:$ROS_PACKAGE_PATH"

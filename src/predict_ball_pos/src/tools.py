@@ -602,7 +602,7 @@ class Ball_Trajectory_Estimation():
 
         self.esti_trajectory = []
 
-        self.landing_point = np.NaN
+        self.landing_point = [np.NaN]
 
     def clear(self):
 
@@ -615,7 +615,7 @@ class Ball_Trajectory_Estimation():
         self.esti_trajectory = []
         self.landing_after_trajectory = []
 
-        self.landing_point = np.NaN
+        self.landing_point = [np.NaN]
 
 
     def cal_rebound_trajectory(self, pos_list, dt):

@@ -299,7 +299,7 @@ def main():
             #cv2.imshow("h_pred",h_pred)
 
             key = cv2.waitKey(1)
-            if key == 27 or len(esti_data) == 100 :
+            if key == 27:
 
                 cv2.destroyAllWindows()
                 ray.shutdown()

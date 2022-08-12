@@ -108,8 +108,8 @@ if __name__ == "__main__" :
             if check_bounce(ball_stats.pose.position.z) and len(esti_ball_landing_point):
                 #real_ball_landing_point_list.append([np.round(ball_stats.pose.position.x,3), np.round(ball_stats.pose.position.y,3), np.round(ball_stats.pose.position.z,3)])
                 real_ball_landing_point_list.append([np.round(ball_stats.pose.position.x,3), np.round(ball_stats.pose.position.y,3)])
-                esti_ball_landing_point_list.append(np.mean(np.array(esti_ball_landing_point[-5:]), axis = 0)[:2])
-
+                # esti_ball_landing_point_list.append(np.mean(np.array(esti_ball_landing_point[-3]), axis = 0)[:2])
+                esti_ball_landing_point_list.append(np.array(esti_ball_landing_point[-2])[:2])
                 print(esti_ball_landing_point)
                 print(len(esti_ball_landing_point))
                 print(np.mean(np.array(esti_ball_landing_point)))

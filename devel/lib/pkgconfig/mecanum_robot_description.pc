@@ -1,4 +1,4 @@
-prefix=/home/yang/workspace/Predict-Tennisball-LandingPoint/devel
+prefix=/home/drcl/workspace/Predict-Tennisball-LandingPoint/devel
 
 Name: mecanum_robot_description
 Description: Description of mecanum_robot_description
