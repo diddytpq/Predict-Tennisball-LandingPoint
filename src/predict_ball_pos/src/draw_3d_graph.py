@@ -1,3 +1,15 @@
+
+from pathlib import Path
+import sys
+
+import pickle
+import time
+
+FILE = Path(__file__).absolute()
+sys.path.append(FILE.parents[0].as_posix())  # add code to path
+
+path = str(FILE.parents[0])
+
 from subprocess import check_call
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
@@ -10,18 +22,6 @@ from matplotlib.cbook import get_sample_data
 import mpl_toolkits.mplot3d.art3d as art3d
 
 import cv2
-from tools import cal_rebound_trajectory
-
-from pathlib import Path
-import sys
-
-import pickle
-import time
-
-FILE = Path(__file__).absolute()
-sys.path.append(FILE.parents[0].as_posix())  # add code to path
-
-path = str(FILE.parents[0])
 
 
 def draw_point_3D(real_ball_trajectory_list, estimation_ball_trajectory_list, label = False):

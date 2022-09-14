@@ -45,7 +45,73 @@
             </inertial>
         </link>
 
+        <joint name="camera_body_joint" type="fixed">
+            <origin xyz="0 0 0.05" rpy="0 0 0" />
+            <parent link="frame_left"/>
+            <child link="camera_body" />
+        </joint>
 
+        <link name="camera_body">
+            <inertial>
+                <origin
+                    xyz="0 0 0.35"
+                    rpy="0 0 0" />
+                <mass
+                    value="3" />
+                <inertia
+                    ixx="0.003958333"
+                    ixy="0"
+                    ixz="0"
+                    iyy="0.003958333"
+                    iyz="0"
+                    izz="0.02" />
+            </inertial>
+            
+            <visual>
+                <origin
+                    xyz="0.0 0 0.35"
+                    rpy="0 0 0" />
+                <geometry>
+                    <cylinder length="0.8" radius="0.05"/> 
+                </geometry>
+                <material
+                    name="">
+                    <color
+                    rgba="0.84706 0.83922 0.83922 1" />
+                </material>
+            </visual>
+
+            <collision>
+                <origin
+                    xyz="0.0 0 0.35"
+                    rpy="0 0 0" />
+                <geometry>
+                    <cylinder length="0.8" radius="0.05"/> 
+                </geometry>
+            </collision>
+        </link> -->
+
+        <joint name="camera_joint_0" type="fixed">
+            <origin xyz="0.0 0 0.80542" rpy="0 0 0"/>
+            <parent link="frame_left"/>
+            <child link="camera_link"/>
+        </joint>
+        
+
+        <link name="camera_link">
+            <visual>
+                <origin xyz="0. 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="0.1 0.2 0.1" />
+                </geometry>
+            </visual>
+            <collision>
+                <origin xyz="0. 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="0.1 0.2 0.1" />
+                </geometry>
+            </collision>   
+        </link>
 
         <gazebo reference="frame_left">
             <mu1 value="1.0"/>

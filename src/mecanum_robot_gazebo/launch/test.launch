@@ -24,7 +24,7 @@
 
   <!-- Load the URDF into ROS parameter server -->
   <param name="robot_description" command="$(find xacro)/xacro  '$(find mecanum_robot_description)/urdf/mecanum_left_ver2/mecanum.urdf.xacro'"/>
-  <param name="robot_description_1" command="$(find xacro)/xacro  '$(find mecanum_robot_description)/urdf/mecanum_right_ver3/mecanum_1.urdf.xacro'"/>
+  <param name="robot_description_1" command="$(find xacro)/xacro  '$(find mecanum_robot_description)/urdf/mecanum_right_ver2/mecanum_1.urdf.xacro'"/>
 
   <param name="camera_left_description" textfile="$(find ball_description)/urdf/camera/camera_left.urdf"/>
   <param name="camera_right_description" textfile="$(find ball_description)/urdf/camera/camera_right.urdf"/>
